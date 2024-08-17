@@ -359,7 +359,7 @@ def main():
                 error,tree = sample.update_denial()
                 print(type(uploaded_files))
                 sample = denial_class()
-                #placeholder1.dataframe(sample.display_data())
+                placeholder1.dataframe(sample.display_data())
                 
             else:
                 st.write(f"Unknown file type: {file_name}")
