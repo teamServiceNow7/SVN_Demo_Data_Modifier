@@ -357,8 +357,7 @@ def main():
                 sample.set_new_source(new_source if update_button else None)
                 sample.set_new_date(new_date if update_button else None)
                 error,tree = sample.update_denial()
-                print(type(uploaded_files))
-                sample = denial_class()
+              
                 placeholder1.dataframe(sample.display_data())
                 
             else:
