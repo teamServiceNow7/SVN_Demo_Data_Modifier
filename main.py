@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import time
 import pandas as pd
 #import plotly_express as px
+import plotly.express as px
 from PIL import Image
 from io import BytesIO
 from datetime import datetime, timedelta
@@ -357,8 +358,8 @@ def main():
                 sample.set_new_source(new_source if update_button else None)
                 sample.set_new_date(new_date if update_button else None)
                 error,tree = sample.update_denial()
-                placeholder1.dataframe(sample.display_data())
-                """
+                #placeholder1.dataframe(sample.display_data())
+                
                 with placeholder1:
                     df = sample.display_data()
                 
@@ -399,7 +400,7 @@ def main():
                         container3 = st.container(border=True, height=300)
                         container3.subheader("Users")
                         container3.write(df['computer'].tolist())
-                    """
+                    
                 
             else:
                 st.write(f"Unknown file type: {file_name}")
