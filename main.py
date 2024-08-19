@@ -413,7 +413,7 @@ def main():
 
     
         if usage:
-            usg = usage_class()
+            usg = usage_class(tree,root,min_range,max_range,db_path,new_source if update_button else None, new_date if update_button else None, total_idle_dur if update_button else None, total_session_dur if update_button else None)
             usg.set_tree(tree)
             usg.set_root(root)
             usg.set_min(min_range)
@@ -426,7 +426,7 @@ def main():
             
         elif concurrent:
 
-            conc = concurrent_class()
+            conc = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
             conc.set_tree(tree)
             conc.set_root(root)
             conc.set_min(min_range)
@@ -437,7 +437,7 @@ def main():
     
         elif denial:
             print(type(uploaded_files))
-            deny = denial_class()
+            deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
             deny.set_tree(tree)
             deny.set_root(root)
             deny.set_min(min_range)
