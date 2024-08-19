@@ -14,6 +14,7 @@ class concurrent_class:
         self.new_source = new_source
         self.new_date = new_date
         self.license_name = None
+        self.normalized_name = None
         self.source = None
         self.usage_date = None
         self.created_on = None
@@ -37,6 +38,7 @@ class concurrent_class:
             print(f"Connected to the existing database '{self.db_path}'.")
             
         self.create_tables()
+        self.insert_data()
 
     def create_tables(self):
         """Create tables if they do not exist."""
@@ -45,12 +47,28 @@ class concurrent_class:
             CREATE TABLE IF NOT EXISTS concurrent(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 license_name TEXT,
+                normalized_name TEXT,
                 source TEXT,
                 usage_date TEXT,
                 created_on TEXT,
                 updated_on TEXT
             )
         ''')
+        self.connection.commit()
+    
+    def insert_data(self):
+        #Populate the table with data
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
+            self.license_name = elem.find('license').text
+            self.normalized_name = elem.find('license').get('display_value')
+            self.source = elem.find('source').text
+            self.usage_date = elem.find('usage_date').text
+            self.created_on = elem.find('sys_created_on').text
+            self.updated_on = elem.find('sys_updated_on').text
+            self.cursor.execute('''
+                                INSERT INTO concurrent(license_name, normalized_name, source, usage_date, created_on, updated_on)
+                                VALUES(?, ?, ?, ?, ?, ?)
+                                ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
 
     def close(self):
