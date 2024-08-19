@@ -1,5 +1,6 @@
 import streamlit as st
 import xml.etree.ElementTree as ET
+import sqlite3
 import time
 import pandas as pd
 from PIL import Image
@@ -8,7 +9,6 @@ from datetime import datetime, timedelta
 from usage_class import usage_class
 from concurrent_class import concurrent_class
 from denial_class import denial_class
-import sqlite3
 
  
 
@@ -208,6 +208,83 @@ sidebar_bg_img = """
     </style>                 
             
 """
+
+def upload_xml(db_path, table_name, xml_column, xml_file_path):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+   
+    # Create table if it does not exist
+    cursor.execute(f'''
+        CREATE TABLE IF NOT EXISTS {table_name} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            {xml_column} BLOB
+        )
+    ''')
+ 
+    # Read XML file
+    with open(xml_file_path, 'rb') as file:
+        xml_data = file.read()
+ 
+    # Insert XML data into the database
+    cursor.execute(f'''
+        INSERT INTO {table_name} ({xml_column}) VALUES (?)
+    ''', (xml_data,))
+   
+    # Commit and close the connection
+    conn.commit()
+    conn.close()
+    print(f"XML file {xml_file_path} uploaded to database.")
+ 
+def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
+    # Connect to the SQLite database
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+   
+    try:
+        # Query to fetch XML data
+        cursor.execute(f'''
+            SELECT {xml_column} FROM {table_name} WHERE id = ?
+        ''', (record_id,))
+       
+        # Fetch the data
+        xml_data = cursor.fetchone()[0]
+ 
+        # Check if data was retrieved
+        if xml_data:
+            #Save XML data to a file
+            with open(output_file_path, 'wb') as file:
+                file.write(xml_data)
+            print(f"XML data saved to {output_file_path}.")
+            return xml_data
+        else:
+            print("No data found.")
+    except sqlite3.Error as e:
+        print(f"Error retrieving XML data: {e}")
+    finally:
+        # Close the connection
+        conn.close()
+
+# Example usage for uploading XML
+db_path = 'my_database.db'
+table_name = 'xml_table'
+xml_column = 'xml_data'
+ 
+xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
+#upload_xml(db_path, table_name, xml_column, xml_file_path)
+ 
+# Example usage for retrieving XML
+xml_files = []
+record_id = 1
+output_file_path = 'output_file.xml'
+xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
+
+record_id = 3
+xml_data1 = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
+ 
+record_id = 4
+xml_data2 = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
+
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
     modified_xml = BytesIO()
@@ -244,129 +321,156 @@ def main():
         file_names = [file.name for file in uploaded_files]
         selected_file_name = st.sidebar.selectbox("Select a file to focus on", file_names)
 
-       
+        
         selected_file = None
         for uploaded_file in uploaded_files:
             if uploaded_file.name == selected_file_name:
                 selected_file = uploaded_file
                 break
-         
-        if selected_file:
-           
-            file_name = selected_file.name
+    else:
+        file_name = output_file_path
+        selected_file = xml_data
+        
 
-            # Remove the prefix, file extension, and underscores, then convert to proper case
-            display_file_name = file_name.replace("samp_eng_app_", "").replace("_", " ").rsplit('.', 1)[0].title()
-
-            st.header(f"Update {display_file_name}")
-           
-            # Load and parse the XML file
+    if selected_file:
+        
+        # Load and parse the XML file
+        if uploaded_files:
             tree = ET.parse(selected_file)
             root = tree.getroot()
-            usage_elements = None
-            usage = root.find('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
-            concurrent = root.find('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
-            denial = root.find('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
-         
-            # Find all <samp_eng_app_concurrent_usage> elements with the specified action attribute
-            if usage:
-                usage_elements = root.findall('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
-               
-            elif concurrent:
-                usage_elements = root.findall('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
+
+            file_name = selected_file.name
+
+            #Remove the prefix, file extension, and underscores, then convert to proper case
+            display_file_name = file_name.replace("samp_eng_app_", "").replace("_", " ").rsplit('.', 1)[0].title()
+        else:
+            tree = ET.ElementTree(ET.fromstring(selected_file))
+            root = tree.getroot()
+            display_file_name = "Default File"
+
+
+        st.header(f"Update {display_file_name}")
+        usage_elements = None
+        usage = root.find('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
+        concurrent = root.find('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
+        denial = root.find('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
+        
+        # Find all <samp_eng_app_concurrent_usage> elements with the specified action attribute
+        if usage:
+            usage_elements = root.findall('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
+            
+        elif concurrent:
+            usage_elements = root.findall('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
+
+        elif denial:
+            usage_elements = root.findall('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
+            
+            # Count the elements
+        count = len(usage_elements)
+
+        min_range, max_range = st.sidebar.slider("Select Range",min_value=1, max_value=count,value=(1,count),key="select_range")
+        # Fields that are always visible
+        with st.sidebar.expander(f"#### Edit Source Value"):
+            st.markdown("")
+            new_source = st.text_input("New Source Value", "")
+        
+        st.sidebar.subheader("New Date Value", "")
+
+        # Determine the appropriate label [EDITED  ]
+        if denial:
+            label = "Update Denial Date"
+        else:
+            label = "Update Usage Date"
+
+        # Display the date input with the corresponding label
+        with st.sidebar.expander(f"#### {label}"):
+            st.markdown("")
+            new_date = st.date_input("Enter Start Date",value=None)
+
+        if usage:
+            with st.sidebar.expander(f"#### {"Update Idle Duration"}"):
+                st.markdown("")
+                idle_dur_date = st.date_input("Enter Idle Duration (Date)",value=None)
+                idle_dur_time = st.time_input("Enter Idle Duration (Time)",value=None,step=60)
+                
+            with st.sidebar.expander(f"#### {"Session Duration"}"):
+                st.markdown("")
+                session_dur_date = st.date_input("Enter Session Duration (Date)",value=None)
+                session_dur_time = st.time_input("Enter Session Duration (Time)",value=None,step=60)
+            #condition to not update if there is one none in either idle_dur_date or idle_dur time
+            if((idle_dur_date is not None) and (idle_dur_time is not None)):
+                total_idle_dur = datetime.combine(idle_dur_date,idle_dur_time)
+            else:
+                total_idle_dur = None 
+            #condition to not update if there is one none in either session_dur_date or session_dur_time
+            if((session_dur_date is not None) and (session_dur_time is not None) ):        
+                total_session_dur = datetime.combine(session_dur_date,session_dur_time)
+            else:
+                total_session_dur = None
+
+        update_button = st.sidebar.button("Update All Fields")
+        st.sidebar.divider()
+
     
-            elif denial:
-                usage_elements = root.findall('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
-                
-                # Count the elements
-            count = len(usage_elements)
-
-            min_range, max_range = st.sidebar.slider("Select Range",min_value=1, max_value=count,value=(1,count),key="select_range")
-            # Fields that are always visible
-            with st.sidebar.expander(f"#### Edit Source Value"):
-                st.markdown("")
-                new_source = st.text_input("New Source Value", "")
-           
-            st.sidebar.subheader("New Date Value", "")
-
-            # Determine the appropriate label [EDITED  ]
-            if denial:
-                label = "Update Denial Date"
-            else:
-                label = "Update Usage Date"
-
-            # Display the date input with the corresponding label
-            with st.sidebar.expander(f"#### {label}"):
-                st.markdown("")
-                new_date = st.date_input("Enter Start Date",value=None)
-
-            if usage:
-                with st.sidebar.expander(f"#### {"Update Idle Duration"}"):
-                    st.markdown("")
-                    idle_dur_date = st.date_input("Enter Idle Duration (Date)",value=None)
-                    idle_dur_time = st.time_input("Enter Idle Duration (Time)",value=None,step=60)
-                    
-                with st.sidebar.expander(f"#### {"Session Duration"}"):
-                    st.markdown("")
-                    session_dur_date = st.date_input("Enter Session Duration (Date)",value=None)
-                    session_dur_time = st.time_input("Enter Session Duration (Time)",value=None,step=60)
-                #condition to not update if there is one none in either idle_dur_date or idle_dur time
-                if((idle_dur_date is not None) and (idle_dur_time is not None)):
-                    total_idle_dur = datetime.combine(idle_dur_date,idle_dur_time)
-                else:
-                    total_idle_dur = None 
-                #condition to not update if there is one none in either session_dur_date or session_dur_time
-                if((session_dur_date is not None) and (session_dur_time is not None) ):        
-                    total_session_dur = datetime.combine(session_dur_date,session_dur_time)
-                else:
-                    total_session_dur = None
-   
-            update_button = st.sidebar.button("Update All Fields")
-            st.sidebar.divider()
-
-            db_path = 'my_database.db' 
+        if usage:
+            usg = usage_class()
+            usg.set_tree(tree)
+            usg.set_root(root)
+            usg.set_min(min_range)
+            usg.set_max(max_range)
+            usg.set_new_source(new_source if update_button else None)
+            usg.set_new_date(new_date if update_button else None)
+            usg.set_total_idle_dur(total_idle_dur if update_button else None)
+            usg.set_total_session_dur(total_session_dur if update_button else None)
+            error, tree = usg.update_usage()
             
-            if usage:
-                sample2 = usage_class(tree,root,min_range,max_range,db_path,new_source if update_button else None, new_date if update_button else None, total_idle_dur if update_button else None, total_session_dur if update_button else None)
-                error, tree = sample2.update_usage()
-                sample2.close()
-                
-            elif concurrent:
+        elif concurrent:
 
-                sample1 = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
-                error, tree = sample1.update_concurrent()
-                sample1.close()
-        
-            elif denial:
-        
-                sample = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
-                error,tree = sample.update_denial()
-                placeholder1.dataframe(sample.display_data())
-                sample.close()
-                
-            else:
-                st.write(f"Unknown file type: {file_name}")
-                return
+            conc = concurrent_class()
+            conc.set_tree(tree)
+            conc.set_root(root)
+            conc.set_min(min_range)
+            conc.set_max(max_range)
+            conc.set_new_source(new_source if update_button else None)
+            conc.set_new_date(new_date if update_button else None)
+            error, tree = conc.update_concurrent()
+    
+        elif denial:
+            print(type(uploaded_files))
+            deny = denial_class()
+            deny.set_tree(tree)
+            deny.set_root(root)
+            deny.set_min(min_range)
+            deny.set_max(max_range)
+            deny.set_new_source(new_source if update_button else None)
+            deny.set_new_date(new_date if update_button else None)
+            error,tree = deny.update_denial()
             
-            if update_button:
-                    modified_xml = save_modified_xml(file_name, tree)
-                    st.sidebar.download_button(
-                    label="Download Modified XML",
-                    data = modified_xml,    
-                    file_name=file_name,
-                    mime='application/xml',
-                    type="primary"
-                    )
-                    if error: placeholder.error(":x: Not Updated!")
-                    else: placeholder.success(":white_check_mark: All fields updated successfully!")
+            placeholder1.dataframe(deny.display_data())
+            
+        else:
+            st.write(f"Unknown file type: {file_name}")
+            return
+        
+        if update_button:
+                modified_xml = save_modified_xml(file_name, tree)
+                st.sidebar.download_button(
+                label="Download Modified XML",
+                data = modified_xml,    
+                file_name=file_name,
+                mime='application/xml',
+                type="primary"
+                )
+                if error: placeholder.error(":x: Not Updated!")
+                else: placeholder.success(":white_check_mark: All fields updated successfully!")
 
 if __name__ == "__main__":
-    #DDMIcon= Image.open("DDM_Icon.ico")
+    DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
         page_title="ServiceNow Engineering Demo Data Modifier",
-        layout="wide")
-        #page_icon=DDMIcon)
+        layout="wide",
+        page_icon=DDMIcon)
     
     st.markdown(sidebar_bg_img, unsafe_allow_html=True)
-    #st.logo("logoSN.png")
+    st.logo("logoSN.png")
     main()
