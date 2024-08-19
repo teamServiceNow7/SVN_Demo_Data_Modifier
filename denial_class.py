@@ -43,7 +43,7 @@ class denial_class:
         """Create tables if they do not exist."""
         # Example table creation
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS denial (
+            CREATE TABLE IF NOT EXISTS denial1 (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 source TEXT,
                 computer TEXT,
