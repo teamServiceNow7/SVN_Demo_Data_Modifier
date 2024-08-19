@@ -361,12 +361,12 @@ def main():
                     else: placeholder.success(":white_check_mark: All fields updated successfully!")
 
 if __name__ == "__main__":
-    DDMIcon= Image.open("DDM_Icon.ico")
+    #DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
         page_title="ServiceNow Engineering Demo Data Modifier",
         layout="wide")
-        page_icon=DDMIcon)
+        #page_icon=DDMIcon)
     
     st.markdown(sidebar_bg_img, unsafe_allow_html=True)
-    st.logo("logoSN.png")
+    #st.logo("logoSN.png")
     main()
