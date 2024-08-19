@@ -210,7 +210,7 @@ sidebar_bg_img = """
 """
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
-    modified_xml = BytesIO()
+    modified_xml = None
     tree.write(modified_xml, encoding='utf-8', xml_declaration=True)
     modified_xml.seek(0)
     return modified_xml
