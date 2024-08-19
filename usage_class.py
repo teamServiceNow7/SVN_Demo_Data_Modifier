@@ -11,6 +11,7 @@ class usage_class:
         self.tree = tree
         self.root = root
         self.product = None
+        self.normalized_name = None
         self.source = None
         self.created_on = None
         self.updated_on = None
@@ -41,6 +42,7 @@ class usage_class:
             print(f"Connected to the existing database '{self.db_path}'.")
             
         self.create_tables()
+        self.insert_data()
 
     def create_tables(self):
         """Create tables if they do not exist."""
@@ -49,6 +51,7 @@ class usage_class:
             CREATE TABLE IF NOT EXISTS usage (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 product TEXT,
+                normalized_name TEXT,
                 source TEXT,
                 created_on TEXT,
                 updated_on TEXT,
@@ -57,6 +60,23 @@ class usage_class:
                 usage_date TEXT
             )
         ''')
+        self.connection.commit()
+
+    def insert_data(self):
+    #Populate the table with data
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_usage_summary'), 1):
+            self.product = elem.find('norm_product').text
+            self.normalized_name = elem.find('norm_product').get('display_value')
+            self.source = elem.find('source').text
+            self.created_on = elem.find('sys_created_on').text
+            self.updated_on = elem.find('sys_updated_on').text
+            self.idle_dur = elem.find('total_idle_dur').text
+            self.sess_dur = elem.find('total_sess_dur').text
+            self.usage_date = elem.find('usage_date').text
+            self.cursor.execute('''
+                                INSERT INTO usage(product, normalized_name, source, created_on, updated_on, idle_dur, sess_dur, usage_date)
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                                ''', (self.product, self.normalized_name, self.source, self.created_on, self.updated_on, self.total_idle_dur, self.total_session_dur, self.usage_date))
         self.connection.commit()
 
     def close(self):
@@ -325,4 +345,3 @@ class usage_class:
     def get_total_session_dur(self):
         return self.total_session_dur
     
-
