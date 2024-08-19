@@ -357,8 +357,8 @@ def main():
                 sample.set_new_source(new_source if update_button else None)
                 sample.set_new_date(new_date if update_button else None)
                 error,tree = sample.update_denial()
+                placeholder1.dataframe(sample.display_data())
                 """
-                #placeholder1.dataframe(sample.display_data())
                 with placeholder1:
                     df = sample.display_data()
                 
