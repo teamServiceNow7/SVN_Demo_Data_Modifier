@@ -358,7 +358,57 @@ def main():
                 sample.set_new_date(new_date if update_button else None)
                 error,tree = sample.update_denial()
               
-                placeholder1.dataframe(sample.display_data())
+                #placeholder1.dataframe(sample.display_data())
+                with placeholder1:
+                    df = sample.display_data()
+                
+                    #Dates Tab Graph
+                    col1, col2= st.columns((2))
+                    df['denial_date'] = pd.to_datetime(df['denial_date'])
+
+                    #Getting the min and max date
+                    startDate = pd.to_datetime(df['denial_date']).min()
+                    endDate = pd.to_datetime(df['denial_date']).max()
+
+                    with col1:
+                        date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+                    with col2:
+                        date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+                        df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
+
+
+                    col3, col4= st.columns([2, 1], gap="small")
+                    with col3:
+                        container = st.container(border=True, height=520)
+                        container.subheader("Denial Date vs Denial Count")
+                        fig = px.bar(df, x= df['denial_date'], y = df['total_denial_count'])
+                        container.plotly_chart(fig, use_container_width= True, height =500)
+                        fig.update_layout(bargap=0)
+                
+                    with col4:
+                        container2 = st.container(border=True, height=200)
+                        container2.subheader("Total Denial Count")
+                        #den_count= int(df['total_denial_count'])
+                        array= pd.Series(df['total_denial_count'])
+                        array_int = array.astype(int)
+                        container2.header(array_int.sum())
+
+                    with col4:
+                        container3 = st.container(border=True, height=300)
+                        container3.subheader("Users")
+                        container3.write(df['computer'].tolist())
+
+
+                        #ytrain = df['computer']
+                        #ytrain_numpy = np.array([x for x in df['computer']])
+
+                        #userValue= pd.DataFrame(
+                        #    {df['computer']: df['computer'].tolist(),
+                        #    }
+                        #    )
+
                 
             else:
                 st.write(f"Unknown file type: {file_name}")
