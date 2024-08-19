@@ -266,12 +266,12 @@ def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
         conn.close()
 
 # Example usage for uploading XML
-db_path = 'my_database.db'
+db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
  
 xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
-#upload_xml(db_path, table_name, xml_column, xml_file_path)
+upload_xml(db_path, table_name, xml_column, xml_file_path)
  
 # Example usage for retrieving XML
 xml_files = []
@@ -413,38 +413,20 @@ def main():
 
     
         if usage:
-            usg = usage_class(tree,root,min_range,max_range,db_path,new_source if update_button else None, new_date if update_button else None, total_idle_dur if update_button else None, total_session_dur if update_button else None)
-            usg.set_tree(tree)
-            usg.set_root(root)
-            usg.set_min(min_range)
-            usg.set_max(max_range)
-            usg.set_new_source(new_source if update_button else None)
-            usg.set_new_date(new_date if update_button else None)
-            usg.set_total_idle_dur(total_idle_dur if update_button else None)
-            usg.set_total_session_dur(total_session_dur if update_button else None)
+            usg = usage_class(tree,root,min_range,max_range,db_path,new_source if update_button else None, new_date if update_button else None,
+                  total_idle_dur if update_button else None, total_session_dur if update_button else None)
             error, tree = usg.update_usage()
+            usg.close()
             
         elif concurrent:
-
             conc = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
-            conc.set_tree(tree)
-            conc.set_root(root)
-            conc.set_min(min_range)
-            conc.set_max(max_range)
-            conc.set_new_source(new_source if update_button else None)
-            conc.set_new_date(new_date if update_button else None)
             error, tree = conc.update_concurrent()
+            conc.close()
     
         elif denial:
-            print(type(uploaded_files))
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
-            deny.set_tree(tree)
-            deny.set_root(root)
-            deny.set_min(min_range)
-            deny.set_max(max_range)
-            deny.set_new_source(new_source if update_button else None)
-            deny.set_new_date(new_date if update_button else None)
             error,tree = deny.update_denial()
+            deny.close()
             
             placeholder1.dataframe(deny.display_data())
             
