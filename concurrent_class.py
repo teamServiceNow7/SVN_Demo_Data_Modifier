@@ -1,23 +1,69 @@
 import streamlit as st
 from usage_class import usage_class
-
+import sqlite3
+import os
 #class for concurrent
 class concurrent_class:
 
-    def __init__(self):
+    def __init__(self,tree,root,min,max,db_path,new_source,new_date):
 
-        self.tree = None
-        self.root = None
-        self.min = None
-        self.max = None
-        self.new_source = None
-        self.new_date = None
+        self.tree = tree
+        self.root = root
+        self.min = min
+        self.max = max
+        self.new_source = new_source
+        self.new_date = new_date
         self.license_name = None
         self.source = None
         self.usage_date = None
         self.created_on = None
         self.updated_on = None
-    
+        self.db_path = db_path
+        self.initialize_database()
+
+    def initialize_database(self):
+        """Initialize the database and create tables if they don't exist."""
+        if not os.path.exists(self.db_path):
+            # Create a new database file and establish a connection
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            print(f"Database '{self.db_path}' created.")
+            # Create tables
+            
+        else:
+            # Connect to the existing database
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            print(f"Connected to the existing database '{self.db_path}'.")
+            
+        self.create_tables()
+
+    def create_tables(self):
+        """Create tables if they do not exist."""
+        # Example table creation
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS concurrent(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                license_name TEXT,
+                source TEXT,
+                usage_date TEXT,
+                created_on TEXT,
+                updated_on TEXT
+            )
+        ''')
+        self.connection.commit()
+
+    def close(self):
+        """Close the database connection."""
+        if self.connection:
+            self.connection.close()
+            print("Database connection closed.")   
+
+        #TOdo
+        #initialize database if it doesn't exist
+        #if it exist then update or insert information
+        #when updating the concurrent, need to also update the database
+
     def update_concurrent(self):
     
         st.write("  ")
@@ -66,7 +112,12 @@ class concurrent_class:
                 col_idx += 1
     
         return error, self.tree
-       
+    
+    #todo
+    # update database
+    # for every setters updated database
+    # for every getter read the updated database
+    
     #SETTERS
     def set_tree(self, tree):
         self.tree = tree

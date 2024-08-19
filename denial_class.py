@@ -1,13 +1,15 @@
 import streamlit as st
 from usage_class import usage_class
 import pandas as pd
+import sqlite3
+import os
 #class for denial
 class denial_class:
     
-    def __init__(self):
+    def __init__(self,tree,root,min,max,db_path,new_source,new_date):
 
-        self.tree = None
-        self.root = None
+        self.tree = tree
+        self.root = root
         self.denial_date = None
         self.computer = None
         self.source = None
@@ -15,11 +17,50 @@ class denial_class:
         self.created_on = None
         self.updated_on = None
         self.total_denial_count = None
-        self.min = None
-        self.max = None
-        self.new_source = None
-        self.new_date = None
+        self.min = min
+        self.max = max
+        self.new_source = new_source
+        self.new_date = new_date
+        self.db_path = db_path
+        self.initialize_database()
 
+    def initialize_database(self):
+        """Initialize the database and create tables if they don't exist."""
+        if not os.path.exists(self.db_path):
+            # Create a new database file and establish a connection
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            print(f"Database '{self.db_path}' created.")
+            # Create tables
+            
+        else:
+            # Connect to the existing database
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            print(f"Connected to the existing database '{self.db_path}'.")
+        self.create_tables()
+    def create_tables(self):
+        """Create tables if they do not exist."""
+        # Example table creation
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS denial (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source TEXT,
+                computer TEXT,
+                product TEXT,
+                created_on TEXT,
+                updated_on TEXT,
+                denial_count INTEGER,
+                denial_date TEXT
+            )
+        ''')
+        self.connection.commit()
+
+    def close(self):
+        """Close the database connection."""
+        if self.connection:
+            self.connection.close()
+            print("Database connection closed.")
         
     def update_denial(self):
 
@@ -85,7 +126,8 @@ class denial_class:
     
     def display_data(self):
         data = []
-        for idx,elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
+
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
 
             source = elem.find('source').text
             computer = elem.find('computer').get('display_value')

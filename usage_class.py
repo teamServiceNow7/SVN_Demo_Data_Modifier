@@ -1,25 +1,70 @@
 import streamlit as st
 from datetime import datetime, timedelta
-
+import sqlite3
+import os
 
 #class for usage 
 class usage_class:
 
-    def __init__(self):
+    def __init__(self, tree,root , min, max,db_path,new_source,new_date,total_idle_dur, total_session_dur):
 
+        self.tree = tree
+        self.root = root
         self.product = None
         self.source = None
         self.created_on = None
         self.updated_on = None
         self.idle_dur = None
         self.sess_dur = None
-        self.min = None
-        self.max = None
-        self.new_source = None
-        self.new_date = None
-        self.total_idle_dur = None
-        self.total_session_dur = None
+        self.min = min
+        self.max = max
+        self.new_source = new_source
+        self.new_date = new_date
+        self.total_idle_dur = total_idle_dur
+        self.total_session_dur = total_session_dur
+        self.db_path = db_path
+        self.initialize_database()
 
+    def initialize_database(self):
+        """Initialize the database and create tables if they don't exist."""
+        if not os.path.exists(self.db_path):
+            # Create a new database file and establish a connection
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            print(f"Database '{self.db_path}' created.")
+            # Create tables
+            
+        else:
+            # Connect to the existing database
+            self.connection = sqlite3.connect(self.db_path)
+            self.cursor = self.connection.cursor()
+            print(f"Connected to the existing database '{self.db_path}'.")
+            
+        self.create_tables()
+
+    def create_tables(self):
+        """Create tables if they do not exist."""
+        # Example table creation
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS usage (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product TEXT,
+                source TEXT,
+                created_on TEXT,
+                updated_on TEXT,
+                idle_dur TEXT,
+                sess_dur TEXT,
+                usage_date TEXT
+            )
+        ''')
+        self.connection.commit()
+
+    def close(self):
+        """Close the database connection."""
+        if self.connection:
+            self.connection.close()
+            print("Database connection closed.")
+        
 
     #Function to adjust date_element
     def adjust_date_element(usage_date_elem,concurrent_date_elem,denial_date_elem, new_date, idx, min,flag,value1):

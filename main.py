@@ -2,16 +2,16 @@ import streamlit as st
 import xml.etree.ElementTree as ET
 import time
 import pandas as pd
-#import plotly_express as px
-import plotly.express as px
 from PIL import Image
 from io import BytesIO
 from datetime import datetime, timedelta
 from usage_class import usage_class
 from concurrent_class import concurrent_class
 from denial_class import denial_class
+import sqlite3
 
  
+
 sidebar_bg_img = """
     
     <style>
@@ -324,83 +324,25 @@ def main():
             update_button = st.sidebar.button("Update All Fields")
             st.sidebar.divider()
 
-        
+            db_path = 'my_database.db' 
+            
             if usage:
-                sample2 = usage_class()
-                sample2.set_tree(tree)
-                sample2.set_root(root)
-                sample2.set_min(min_range)
-                sample2.set_max(max_range)
-                sample2.set_new_source(new_source if update_button else None)
-                sample2.set_new_date(new_date if update_button else None)
-                sample2.set_total_idle_dur(total_idle_dur if update_button else None)
-                sample2.set_total_session_dur(total_session_dur if update_button else None)
+                sample2 = usage_class(tree,root,min_range,max_range,db_path,new_source if update_button else None, new_date if update_button else None, total_idle_dur if update_button else None, total_session_dur if update_button else None)
                 error, tree = sample2.update_usage()
+                sample2.close()
                 
             elif concurrent:
 
-                sample1 = concurrent_class()
-                sample1.set_tree(tree)
-                sample1.set_root(root)
-                sample1.set_min(min_range)
-                sample1.set_max(max_range)
-                sample1.set_new_source(new_source if update_button else None)
-                sample1.set_new_date(new_date if update_button else None)
+                sample1 = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
                 error, tree = sample1.update_concurrent()
+                sample1.close()
         
             elif denial:
-                print(type(uploaded_files))
-                sample = denial_class()
-                sample.set_tree(tree)
-                sample.set_root(root)
-                sample.set_min(min_range)
-                sample.set_max(max_range)
-                sample.set_new_source(new_source if update_button else None)
-                sample.set_new_date(new_date if update_button else None)
+        
+                sample = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
                 error,tree = sample.update_denial()
-                #placeholder1.dataframe(sample.display_data())
-                
-                with placeholder1:
-                    df = sample.display_data()
-                
-                    #Dates Tab Graph
-                    col1, col2= st.columns((2))
-                    df['denial_date'] = pd.to_datetime(df['denial_date'])
-
-                    #Getting the min and max date
-                    startDate = pd.to_datetime(df['denial_date']).min()
-                    endDate = pd.to_datetime(df['denial_date']).max()
-
-                    with col1:
-                        date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
-                    with col2:
-                        date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-                        df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
-
-
-                    col3, col4= st.columns([2, 1], gap="small")
-                    with col3:
-                        container = st.container(border=True, height=520)
-                        container.subheader("Denial Date vs Denial Count")
-                        fig = px.bar(df, x= df['denial_date'], y = df['total_denial_count'])
-                        container.plotly_chart(fig, use_container_width= True, height =500)
-                        fig.update_layout(bargap=0)
-                
-                    with col4:
-                        container2 = st.container(border=True, height=200)
-                        container2.subheader("Total Denial Count")
-                        #den_count= int(df['total_denial_count'])
-                        array= pd.Series(df['total_denial_count'])
-                        array_int = array.astype(int)
-                        container2.header(array_int.sum())
-
-                    with col4:
-                        container3 = st.container(border=True, height=300)
-                        container3.subheader("Users")
-                        container3.write(df['computer'].tolist())
-                    
+                placeholder1.dataframe(sample.display_data())
+                sample.close()
                 
             else:
                 st.write(f"Unknown file type: {file_name}")
@@ -419,12 +361,12 @@ def main():
                     else: placeholder.success(":white_check_mark: All fields updated successfully!")
 
 if __name__ == "__main__":
-    DDMIcon= Image.open("DDM_Icon.ico")
+    #DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
         page_title="ServiceNow Engineering Demo Data Modifier",
-        layout="wide",
-        page_icon=DDMIcon)
+        layout="wide")
+    #    page_icon=DDMIcon)
     
     st.markdown(sidebar_bg_img, unsafe_allow_html=True)
-    st.logo("logoSN.png")
+    #st.logo("logoSN.png")
     main()
