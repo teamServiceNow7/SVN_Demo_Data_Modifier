@@ -39,6 +39,8 @@ class denial_class:
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
         self.create_tables()
+        self.insert_data()
+
     def create_tables(self):
         """Create tables if they do not exist."""
         # Example table creation
@@ -54,6 +56,22 @@ class denial_class:
                 denial_date TEXT
             )
         ''')
+        self.connection.commit()
+
+    def insert_data(self):
+        #Populate the table with data
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
+            self.source = elem.find('source').text
+            self.computer = elem.find('computer').get('display_value')
+            self.product = elem.find('norm_product').get('display_value')
+            self.created_on = elem.find('sys_created_on').text
+            self.updated_on = elem.find('sys_updated_on').text
+            self.total_denial_count = elem.find('total_denial_count').text
+            self.denial_date = elem.find('denial_date').text
+            self.cursor.execute('''
+                                INSERT INTO denial(source, computer, product, created_on, updated_on, denial_count, denial_date)
+                                VALUES(?, ?, ?, ?, ?, ?, ?)
+                                ''', (self.source, self.computer, self.product, self.created_on, self.updated_on, self.total_denial_count, self.denial_date))
         self.connection.commit()
 
     def close(self):
@@ -99,7 +117,7 @@ class denial_class:
                         #replacing all that have the none value into the inputted start date
                         self.denial_date.text = self.new_date.strftime('%Y-%m-%d')
 
-                #new Addition  
+                #new Addition (Dataframe) 
                 source = elem.find('source').text
                 computer = elem.find('computer').get('display_value')
                 product = elem.find('norm_product').get('display_value')
