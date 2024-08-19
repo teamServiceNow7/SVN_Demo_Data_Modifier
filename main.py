@@ -2,7 +2,7 @@ import streamlit as st
 import xml.etree.ElementTree as ET
 import time
 import pandas as pd
-import plotly_express as px
+#import plotly_express as px
 from PIL import Image
 from io import BytesIO
 from datetime import datetime, timedelta
