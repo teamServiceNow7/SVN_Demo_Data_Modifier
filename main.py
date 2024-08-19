@@ -11,7 +11,6 @@ from concurrent_class import concurrent_class
 from denial_class import denial_class
 
  
-
 sidebar_bg_img = """
     
     <style>
@@ -400,15 +399,6 @@ def main():
                         container3 = st.container(border=True, height=300)
                         container3.subheader("Users")
                         container3.write(df['computer'].tolist())
-
-
-                        #ytrain = df['computer']
-                        #ytrain_numpy = np.array([x for x in df['computer']])
-
-                        #userValue= pd.DataFrame(
-                        #    {df['computer']: df['computer'].tolist(),
-                        #    }
-                        #    )
 
                 
             else:
