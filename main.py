@@ -380,7 +380,7 @@ if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
         page_title="ServiceNow Engineering Demo Data Modifier",
-        layout="wide")
+        layout="wide",
         page_icon=DDMIcon)
     
     st.markdown(sidebar_bg_img, unsafe_allow_html=True)
