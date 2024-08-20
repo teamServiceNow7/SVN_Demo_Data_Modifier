@@ -108,7 +108,7 @@ class denial_class:
                 self.cursor.execute(insert_query, data)
         self.connection.commit()
 
-    def delete_table():
+    def delete_table(self):
         self.cursor.execute('DELETE FROM denial')
 
     def getall(self):
