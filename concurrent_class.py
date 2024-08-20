@@ -81,7 +81,7 @@ class concurrent_class:
         self.connection.commit()
 
     def delete_table(self):
-        self.cursor.execute('DELETE FROM concurrent')
+        self.cursor.execute('''DELETE FROM concurrent''')
         
     def test(self):
         self.cursor.execute('''SELECT * FROM concurrent WHERE id = 1''')
