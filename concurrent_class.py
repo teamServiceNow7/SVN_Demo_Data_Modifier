@@ -56,10 +56,10 @@ class concurrent_class:
         ''')
         self.connection.commit()
 
-    def clear_table(self):
-        self.insert_data()
-        self.delete_table()
-        self.insert_data()
+    #def clear_table(self):
+        #self.insert_data()
+        #self.delete_table()
+        #self.insert_data()
         
     def insert_data(self):
         #Populate the table with data
