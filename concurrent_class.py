@@ -38,7 +38,7 @@ class concurrent_class:
             print(f"Connected to the existing database '{self.db_path}'.")
             
         self.create_tables()
-        self.clear_table()
+        #self.clear_table()
 
     def create_tables(self):
         """Create tables if they do not exist."""
