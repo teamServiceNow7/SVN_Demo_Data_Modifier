@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 import sqlite3
 import time
 import pandas as pd
-#import plotly_express as px #Uncomment this to view chart
 from PIL import Image
 from io import BytesIO
 from datetime import datetime, timedelta
@@ -228,10 +227,14 @@ def upload_xml(db_path, table_name, xml_column, xml_file_path):
         xml_data = file.read()
  
     # Insert XML data into the database
-    cursor.execute(f'''
-        INSERT INTO {table_name} ({xml_column}) VALUES (?)
-    ''', (xml_data,))
-   
+    cursor.execute(f''' SELECT COUNT(*) FROM {table_name}''')
+    rows = cursor.fetchone()[0]
+    if rows == 0:
+        cursor.execute(f'''
+            INSERT INTO {table_name} ({xml_column}) VALUES (?)
+        ''', (xml_data,))
+    else:
+        return
     # Commit and close the connection
     conn.commit()
     conn.close()
@@ -271,20 +274,14 @@ db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
  
-#xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
-#upload_xml(db_path, table_name, xml_column, xml_file_path)
+xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
+upload_xml(db_path, table_name, xml_column, xml_file_path)
  
 # Example usage for retrieving XML
 xml_files = []
 record_id = 1
 output_file_path = 'output_file.xml'
 xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
-
-record_id = 3
-xml_data1 = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
- 
-record_id = 4
-xml_data2 = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
 
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
@@ -351,23 +348,25 @@ def main():
 
 
         st.header(f"Update {display_file_name}")
-        usage_elements = None
+        elements = None
         usage = root.find('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
         concurrent = root.find('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
         denial = root.find('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
         
-        # Find all <samp_eng_app_concurrent_usage> elements with the specified action attribute
-        if usage:
-            usage_elements = root.findall('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
+        # Find all elements with the specified action attribute
+        if usage and uploaded_files:
+            elements = root.findall('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
             
-        elif concurrent:
-            usage_elements = root.findall('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
+        elif concurrent and uploaded_files:
+            elements = root.findall('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
 
-        elif denial:
-            usage_elements = root.findall('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
+        elif denial and uploaded_files:
+            elements = root.findall('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
+        else:
+            elements = root.findall(".//*[@action]")
             
             # Count the elements
-        count = len(usage_elements)
+        count = len(elements)
 
         min_range, max_range = st.sidebar.slider("Select Range",min_value=1, max_value=count,value=(1,count),key="select_range")
         # Fields that are always visible
@@ -426,55 +425,12 @@ def main():
     
         elif denial:
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
+            deny.set_new_source(new_source)
+            print(deny.get_source())
             error,tree = deny.update_denial()
             deny.close()
             
             placeholder1.dataframe(deny.display_data())
-            """
-            with placeholder1:
-
-                df = deny.display_data()
-
-                #Dates Tab Graph
-                col1, col2= st.columns((2))
-                df['denial_date'] = pd.to_datetime(df['denial_date'])
-
-                #Getting the min and max date
-                startDate = pd.to_datetime(df['denial_date']).min()
-                endDate = pd.to_datetime(df['denial_date']).max()
-
-                with col1:
-                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
-                with col2:
-                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-                    df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
-
-                
-                col3, col4= st.columns([2, 1], gap="small")
-
-                with col3:
-                    container = st.container(border=True, height=520)
-                    container.subheader("Denial Date vs Denial Count")
-                    fig = px.bar(df, x= df['denial_date'], y = df['denial_count'], text_auto=True)
-                    fig.update_traces(textfont_size=12, textangle=0, textposition="outside", marker_color='red')
-                    container.plotly_chart(fig, use_container_width= True, height =500)
-                    
-                    fig.update_layout(bargap=0)
-            
-                with col4:
-                    container2 = st.container(border=True, height=200)
-                    container2.subheader("Total Denial Count")
-                    #den_count= int(df['total_denial_count'])
-                    array= pd.Series(df['denial_count'])
-                    array_int = array.astype(int)
-                    container2.header(array_int.sum())
-
-                with col4:
-                    container3 = st.container(border=True, height=300)
-                    container3.subheader("Users")
-                    container3.write(df['computer'].tolist()) """
             
         else:
             st.write(f"Unknown file type: {file_name}")
