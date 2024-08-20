@@ -76,7 +76,7 @@ class concurrent_class:
                                 ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
 
-    def delete_table():
+    def delete_table(self):
         self.cursor.execute('DELETE FROM denial')
         
     def test(self):
