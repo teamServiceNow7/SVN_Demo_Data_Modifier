@@ -420,6 +420,7 @@ def main():
             
         elif concurrent:
             conc = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
+            st.write(conc.test())
             error, tree = conc.update_concurrent()
             conc.close()
     
