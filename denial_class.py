@@ -39,7 +39,7 @@ class denial_class:
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
         self.create_tables()
-        self.insert_data()
+        self.clear_table()
 
     def create_tables(self):
         """Create tables if they do not exist."""
@@ -79,6 +79,11 @@ class denial_class:
         ''')
         self.connection.commit()
 
+    def clear_table():
+        self.insert_data()
+        self.delete_table()
+        self.insert_data()
+
     def insert_data(self):
         """Insert data from XML into the database."""
         self.cursor.execute("PRAGMA table_info(denial)")
@@ -101,11 +106,10 @@ class denial_class:
                     data.append(value)
                 
                 self.cursor.execute(insert_query, data)
-        else:
-            self.cursor.execute('DELETE FROM denial')
-            print("Old table contents deleted")
-
         self.connection.commit()
+
+    def delete_table():
+        self.cursor.execute('DELETE FROM denial')
 
     def getall(self):
         self.cursor.execute('''SELECT * FROM denial''')
