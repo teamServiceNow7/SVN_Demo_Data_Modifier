@@ -433,7 +433,7 @@ def main():
             print(deny.get_created_on())
             print(deny.get_updated_on())
             print(deny.get_total_denial_count())
-            print(deny.test())
+            st.write(deny.test())
             error,tree = deny.update_denial()
             deny.close()
             
