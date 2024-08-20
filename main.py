@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 import sqlite3
 import time
 import pandas as pd
-import plotly_express as px
+#import plotly_express as px #Uncomment this to view chart
 from PIL import Image
 from io import BytesIO
 from datetime import datetime, timedelta
