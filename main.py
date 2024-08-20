@@ -426,7 +426,13 @@ def main():
         elif denial:
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
             deny.set_new_source(new_source)
+            print(deny.get_denial_date())
+            print(deny.get_computer())
+            print(deny.get_product())
             print(deny.get_source())
+            print(deny.get_created_on())
+            print(deny.get_updated_on())
+            print(deny.get_total_denial_count())
             error,tree = deny.update_denial()
             deny.close()
             
