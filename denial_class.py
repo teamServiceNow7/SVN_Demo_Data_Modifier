@@ -79,7 +79,7 @@ class denial_class:
         ''')
         self.connection.commit()
 
-    def clear_table():
+    def clear_table(self):
         self.insert_data()
         self.delete_table()
         self.insert_data()
@@ -120,6 +120,7 @@ class denial_class:
         if self.connection:
             self.connection.close()
             print("Database connection closed.")
+            
     def test(self):
         self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
         result = self.cursor.fetchall()
