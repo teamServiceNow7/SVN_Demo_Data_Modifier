@@ -331,7 +331,7 @@ class denial_class:
     def get_updated_on(self):
 
         self.cursor.execute('''
-        SELECT id, updated_on FROM denial
+        SELECT id, sys_updated_on FROM denial
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
