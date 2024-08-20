@@ -317,7 +317,7 @@ class denial_class:
     
     def get_created_on(self):
         self.cursor.execute('''
-        SELECT id, created_on FROM denial
+        SELECT id, sys_created_on FROM denial
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
