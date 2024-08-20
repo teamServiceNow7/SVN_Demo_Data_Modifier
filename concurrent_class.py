@@ -70,7 +70,11 @@ class concurrent_class:
                                 VALUES(?, ?, ?, ?, ?, ?)
                                 ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
-
+    def test(self):
+        self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
+        result = self.cursor.fetchall()
+        return result
+        
     def close(self):
         """Close the database connection."""
         if self.connection:
