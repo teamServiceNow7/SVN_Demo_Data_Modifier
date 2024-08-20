@@ -10,8 +10,6 @@ from usage_class import usage_class
 from concurrent_class import concurrent_class
 from denial_class import denial_class
 
- 
-
 sidebar_bg_img = """
     
     <style>
@@ -60,7 +58,7 @@ sidebar_bg_img = """
         padding-right: 2rem;
     }
 
-    /* header violet*/
+    /* header red #920113-red hex*/ 
     h2{
     background-color: #920113;
     color: white;
@@ -76,6 +74,17 @@ sidebar_bg_img = """
     padding: 0.25rem 0px;
     margin: 0px;
     line-height: 1.2;
+    }
+
+    h3{
+    font-weight: bold;
+    font-size: 20px;
+    }
+
+    /*side bar subhead*/
+    .st-emotion-cache-1whx7iy p{
+    font-weight: bold;
+    font-size: 20px;   
     }
     
     h4{
@@ -151,10 +160,9 @@ sidebar_bg_img = """
     align-items: center;
     }
 
-
     [data-testid="stSidebar"]{
     background-color: #E6EDF1;    
-    width: 15%;
+    width: 20%;
     }
 
     [data-testid= "stHeader"]{
@@ -170,12 +178,6 @@ sidebar_bg_img = """
 
     [data-testid= "stSidebarHeader"]{
     background-color: #6d0b17;
-    }
-
-    /*side bar subhead*/
-    .st-emotion-cache-1whx7iy p{
-    font-weight: bold;
-    font-size: 20px;
     }
 
     /*new date value*/
@@ -293,11 +295,12 @@ def save_modified_xml(file_name, tree):
 #Main Function 
 def main():
    
-    #st.image("XML_TitleHeader.png")
+    st.image("XML_TitleHeader.png")
     #st.title("ServiceNow ENGINEERING DEMO DATA MODIFIER")
     #st.divider()
     placeholder = st.empty()
     placeholder1 = st.empty()
+    placeholder2 = st.empty()
 
     progress_text = "Operation in progress. Please wait."
     my_bar = st.progress(0, text=progress_text)
@@ -370,7 +373,7 @@ def main():
 
         min_range, max_range = st.sidebar.slider("Select Range",min_value=1, max_value=count,value=(1,count),key="select_range")
         # Fields that are always visible
-        with st.sidebar.expander(f"#### Edit Source Value"):
+        with st.sidebar.expander(f"#### Edit Source Value", expanded=True):
             st.markdown("")
             new_source = st.text_input("New Source Value", "")
         
@@ -383,17 +386,17 @@ def main():
             label = "Update Usage Date"
 
         # Display the date input with the corresponding label
-        with st.sidebar.expander(f"#### {label}"):
+        with st.sidebar.expander(f"#### {label}", expanded=True):
             st.markdown("")
             new_date = st.date_input("Enter Start Date",value=None)
 
         if usage:
-            with st.sidebar.expander(f"#### {"Update Idle Duration"}"):
+            with st.sidebar.expander(f"#### {{Update Idle Duration}}"):
                 st.markdown("")
                 idle_dur_date = st.date_input("Enter Idle Duration (Date)",value=None)
                 idle_dur_time = st.time_input("Enter Idle Duration (Time)",value=None,step=60)
                 
-            with st.sidebar.expander(f"#### {"Session Duration"}"):
+            with st.sidebar.expander(f"#### {{Session Duration}}"):
                 st.markdown("")
                 session_dur_date = st.date_input("Enter Session Duration (Date)",value=None)
                 session_dur_time = st.time_input("Enter Session Duration (Time)",value=None,step=60)
@@ -420,7 +423,6 @@ def main():
             
         elif concurrent:
             conc = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
-            st.write(conc.test())
             error, tree = conc.update_concurrent()
             conc.close()
     
@@ -434,11 +436,73 @@ def main():
             print(deny.get_created_on())
             print(deny.get_updated_on())
             print(deny.get_total_denial_count())
-            st.write(deny.test())
             error,tree = deny.update_denial()
             deny.close()
             
-            placeholder1.dataframe(deny.display_data())
+            
+            #placeholder1.dataframe(deny.display_data())
+            with placeholder1:
+
+                df = deny.display_data()
+
+                #Dates Tab Graph
+                col1, col2= st.columns((2))
+                
+                df['denial_date'] = pd.to_datetime(df['denial_date'])
+
+                #Getting the min and max date
+                startDate = pd.to_datetime(df['denial_date']).min()
+                endDate = pd.to_datetime(df['denial_date']).max()
+
+                with col1:
+                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+                with col2:
+                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+                    df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
+
+            with placeholder2:
+                
+                col3, col4= st.columns([2, 1], gap="small")
+
+                with col3:
+                  
+                    container = st.container(border=True)
+                    container.subheader("Denial Count over time")
+                    den_count= pd.Series(df['denial_count'])
+                    df['denial_count'] = den_count.astype(int)
+                    #den_date= pd.Series(df['denial_date'])
+                    
+                    container.bar_chart(df, x = 'denial_date', 
+                                        y = 'denial_count', 
+                                        x_label= 'Denial Date', 
+                                        y_label='Denial Count', 
+                                        use_container_width=True, 
+                                        color="#920113")
+                    #date= pd.Series(df['denial_date'])
+                    #den_date  =date.astype(str)
+                    #den_date = df['denial_date']
+                    #den_count = df['denial_count']
+                    
+                    #container.pyplot(fig)
+                    #fig = px.bar(df, x= df['denial_date'], y = df['denial_count'], text_auto=True)
+                    #fig.update_traces(textfont_size=12, textangle=0, textposition="outside", marker_color='red')
+                    #fig.update_layout(xaxis_title="Denial Date", yaxis_title="Denial Count",  )
+                    #container.plotly_chart(fig, use_container_width= True, height =500)
+                     
+                with col4:
+                    container2 = st.container(border=True, height=130)
+                    container2.subheader("Total Denial Count")
+                    #den_count= int(df['total_denial_count'])
+                    array= pd.Series(df['denial_count'])
+                    array_int = array.astype(int)
+                    container2.header(array_int.sum())
+
+                with col4:
+                    container3 = st.container(border=True, height=290)
+                    container3.subheader("Users")
+                    container3.write(df['computer'].tolist())
             
         else:
             st.write(f"Unknown file type: {file_name}")
