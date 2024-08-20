@@ -63,17 +63,21 @@ class concurrent_class:
         
     def insert_data(self):
         #Populate the table with data
-        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
-            self.license_name = elem.find('license').text
-            self.normalized_name = elem.find('license').get('display_value')
-            self.source = elem.find('source').text
-            self.usage_date = elem.find('usage_date').text
-            self.created_on = elem.find('sys_created_on').text
-            self.updated_on = elem.find('sys_updated_on').text
-            self.cursor.execute('''
-                                INSERT INTO concurrent(license_name, normalized_name, source, usage_date, created_on, updated_on)
-                                VALUES(?, ?, ?, ?, ?, ?)
-                                ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
+        self.cursor.execute('SELECT COUNT(*) FROM denial')
+        rows = self.cursor.fetchone()[0]
+
+        if rows == 0:
+            for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
+                self.license_name = elem.find('license').text
+                self.normalized_name = elem.find('license').get('display_value')
+                self.source = elem.find('source').text
+                self.usage_date = elem.find('usage_date').text
+                self.created_on = elem.find('sys_created_on').text
+                self.updated_on = elem.find('sys_updated_on').text
+                self.cursor.execute('''
+                                    INSERT INTO concurrent(license_name, normalized_name, source, usage_date, created_on, updated_on)
+                                    VALUES(?, ?, ?, ?, ?, ?)
+                                    ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
 
     def delete_table(self):
