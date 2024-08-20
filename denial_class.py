@@ -345,7 +345,7 @@ class denial_class:
     def get_total_denial_count(self):
 
         self.cursor.execute('''
-        SELECT id, denial_count FROM denial
+        SELECT id, total_denial_count FROM denial
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
