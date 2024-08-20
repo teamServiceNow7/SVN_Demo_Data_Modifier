@@ -35,7 +35,7 @@ class denial_class:
             
         else:
             # Connect to the existing database
-            self.connection = sqlite3.connect(self.db_path)
+            self.connection = sqlite3.connect(self.db_path, timeout = 1)
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
         self.create_tables()
@@ -59,20 +59,31 @@ class denial_class:
         self.connection.commit()
 
     def insert_data(self):
+        self.cursor.execute('''SELECT COUNT(*) FROM denial''')
+        rows = self.cursor.fetchone()[0]
         #Populate the table with data
-        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
-            self.source = elem.find('source').text
-            self.computer = elem.find('computer').get('display_value')
-            self.product = elem.find('norm_product').get('display_value')
-            self.created_on = elem.find('sys_created_on').text
-            self.updated_on = elem.find('sys_updated_on').text
-            self.total_denial_count = elem.find('total_denial_count').text
-            self.denial_date = elem.find('denial_date').text
-            self.cursor.execute('''
-                                INSERT INTO denial(source, computer, product, created_on, updated_on, denial_count, denial_date)
-                                VALUES(?, ?, ?, ?, ?, ?, ?)
-                                ''', (self.source, self.computer, self.product, self.created_on, self.updated_on, self.total_denial_count, self.denial_date))
+        if rows == 0:
+            for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
+                self.source = elem.find('source').text
+                self.computer = elem.find('computer').get('display_value')
+                self.product = elem.find('norm_product').get('display_value')
+                self.created_on = elem.find('sys_created_on').text
+                self.updated_on = elem.find('sys_updated_on').text
+                self.total_denial_count = elem.find('total_denial_count').text
+                self.denial_date = elem.find('denial_date').text
+                self.cursor.execute('''
+                                    INSERT INTO denial(source, computer, product, created_on, updated_on, denial_count, denial_date)
+                                    VALUES(?, ?, ?, ?, ?, ?, ?)
+                                    ''', (self.source, self.computer, self.product, self.created_on, self.updated_on, self.total_denial_count, self.denial_date))
+        
+        else:
+            self.cursor.execute('''DELETE FROM denial''')
+            print("Old table deleted")
         self.connection.commit()
+
+    def getall(self):
+        self.cursor.execute('''SELECT * FROM denial''')
+        #Save values into arrays
 
     def close(self):
         """Close the database connection."""
@@ -175,10 +186,6 @@ class denial_class:
     
         self.computer = computer
 
-    def set_source(self,source):
-
-        self.source = source
-    
     def set_product(self,product):
 
         self.product = product
@@ -201,7 +208,14 @@ class denial_class:
         self.max = max
     
     def set_new_source(self,new_source):
-        self.new_source = new_source
+        if self.new_source is not None:
+            self.new_source = new_source
+            self.cursor.execute('''
+            UPDATE denial
+            SET source = ?
+            WHERE id BETWEEN ? AND ?
+        ''', (self.new_source, self.min, self.max))
+        self.connection.commit()
     
     def set_new_date(self,new_date):
         self.new_date = new_date
@@ -224,7 +238,18 @@ class denial_class:
         return self.computer
 
     def get_source(self):
-
+ 
+        self.cursor.execute('''
+        SELECT source FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+       
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+ 
+        # Extract the single column from the rows and store it in self.source        
+        self.source = [row[0] for row in rows]
+ 
         return self.source
     
     def get_product(self):
