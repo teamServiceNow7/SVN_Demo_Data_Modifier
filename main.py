@@ -429,7 +429,8 @@ def main():
             error,tree = deny.update_denial()
             deny.close()
             
-            #placeholder1.dataframe(deny.display_data())
+            placeholder1.dataframe(deny.display_data())
+            """
             with placeholder1:
 
                 df = deny.display_data()
@@ -473,7 +474,7 @@ def main():
                 with col4:
                     container3 = st.container(border=True, height=300)
                     container3.subheader("Users")
-                    container3.write(df['computer'].tolist())
+                    container3.write(df['computer'].tolist()) """
             
         else:
             st.write(f"Unknown file type: {file_name}")
