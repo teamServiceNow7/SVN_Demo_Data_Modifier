@@ -116,7 +116,7 @@ class denial_class:
         if self.connection:
             self.connection.close()
             print("Database connection closed.")
-    def test():
+    def test(self):
         self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
         result = self.cursor.fetchall()
         return result
