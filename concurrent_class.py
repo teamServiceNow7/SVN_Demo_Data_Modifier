@@ -80,8 +80,8 @@ class concurrent_class:
                                     ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
 
-    def delete_table(self):
-        self.cursor.execute('''DELETE FROM concurrent''')
+    #def delete_table(self):
+        #self.cursor.execute('''DELETE FROM concurrent''')
         
     def test(self):
         self.cursor.execute('''SELECT * FROM concurrent WHERE id = 1''')
