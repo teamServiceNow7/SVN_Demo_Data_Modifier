@@ -71,7 +71,7 @@ class concurrent_class:
                                 ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
     def test(self):
-        self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
+        self.cursor.execute('''SELECT * FROM concurrent WHERE id = 1''')
         result = self.cursor.fetchall()
         return result
         
