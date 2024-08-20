@@ -274,8 +274,8 @@ db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
  
-xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
-upload_xml(db_path, table_name, xml_column, xml_file_path)
+#xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
+#upload_xml(db_path, table_name, xml_column, xml_file_path)
  
 # Example usage for retrieving XML
 xml_files = []
