@@ -43,42 +43,68 @@ class denial_class:
 
     def create_tables(self):
         """Create tables if they do not exist."""
-        # Example table creation
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS denial (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                source TEXT,
+                id INTEGER PRIMARY KEY,
+                unload_date TEXT,
+                action TEXT,
+                additional_key TEXT,
                 computer TEXT,
+                denial_date TEXT,
+                denial_id TEXT,
+                discovery_model TEXT,
+                "group" TEXT,
+                is_product_normalized TEXT,
+                last_denial_time TEXT,
+                license_server TEXT,
+                license_type TEXT,
+                norm_product TEXT,
+                norm_publisher TEXT,
                 product TEXT,
-                created_on TEXT,
-                updated_on TEXT,
-                denial_count INTEGER,
-                denial_date TEXT
+                publisher TEXT,
+                source TEXT,
+                sys_created_by TEXT,
+                sys_created_on TEXT,
+                sys_domain TEXT,
+                sys_domain_path TEXT,
+                sys_id TEXT,
+                sys_mod_count TEXT,
+                sys_updated_by TEXT,
+                sys_updated_on TEXT,
+                total_denial_count TEXT,
+                "user" TEXT,
+                version TEXT,
+                workstation TEXT
             )
         ''')
         self.connection.commit()
 
     def insert_data(self):
-        self.cursor.execute('''SELECT COUNT(*) FROM denial''')
+        """Insert data from XML into the database."""
+        self.cursor.execute("PRAGMA table_info(denial)")
+        columns = [row[1] for row in self.cursor.fetchall()]
+        columns_str = ', '.join([f'"{col}"' for col in columns])
+        placeholders = ', '.join(['?'] * len(columns))
+        insert_query = f'INSERT INTO denial ({columns_str}) VALUES ({placeholders})'
+
+        self.cursor.execute('SELECT COUNT(*) FROM denial')
         rows = self.cursor.fetchone()[0]
-        #Populate the table with data
+
         if rows == 0:
-            for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
-                self.source = elem.find('source').text
-                self.computer = elem.find('computer').get('display_value')
-                self.product = elem.find('norm_product').get('display_value')
-                self.created_on = elem.find('sys_created_on').text
-                self.updated_on = elem.find('sys_updated_on').text
-                self.total_denial_count = elem.find('total_denial_count').text
-                self.denial_date = elem.find('denial_date').text
-                self.cursor.execute('''
-                                    INSERT INTO denial(source, computer, product, created_on, updated_on, denial_count, denial_date)
-                                    VALUES(?, ?, ?, ?, ?, ?, ?)
-                                    ''', (self.source, self.computer, self.product, self.created_on, self.updated_on, self.total_denial_count, self.denial_date))
-        
+            for elem in self.root.findall('.//samp_eng_app_denial'):
+                data = []
+                for col in columns:
+                    if col == 'id':
+                        value = int(elem.find(col).text) if elem.find(col) is not None and elem.find(col).text.isdigit() else None
+                    else:
+                        value = elem.find(col).text if elem.find(col) is not None else ''
+                    data.append(value)
+                
+                self.cursor.execute(insert_query, data)
         else:
-            self.cursor.execute('''DELETE FROM denial''')
-            print("Old table deleted")
+            self.cursor.execute('DELETE FROM denial')
+            print("Old table contents deleted")
+
         self.connection.commit()
 
     def getall(self):
