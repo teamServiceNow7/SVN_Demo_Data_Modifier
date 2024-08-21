@@ -141,34 +141,31 @@ class denial_class:
         col_idx = 0
         cols = st.columns(4)
 
-        # Fetch data from the database
-        rows = self.getall()
-        print(f"Fetched rows: {rows}")
+        denial_date = self.get_denial_date()
+        computer = self.get_computer()
+        product = self.get_product()
+        source = self.get_source()
+        sys_created_on = self.get_created_on()
+        sys_updated_on = self.get_updated_on()
+        total_denial_count = self.get_total_denial_count()
+        source = self.get_source()
+        for idx in range(len(denial_date)):
+            
+            display_idx = idx + 1
 
-        data = []
-        for idx, row in enumerate(rows, 1):
-            if self.min <= idx <= self.max:
-                # Print row to check its content
-                print(f"Row {idx}: {row}")
+            if self.min <= display_idx <= self.max:
                 
-                source = self.get_source(idx)  # source
-                computer = self.get_computer(idx)  # computer
-                product = self.get_product(idx)  # product
-                sys_created_on = self.get_created_on(idx)  # sys_created_on
-                sys_updated_on = self.get_updated_on(idx)  # sys_updated_on
-                total_denial_count = self.get_total_denial_count(idx)  # total_denial_count
-                denial_date = self.get_denial_date(idx)  # denial_date
-                    
-                with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
+                with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
                     st.markdown(f"""
-                    **Denial Date**: {denial_date}  
-                    **Computer Name**: {computer}  
-                    **Product**: {product}  
-                    **Source**: {source}  
-                    **Created on**: {sys_created_on}  
-                    **Updated on**: {sys_updated_on}  
-                    **Total Denial Count**: {total_denial_count}  
+                    **Denial Date**: {denial_date[display_idx]}  
+                    **Computer Name**: {computer[display_idx]}  
+                    **Product**: {product[display_idx]}  
+                    **Source**: {source[display_idx]}  
+                    **Created on**: {sys_created_on[display_idx]}  
+                    **Updated on**: {sys_updated_on[display_idx]}  
+                    **Total Denial Count**: {total_denial_count[display_idx]}  
                     """)
+
                 col_idx += 1
        
         
