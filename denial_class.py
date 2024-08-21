@@ -137,7 +137,7 @@ class denial_class:
             print("Database connection closed.")
         
     def disp_denial(self):
-        error = False
+        
         col_idx = 0
         cols = st.columns(4)
 
