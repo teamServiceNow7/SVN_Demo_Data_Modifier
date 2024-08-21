@@ -153,13 +153,13 @@ class denial_class:
                 # Print row to check its content
                 print(f"Row {idx}: {row}")
                 try:
-                    source = row[23]  # source
-                    computer = row[5]  # computer
-                    product = row[10]  # product
-                    sys_created_on = row[25]  # sys_created_on
-                    sys_updated_on = row[31]  # sys_updated_on
-                    total_denial_count = row[32]  # total_denial_count
-                    denial_date = row[6]  # denial_date
+                    source = self.get_source()  # source
+                    computer = self.get_computer()  # computer
+                    product = self.get_product()  # product
+                    sys_created_on = self.get_created_on()  # sys_created_on
+                    sys_updated_on = self.get_updated_on()  # sys_updated_on
+                    total_denial_count = self.get_total_denial_count()  # total_denial_count
+                    denial_date = self.get_denial_date()  # denial_date
                     
                     #dataframe
                     data.append({
@@ -279,7 +279,7 @@ class denial_class:
     def get_computer(self):
     
         self.cursor.execute('''
-        SELECT id, computer FROM denial
+        SELECT id, computer_name FROM denial
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
