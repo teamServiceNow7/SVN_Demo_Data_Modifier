@@ -258,7 +258,7 @@ class denial_class:
     
     def get_computer(self, idx):
         self.cursor.execute('''
-            SELECT computer FROM denial WHERE id = ?
+            SELECT computer_name FROM denial WHERE id = ?
         ''', (idx,))
         row = self.cursor.fetchone()
         return row[0] if row else None
@@ -272,7 +272,7 @@ class denial_class:
     
     def get_product(self, idx):
         self.cursor.execute('''
-            SELECT product FROM denial WHERE id = ?
+            SELECT nom_product_name FROM denial WHERE id = ?
         ''', (idx,))
         row = self.cursor.fetchone()
         return row[0] if row else None
