@@ -456,9 +456,6 @@ def main():
             deny.disp_denial()
             st.write(deny.test())
             deny.close()
-
-            else:
-                deny.disp_denial()
             
             #placeholder1.dataframe(deny.display_data())
             with placeholder1:
