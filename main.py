@@ -432,6 +432,7 @@ def main():
     
         elif denial:
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
+            deny.update_denial()
 
             if update_button:
                 
