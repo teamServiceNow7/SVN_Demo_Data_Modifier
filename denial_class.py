@@ -153,13 +153,13 @@ class denial_class:
                 # Print row to check its content
                 print(f"Row {idx}: {row}")
                 try:
-                    source = self.get_source()  # source
-                    computer = self.get_computer()  # computer
-                    product = self.get_product()  # product
-                    sys_created_on = self.get_created_on()  # sys_created_on
-                    sys_updated_on = self.get_updated_on()  # sys_updated_on
+                    source = self.get_source(idx)  # source
+                    computer = self.get_computer(idx)  # computer
+                    product = self.get_product(idx)  # product
+                    sys_created_on = self.get_created_on(idx)  # sys_created_on
+                    sys_updated_on = self.get_updated_on(idx)  # sys_updated_on
                     total_denial_count = self.get_total_denial_count()  # total_denial_count
-                    denial_date = self.get_denial_date()  # denial_date
+                    denial_date = self.get_denial_date(idx)  # denial_date
                     
                     #dataframe
                     data.append({
