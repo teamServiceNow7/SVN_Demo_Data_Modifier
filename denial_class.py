@@ -357,6 +357,6 @@ class denial_class:
         return error
 
     def test(self):
-        self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
+        self.cursor.execute('''SELECT * FROM denial''')
         result = self.cursor.fetchall()
         return result
