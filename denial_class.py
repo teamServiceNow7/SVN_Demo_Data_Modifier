@@ -229,54 +229,106 @@ class denial_class:
     def get_root(self):
         return self.root
     
-    def get_denial_date(self, idx):
+    def get_denial_date(self):
+        
         self.cursor.execute('''
-            SELECT denial_date FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
+        SELECT id, denial_date FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.denial_date = {row[0]: row[1] for row in rows}
+
+        return self.denial_date
+
+    def get_computer(self):
     
-    def get_computer(self, idx):
         self.cursor.execute('''
-            SELECT computer_name FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
+        SELECT id, computer_name FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.computer = {row[0]: row[1] for row in rows}
+
+        return self.computer
+
+    def get_source(self):
+ 
+        self.cursor.execute('''
+        SELECT id, source FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+       
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+ 
+        # Extract the single column from the rows and store it in self.source        
+        self.source = {row[0]: row[1] for row in rows}
+
+        return self.source
     
-    def get_source(self, idx):
+    def get_product(self):
+
         self.cursor.execute('''
-            SELECT source FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
+        SELECT id, product FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.product = {row[0]: row[1] for row in rows}
+
+        return self.product
     
-    def get_product(self, idx):
+    def get_created_on(self):
         self.cursor.execute('''
-            SELECT norm_product_name FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
+        SELECT id, sys_created_on FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.created_on = {row[0]: row[1] for row in rows}
+        return self.created_on
     
-    def get_created_on(self, idx):
+    def get_updated_on(self):
+
         self.cursor.execute('''
-            SELECT sys_created_on FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
+        SELECT id, sys_updated_on FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.updated_on = {row[0]: row[1] for row in rows}
+        return self.updated_on
     
-    def get_updated_on(self, idx):
+    def get_total_denial_count(self):
+
         self.cursor.execute('''
-            SELECT sys_updated_on FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
-    
-    def get_total_denial_count(self, idx):
-        self.cursor.execute('''
-            SELECT total_denial_count FROM denial WHERE id = ?
-        ''', (idx,))
-        row = self.cursor.fetchone()
-        return row[0] if row else None
+        SELECT id, total_denial_count FROM denial
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.total_denial_count = {row[0]: row[1] for row in rows}
+        return self.total_denial_count
     
     def get_min(self):
         return self.min 
