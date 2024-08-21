@@ -463,7 +463,7 @@ def main():
             #placeholder1.dataframe(deny.display_data())
             with placeholder1:
 
-                df = deny.display_data()
+                df = deny.disp_denial()
 
                 #Dates Tab Graph
                 col1, col2= st.columns((2))
