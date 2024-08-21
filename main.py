@@ -432,8 +432,8 @@ def main():
     
         elif denial:
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
-            deny.disp_denial()
-            st.write(deny.test())
+        
+           
             if update_button:
                 
                 if new_source is not None:
@@ -453,7 +453,9 @@ def main():
 
                 if error: placeholder.error(":x: Not Updated!")
                 else: placeholder.success(":white_check_mark: All fields updated successfully!")
-                deny.close()
+            deny.disp_denial()
+            st.write(deny.test())
+            deny.close()
 
             else:
                 deny.disp_denial()
