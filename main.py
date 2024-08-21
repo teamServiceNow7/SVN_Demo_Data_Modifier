@@ -441,6 +441,8 @@ def main():
                 if new_date is not None:
                     error = deny.update_date()
 
+                st.write(deny.test())
+
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                 label="Download Modified XML",
