@@ -136,7 +136,7 @@ class denial_class:
             self.connection.close()
             print("Database connection closed.")
         
-    def update_denial(self):
+    def disp_denial(self):
         error = False
         value1 = None
         flag = 2
@@ -159,31 +159,8 @@ class denial_class:
                 sys_updated_on = row[31]  # sys_updated_on
                 total_denial_count = row[32]  # total_denial_count
                 denial_date = row[6]  # denial_date
-
-                # To change the source
-                if self.new_source is not None:
-                    self.set_new_source(self.new_source)
-                    source = self.new_source
-                else:
-                    source = source
-
-                # To change the denial_date
-                if self.new_date:
-                    if denial_date is not None:
-                        try:
-                            # Assuming usage_class.adjust_date_element() is available
-                            value = usage_class.adjust_date_element(None, None, denial_date, self.new_date, idx, self.min, flag, value1)
-                            value1 = value
-                        except ValueError as e:
-                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
-                            error = True
-                    else:
-                        # Adjust the min_idle to get the next value if the first value is none
-                        self.min += 1
-                        # Replace all that have the none value into the inputted start date
-                        denial_date = self.new_date.strftime('%Y-%m-%d')
-
-                # New Addition (Dataframe)
+                
+                #dataframe
                 data.append({
                     'source': source, 'computer': computer, 'product': product,
                     'created_on': sys_created_on, 'updated_on': sys_updated_on,
