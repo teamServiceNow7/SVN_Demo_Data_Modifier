@@ -295,7 +295,8 @@ def save_modified_xml(file_name, tree):
 
 #Main Function 
 def main():
-   
+
+    error = False
     st.image("XML_TitleHeader.png")
     #st.title("ServiceNow ENGINEERING DEMO DATA MODIFIER")
     #st.divider()
