@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 import pandas as pd
 import sqlite3
 import os
-#class for denial
+
+# Class for denial
 class denial_class:
     
-    def __init__(self,tree,root,min,max,db_path,new_source,new_date):
-
+    def __init__(self, tree, root, min, max, db_path, new_source, new_date):
         self.tree = tree
         self.root = root
         self.denial_date = None
@@ -138,8 +138,6 @@ class denial_class:
         
     def disp_denial(self):
         error = False
-        value1 = None
-        flag = 2
         col_idx = 0
         cols = st.columns(4)
 
@@ -158,10 +156,10 @@ class denial_class:
                     product = self.get_product(idx)  # product
                     sys_created_on = self.get_created_on(idx)  # sys_created_on
                     sys_updated_on = self.get_updated_on(idx)  # sys_updated_on
-                    total_denial_count = self.get_total_denial_count()  # total_denial_count
+                    total_denial_count = self.get_total_denial_count(idx)  # total_denial_count
                     denial_date = self.get_denial_date(idx)  # denial_date
                     
-                    #dataframe
+                    # Dataframe
                     data.append({
                         'source': source, 'computer': computer, 'product': product,
                         'created_on': sys_created_on, 'updated_on': sys_updated_on,
@@ -203,53 +201,45 @@ class denial_class:
             updated_on = elem.find('sys_updated_on').text
             denial_count = elem.find('total_denial_count').text
             denial_date = elem.find('denial_date').text
-            data.append({'source':source, 'computer': computer,'product':product,'created_on': created_on, 'updated_on': updated_on, 'denial_count':denial_count,'denial_date':denial_date}) 
+            data.append({'source':source, 'computer': computer, 'product':product, 'created_on': created_on, 'updated_on': updated_on, 'denial_count':denial_count, 'denial_date':denial_date}) 
         df = pd.DataFrame(data)
         return df
 
-    #SETTERS
-    def set_tree(self,tree):
-    
+    # SETTERS
+    def set_tree(self, tree):
         self.tree = tree
 
-    def set_root(self,root):
-    
+    def set_root(self, root):
         self.root = root
 
-    def set_denial_date(self,denial_date):
-        
+    def set_denial_date(self, denial_date):
         self.denial_date = denial_date
 
-    def set_computer(self,computer):
-    
+    def set_computer(self, computer):
         self.computer = computer
 
-    def set_product(self,product):
-
+    def set_product(self, product):
         self.product = product
-    
-    def set_created_on(self,created_on):
+
+    def set_created_on(self, created_on):
         self.created_on = created_on
-    
-    def set_updated_on(self,updated_on):
 
+    def set_updated_on(self, updated_on):
         self.updated_on = updated_on
-    
-    def set_total_denial_count(self,total_denial_count):
 
+    def set_total_denial_count(self, total_denial_count):
         self.total_denial_count = total_denial_count
 
-    def set_min(self,min):
+    def set_min(self, min):
         self.min = min
     
-    def set_max(self,max):
+    def set_max(self, max):
         self.max = max
     
-    def set_new_source(self,new_source):
-
+    def set_new_source(self, new_source):
         self.new_source = new_source
     
-    def set_new_date(self,new_date):
+    def set_new_date(self, new_date):
         self.new_date = new_date
 
     # GETTERS
@@ -320,64 +310,50 @@ class denial_class:
     def get_new_date(self):
         return self.new_date 
 
-    #UPDATE
+    # UPDATE
     def update_source(self):
-
         if self.new_source is not None:
             self.cursor.execute('''
             UPDATE denial
             SET source = ?
             WHERE id BETWEEN ? AND ?
-        ''', (self.new_source, self.min, self.max))
+            ''', (self.new_source, self.min, self.max))
             self.connection.commit()
         elif self.new_source == "" or self.new_source is None:
-            self.source = self.get_source()
-            for value in self.source.values():
-                self.cursor.execute('''
-                UPDATE denial
-                SET source = ?
-                WHERE id BETWEEN ? AND ?
-            ''', (value, self.min, self.max))
+            source_values = self.get_source(self.min)
+            self.cursor.execute('''
+            UPDATE denial
+            SET source = ?
+            WHERE id BETWEEN ? AND ?
+            ''', (source_values, self.min, self.max))
     
     def update_date(self):
         error = False 
         if self.new_date is not None:
-
-            self.denial_date = self.get_denial_date()
-            min = self.min
-            
-            for idx, date_str in self.denial_date.items():
+            denial_dates = {idx: self.get_denial_date(idx) for idx in range(self.min, self.max + 1)}
+            for idx, date_str in denial_dates.items():
                 if self.min <= idx <= self.max:
                     if date_str is not None:
                         try:
                             date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
                             new_date_obj = self.new_date - date_obj
-                            
-                            if idx == min:
-                                # Calculate the interval days
-                                interval_days = new_date_obj.days
-                                # Adjust the date by adding the interval days to the original date
+                            interval_days = new_date_obj.days
                             new_date1 = date_obj + timedelta(days=interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d')
-    
                             self.cursor.execute('''
                             UPDATE denial
                             SET denial_date = ?
                             WHERE id = ?
-                        ''', (new_date1_str, idx))
-                            
+                            ''', (new_date1_str, idx))
                         except ValueError as e:
-                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
+                            st.error(f"Error parsing date at index {idx}: {str(e)}")
                             error = True
-                    
-                    else: 
-                        min = min + 1
+                    else:
                         self.cursor.execute('''
                         UPDATE denial
                         SET denial_date = ?
                         WHERE id = ?
-                    ''', (self.new_date.strftime('%Y-%m-%d'), idx))
-                    
+                        ''', (self.new_date.strftime('%Y-%m-%d'), idx))
             self.connection.commit()
         return error
 
