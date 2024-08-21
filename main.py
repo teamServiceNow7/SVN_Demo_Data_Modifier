@@ -436,7 +436,7 @@ def main():
                 deny.update_source()
             if new_date is not None:
                 error = deny.update_date()
-                
+            deny.test()
             error,tree = deny.update_denial()
             deny.close()
             
