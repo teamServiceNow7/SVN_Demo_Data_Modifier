@@ -377,7 +377,9 @@ def main():
         with st.sidebar.expander(f"#### Edit Source Value", expanded=True):
             st.markdown("")
             new_source = st.text_input("New Source Value", "")
-        
+
+        if new_source == "":
+            new_source = None
         st.sidebar.subheader("New Date Value", "")
 
         # Determine the appropriate label [EDITED  ]
@@ -429,14 +431,12 @@ def main():
     
         elif denial:
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
-            deny.set_new_source(new_source)
-            print(deny.get_denial_date())
-            print(deny.get_computer())
-            print(deny.get_product())
-            print(deny.get_source())
-            print(deny.get_created_on())
-            print(deny.get_updated_on())
-            print(deny.get_total_denial_count())
+
+            if new_source is not None:
+                deny.update_source()
+            if new_date is not None:
+                error = deny.update_date()
+                
             error,tree = deny.update_denial()
             deny.close()
             
