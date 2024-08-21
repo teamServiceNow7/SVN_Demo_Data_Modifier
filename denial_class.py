@@ -384,7 +384,8 @@ class denial_class:
         ''', (self.new_source, self.min, self.max))
             self.connection.commit()
         elif self.new_source == "" or self.new_source is None:
-            for value in self.get_source().values():
+            self.source = self.get_source()
+            for value in self.source.values():
                 self.cursor.execute('''
                 UPDATE denial
                 SET source = ?
