@@ -307,13 +307,6 @@ class denial_class:
         ''', (idx,))
         row = self.cursor.fetchone()
         return row[0] if row else None
-
-        # Fetch all rows from the executed query
-        rows = self.cursor.fetchall()
-
-        # Extract the single column from the rows and store it in self.computer      
-        self.total_denial_count = {row[0]: row[1] for row in rows}
-        return self.total_denial_count
     
     def get_min(self):
         return self.min 
