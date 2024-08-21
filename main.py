@@ -522,17 +522,7 @@ def main():
             st.write(f"Unknown file type: {file_name}")
             return
         
-        if update_button:
-                modified_xml = save_modified_xml(file_name, tree)
-                st.sidebar.download_button(
-                label="Download Modified XML",
-                data = modified_xml,    
-                file_name=file_name,
-                mime='application/xml',
-                type="primary"
-                )
-                if error: placeholder.error(":x: Not Updated!")
-                else: placeholder.success(":white_check_mark: All fields updated successfully!")
+        
 
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
