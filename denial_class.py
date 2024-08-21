@@ -187,7 +187,7 @@ class denial_class:
 
         df = pd.DataFrame(data)
         print(df)
-        return error, self.tree, df 
+        return error, self.tree
         
     def display_data(self):
         data = []
