@@ -431,7 +431,7 @@ def main():
             conc.close()
     
         elif denial:
-            deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
+            deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
 
             if update_button:
                 
