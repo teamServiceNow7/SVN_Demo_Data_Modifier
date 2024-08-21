@@ -150,43 +150,27 @@ class denial_class:
             if self.min <= idx <= self.max:
                 # Print row to check its content
                 print(f"Row {idx}: {row}")
-                try:
-                    source = self.get_source(idx)  # source
-                    computer = self.get_computer(idx)  # computer
-                    product = self.get_product(idx)  # product
-                    sys_created_on = self.get_created_on(idx)  # sys_created_on
-                    sys_updated_on = self.get_updated_on(idx)  # sys_updated_on
-                    total_denial_count = self.get_total_denial_count(idx)  # total_denial_count
-                    denial_date = self.get_denial_date(idx)  # denial_date
+                
+                source = self.get_source(idx)  # source
+                computer = self.get_computer(idx)  # computer
+                product = self.get_product(idx)  # product
+                sys_created_on = self.get_created_on(idx)  # sys_created_on
+                sys_updated_on = self.get_updated_on(idx)  # sys_updated_on
+                total_denial_count = self.get_total_denial_count(idx)  # total_denial_count
+                denial_date = self.get_denial_date(idx)  # denial_date
                     
-                    # Dataframe
-                    data.append({
-                        'source': source, 'computer': computer, 'product': product,
-                        'created_on': sys_created_on, 'updated_on': sys_updated_on,
-                        'denial_count': total_denial_count, 'denial_date': denial_date
-                    })
-    
-                    with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
-                        st.markdown(f"""
-                        **Denial Date**: {denial_date}  
-                        **Computer Name**: {computer}  
-                        **Product**: {product}  
-                        **Source**: {source}  
-                        **Created on**: {sys_created_on}  
-                        **Updated on**: {sys_updated_on}  
-                        **Total Denial Count**: {total_denial_count}  
-                        """)
-                    col_idx += 1
-    
-                except IndexError as e:
-                    st.error(f"IndexError at row {idx}: {str(e)}")
-                    error = True
-                except Exception as e:
-                    st.error(f"Unexpected error at row {idx}: {str(e)}")
-                    error = True
-        df = pd.DataFrame(data)
-        print(df)
-        return error, self.tree
+                with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
+                    st.markdown(f"""
+                    **Denial Date**: {denial_date}  
+                    **Computer Name**: {computer}  
+                    **Product**: {product}  
+                    **Source**: {source}  
+                    **Created on**: {sys_created_on}  
+                    **Updated on**: {sys_updated_on}  
+                    **Total Denial Count**: {total_denial_count}  
+                    """)
+                col_idx += 1
+       
         
     def display_data(self):
         data = []
