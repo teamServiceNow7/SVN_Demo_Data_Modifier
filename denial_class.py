@@ -126,6 +126,7 @@ class denial_class:
         result = self.cursor.fetchall()
         return result
         
+    #(TO BE DELETED)    
     def update_denial(self):
 
         st.write("  ")
@@ -187,7 +188,7 @@ class denial_class:
         df = pd.DataFrame(data)
         print(df)
         return error,self.tree  #can modify because of tree return  
-    
+    #(TO BE DELETED)
     def display_data(self):
         data = []
 
@@ -243,14 +244,8 @@ class denial_class:
         self.max = max
     
     def set_new_source(self,new_source):
-        if self.new_source is not None:
-            self.new_source = new_source
-            self.cursor.execute('''
-            UPDATE denial
-            SET source = ?
-            WHERE id BETWEEN ? AND ?
-        ''', (self.new_source, self.min, self.max))
-        self.connection.commit()
+
+        self.new_source = new_source
     
     def set_new_date(self,new_date):
         self.new_date = new_date
@@ -376,3 +371,63 @@ class denial_class:
     
     def get_new_date(self):
         return self.new_date 
+
+    #UPDATE
+    def update_source(self):
+
+        if self.new_source is not None:
+            self.cursor.execute('''
+            UPDATE denial
+            SET source = ?
+            WHERE id BETWEEN ? AND ?
+        ''', (self.new_source, self.min, self.max))
+            self.connection.commit()
+        elif self.new_source == "" or self.new_source is None:
+            for value in self.get_source().values():
+                self.cursor.execute('''
+                UPDATE denial
+                SET source = ?
+                WHERE id BETWEEN ? AND ?
+            ''', (value, self.min, self.max))
+    
+    def update_date(self):
+        error = False 
+        if self.new_date is not None:
+
+            self.denial_date = self.get_denial_date()
+            min = self.min
+            
+            for idx, date_str in self.denial_date.items():
+                if self.min <= idx <= self.max:
+                    if date_str is not None:
+                        try:
+                            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                            new_date_obj = self.new_date - date_obj
+                            
+                            if idx == min:
+                                # Calculate the interval days
+                                interval_days = new_date_obj.days
+                                # Adjust the date by adding the interval days to the original date
+                            new_date1 = date_obj + timedelta(days=interval_days)
+                            new_date1_str = new_date1.strftime('%Y-%m-%d')
+    
+                            self.cursor.execute('''
+                            UPDATE denial
+                            SET denial_date = ?
+                            WHERE id = ?
+                        ''', (new_date1_str, idx))
+                            
+                        except ValueError as e:
+                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
+                            error = True
+                    
+                    else: 
+                        min = min + 1
+                        self.cursor.execute('''
+                        UPDATE denial
+                        SET denial_date = ?
+                        WHERE id = ?
+                    ''', (self.new_date.strftime('%Y-%m-%d'), idx))
+                    
+            self.connection.commit()
+        return error
