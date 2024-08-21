@@ -184,6 +184,8 @@ class denial_class:
                 except Exception as e:
                     st.error(f"Unexpected error at row {idx}: {str(e)}")
                     error = True
+        df = pd.DataFrame(data)
+        print(df)
         return error, self.tree
         
     def display_data(self):
