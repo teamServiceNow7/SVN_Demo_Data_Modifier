@@ -1,4 +1,5 @@
 import streamlit as st
+from usage_class import usage_class
 from datetime import datetime, timedelta
 import pandas as pd
 import sqlite3
@@ -50,27 +51,21 @@ class denial_class:
                 action TEXT,
                 additional_key TEXT,
                 computer TEXT,
-                computer_name TEXT,
                 denial_date TEXT,
                 denial_id TEXT,
                 discovery_model TEXT,
                 "group" TEXT,
-                group_name TEXT,
                 is_product_normalized TEXT,
                 last_denial_time TEXT,
                 license_server TEXT,
-                license_server_name TEXT,
                 license_type TEXT,
-                license_type_name TEXT,
                 norm_product TEXT,
-                nom_product_name TEXT,
                 norm_publisher TEXT,
-                norm_publisher_name TEXT,
                 product TEXT,
                 publisher TEXT,
                 source TEXT,
                 sys_created_by TEXT,
-                sys_created_on TEXT, 
+                sys_created_on TEXT,
                 sys_domain TEXT,
                 sys_domain_path TEXT,
                 sys_id TEXT,
@@ -79,10 +74,8 @@ class denial_class:
                 sys_updated_on TEXT,
                 total_denial_count TEXT,
                 "user" TEXT,
-                user_name TEXT,
                 version TEXT,
-                workstation TEXT,
-                workstation_name TEXT
+                workstation TEXT
             )
         ''')
         self.connection.commit()
@@ -103,23 +96,17 @@ class denial_class:
         self.cursor.execute('SELECT COUNT(*) FROM denial')
         rows = self.cursor.fetchone()[0]
 
-        # Insert data into the table
-        for elem in self.root.findall('.//samp_eng_app_denial'):
-            data = []
-            for col in columns:
-                if col == 'id':
-                    value = int(elem.find(col).text) if elem.find(col) is not None and elem.find(col).text.isdigit() else None
-                elif col.endswith('_name'):
-                    # Handle columns that map to display_value attributes
-                    element_name = col.replace('_name', '')
-                    element = elem.find(element_name)
-                    value = element.get('display_value') if element is not None else ''
-                else:
-                    value = elem.find(col).text if elem.find(col) is not None else ''
-                data.append(value)
-
-            self.cursor.execute(insert_query, data)
-
+        if rows == 0:
+            for elem in self.root.findall('.//samp_eng_app_denial'):
+                data = []
+                for col in columns:
+                    if col == 'id':
+                        value = int(elem.find(col).text) if elem.find(col) is not None and elem.find(col).text.isdigit() else None
+                    else:
+                        value = elem.find(col).text if elem.find(col) is not None else ''
+                    data.append(value)
+                
+                self.cursor.execute(insert_query, data)
         self.connection.commit()
 
     def delete_table(self):
@@ -127,91 +114,82 @@ class denial_class:
 
     def getall(self):
         self.cursor.execute('''SELECT * FROM denial''')
-        return self.cursor.fetchall()
+        #Save values into arrays
 
     def close(self):
         """Close the database connection."""
         if self.connection:
             self.connection.close()
             print("Database connection closed.")
+            
+    def test(self):
+        self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
+        result = self.cursor.fetchall()
+        return result
         
+    #(TO BE DELETED)    
     def update_denial(self):
-        error = False
-        value1 = None
-        flag = 2
+
+        st.write("  ")
+        cols = st.columns(4)  # Adjust the number of columns as needed
         col_idx = 0
-        cols = st.columns(4)
-
-        # Fetch data from the database
-        rows = self.getall()
-        print(f"Fetched rows: {rows}")
-
-        data = []
-        for idx, row in enumerate(rows, 1):
-            # Print row to check its content
-            print(f"Row {idx}: {row}")
-            try:
-                source = row[23]  # source
-                computer = row[5]  # computer
-                product = row[10]  # product
-                sys_created_on = row[25]  # sys_created_on
-                sys_updated_on = row[31]  # sys_updated_on
-                total_denial_count = row[32]  # total_denial_count
-                denial_date = row[6]  # denial_date
-
-                # To change the source
-                if self.new_source is not None:
-                    self.set_new_source(self.new_source)
-                    source = self.new_source
-                else:
-                    source = source
-
-                # To change the denial_date
+        flag = 2
+        value1 = 0
+        error = False 
+        data = [] #new addition
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
+            #Condition for the slider
+            if (self.min <= idx <= self.max):
+                #to change the source
+                if self.new_source:
+                    self.source = elem.find('source')  
+                    if self.source is not None:
+                        self.source.text = self.new_source
+                #to change the denial_date
                 if self.new_date:
-                    if denial_date is not None:
+                    self.denial_date = elem.find('denial_date')
+                    #condition if the denial_date_elem.text have a value
+                    if self.denial_date is not None and self.denial_date.text is not None:
                         try:
-                            # Assuming usage_class.adjust_date_element() is available
-                            value = usage_class.adjust_date_element(None, None, denial_date, self.new_date, idx, self.min, flag, value1)
+                            #calling the function to adjust the usage_date in concurrent
+                            value = usage_class.adjust_date_element(None,None,self.denial_date,self.new_date, idx, self.min,flag,value1)
+                            #storing the increment date value to use to other iterations
                             value1 = value
+                        #catching the errors (this will print if there are wrong format in date)
                         except ValueError as e:
                             st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
                             error = True
                     else:
-                        # Adjust the min_idle to get the next value if the first value is none
-                        self.min += 1
-                        # Replace all that have the none value into the inputted start date
-                        denial_date = self.new_date.strftime('%Y-%m-%d')
+                        #adjusting the min_idle to get the next value if the first value is none
+                        min = min+1
+                        #replacing all that have the none value into the inputted start date
+                        self.denial_date.text = self.new_date.strftime('%Y-%m-%d')
 
-                # New Addition (Dataframe)
-                data.append({
-                    'source': source, 'computer': computer, 'product': product,
-                    'created_on': sys_created_on, 'updated_on': sys_updated_on,
-                    'denial_count': total_denial_count, 'denial_date': denial_date
-                })
-
+                #new Addition (Dataframe) 
+                source = elem.find('source').text
+                computer = elem.find('computer').get('display_value')
+                product = elem.find('norm_product').get('display_value')
+                created_on = elem.find('sys_created_on').text
+                updated_on = elem.find('sys_updated_on').text
+                denial_count = elem.find('total_denial_count').text
+                denial_date = elem.find('denial_date').text
+                data.append({'source':source, 'computer': computer,'product':product,'created_on': created_on, 'updated_on': updated_on, 'denial_count':denial_count,'denial_date':denial_date})  
+                
                 with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
                     st.markdown(f"""
-                    **Denial Date**: {denial_date}  
-                    **Computer Name**: {computer}  
-                    **Product**: {product}  
-                    **Source**: {source}  
-                    **Created on**: {sys_created_on}  
-                    **Updated on**: {sys_updated_on}  
-                    **Total Denial Count**: {total_denial_count}  
+                    **Denial Date**: {elem.find('denial_date').text if elem.find('denial_date') is not None else 'N/A'}  
+                    **Computer Name**: {elem.find('computer').get('display_value') if elem.find('computer') is not None else 'N/A'}  
+                    **Product**: {elem.find('norm_product').get('display_value') if elem.find('norm_product') is not None else 'N/A'}  
+                    **Source**: {elem.find('source').text if elem.find('source') is not None else 'N/A'}  
+                    **Created on**: {elem.find('sys_created_on').text if elem.find('sys_created_on') is not None else 'N/A'}  
+                    **Updated on**: {elem.find('sys_updated_on').text if elem.find('sys_updated_on') is not None else 'N/A'}  
+                    **Total Denial Count**: {elem.find('total_denial_count').text if elem.find('total_denial_count') is not None else 'N/A'}  
                     """)
                 col_idx += 1
-
-            except IndexError as e:
-                st.error(f"IndexError at row {idx}: {str(e)}")
-                error = True
-            except Exception as e:
-                st.error(f"Unexpected error at row {idx}: {str(e)}")
-                error = True
-
         df = pd.DataFrame(data)
         print(df)
-        return error, self.tree 
-    
+        return error,self.tree  #can modify because of tree return  
+    #(TO BE DELETED)
     def display_data(self):
         data = []
 
