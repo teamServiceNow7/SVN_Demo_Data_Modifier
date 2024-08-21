@@ -272,7 +272,7 @@ class denial_class:
     
     def get_product(self, idx):
         self.cursor.execute('''
-            SELECT nom_product_name FROM denial WHERE id = ?
+            SELECT norm_product_name FROM denial WHERE id = ?
         ''', (idx,))
         row = self.cursor.fetchone()
         return row[0] if row else None
