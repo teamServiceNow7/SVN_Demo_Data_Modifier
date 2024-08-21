@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import sqlite3
 import time
 import pandas as pd
+import altair as alt
 from PIL import Image
 from io import BytesIO
 from datetime import datetime, timedelta
