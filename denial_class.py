@@ -144,52 +144,48 @@ class denial_class:
         cols = st.columns(4)
 
         # Fetch data from the database
-        query = '''
-        SELECT * FROM denial
-        WHERE id BETWEEN ? AND ?
-        '''
-        self.cursor.execute(query, (self.min, self.max))
         rows = self.getall()
         print(f"Fetched rows: {rows}")
 
         data = []
         for idx, row in enumerate(rows, 1):
-            # Print row to check its content
-            print(f"Row {idx}: {row}")
-            try:
-                source = row[23]  # source
-                computer = row[5]  # computer
-                product = row[10]  # product
-                sys_created_on = row[25]  # sys_created_on
-                sys_updated_on = row[31]  # sys_updated_on
-                total_denial_count = row[32]  # total_denial_count
-                denial_date = row[6]  # denial_date
-                
-                #dataframe
-                data.append({
-                    'source': source, 'computer': computer, 'product': product,
-                    'created_on': sys_created_on, 'updated_on': sys_updated_on,
-                    'denial_count': total_denial_count, 'denial_date': denial_date
-                })
-
-                with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
-                    st.markdown(f"""
-                    **Denial Date**: {denial_date}  
-                    **Computer Name**: {computer}  
-                    **Product**: {product}  
-                    **Source**: {source}  
-                    **Created on**: {sys_created_on}  
-                    **Updated on**: {sys_updated_on}  
-                    **Total Denial Count**: {total_denial_count}  
-                    """)
-                col_idx += 1
-
-            except IndexError as e:
-                st.error(f"IndexError at row {idx}: {str(e)}")
-                error = True
-            except Exception as e:
-                st.error(f"Unexpected error at row {idx}: {str(e)}")
-                error = True
+            if self.min <= idx <= self.max:
+                # Print row to check its content
+                print(f"Row {idx}: {row}")
+                try:
+                    source = row[23]  # source
+                    computer = row[5]  # computer
+                    product = row[10]  # product
+                    sys_created_on = row[25]  # sys_created_on
+                    sys_updated_on = row[31]  # sys_updated_on
+                    total_denial_count = row[32]  # total_denial_count
+                    denial_date = row[6]  # denial_date
+                    
+                    #dataframe
+                    data.append({
+                        'source': source, 'computer': computer, 'product': product,
+                        'created_on': sys_created_on, 'updated_on': sys_updated_on,
+                        'denial_count': total_denial_count, 'denial_date': denial_date
+                    })
+    
+                    with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
+                        st.markdown(f"""
+                        **Denial Date**: {denial_date}  
+                        **Computer Name**: {computer}  
+                        **Product**: {product}  
+                        **Source**: {source}  
+                        **Created on**: {sys_created_on}  
+                        **Updated on**: {sys_updated_on}  
+                        **Total Denial Count**: {total_denial_count}  
+                        """)
+                    col_idx += 1
+    
+                except IndexError as e:
+                    st.error(f"IndexError at row {idx}: {str(e)}")
+                    error = True
+                except Exception as e:
+                    st.error(f"Unexpected error at row {idx}: {str(e)}")
+                    error = True
 
         df = pd.DataFrame(data)
         print(df)
