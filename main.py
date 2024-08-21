@@ -434,7 +434,7 @@ def main():
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
 
             if not update_button:
-                deny.disp_denial()
+                deny.display_data()
 
             if update_button:
                 
