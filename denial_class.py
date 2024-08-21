@@ -392,6 +392,7 @@ class denial_class:
                 SET source = ?
                 WHERE id BETWEEN ? AND ?
             ''', (value, self.min, self.max))
+        self.test()
     
     def update_date(self):
         error = False 
@@ -433,4 +434,5 @@ class denial_class:
                     ''', (self.new_date.strftime('%Y-%m-%d'), idx))
                     
             self.connection.commit()
+            self.test()
         return error
