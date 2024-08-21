@@ -436,3 +436,8 @@ class denial_class:
             self.connection.commit()
             self.test()
         return error
+
+    def test(self):
+        self.cursor.execute('''SELECT * FROM denial WHERE id = 1''')
+        result = self.cursor.fetchall()
+        return result
