@@ -431,26 +431,13 @@ def main():
             conc.close()
     
         elif denial:
-            deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
+            deny = denial_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
 
-            
-            if update_button:
-                if new_source is not None:
-                    deny.update_source()
-                if new_date is not None:
-                    error = deny.update_date()
-                modified_xml = save_modified_xml(file_name, tree)
-                st.sidebar.download_button(
-                label="Download Modified XML",
-                data = modified_xml,    
-                file_name=file_name,
-                mime='application/xml',
-                type="primary"
-                )
-                if error: placeholder.error(":x: Not Updated!")
-                else: placeholder.success(":white_check_mark: All fields updated successfully!")
-                    
-            #error,tree = deny.update_denial()
+            if new_source is not None:
+                deny.update_source()
+            if new_date is not None:
+                error = deny.update_date()        
+            error,tree = deny.update_denial()
             deny.close()
             
             
@@ -522,7 +509,17 @@ def main():
             st.write(f"Unknown file type: {file_name}")
             return
         
-        
+        if update_button:
+            modified_xml = save_modified_xml(file_name, tree)
+            st.sidebar.download_button(
+            label="Download Modified XML",
+            data = modified_xml,    
+            file_name=file_name,
+            mime='application/xml',
+            type="primary"
+            )
+            if error: placeholder.error(":x: Not Updated!")
+            else: placeholder.success(":white_check_mark: All fields updated successfully!")
 
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
