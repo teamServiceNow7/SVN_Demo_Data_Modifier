@@ -144,6 +144,11 @@ class denial_class:
         cols = st.columns(4)
 
         # Fetch data from the database
+        query = '''
+        SELECT * FROM denial
+        WHERE id BETWEEN ? AND ?
+        '''
+        self.cursor.execute(query, (self.min, self.max))
         rows = self.getall()
         print(f"Fetched rows: {rows}")
 
