@@ -432,7 +432,8 @@ def main():
     
         elif denial:
             deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
-
+            deny.disp_denial()
+            st.write(deny.test())
             if update_button:
                 
                 if new_source is not None:
@@ -440,8 +441,6 @@ def main():
                 if new_date is not None:
                     error = deny.update_date()
 
-                deny.disp_denial()
-                st.write(deny.test())
 
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
