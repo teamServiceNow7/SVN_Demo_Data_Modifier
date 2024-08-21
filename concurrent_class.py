@@ -38,7 +38,7 @@ class concurrent_class:
             print(f"Connected to the existing database '{self.db_path}'.")
             
         self.create_tables()
-        #self.clear_table()
+        self.clear_table()
 
     def create_tables(self):
         """Create tables if they do not exist."""
@@ -56,10 +56,10 @@ class concurrent_class:
         ''')
         self.connection.commit()
 
-    #def clear_table(self):
-        #self.insert_data()
-        #self.delete_table()
-        #self.insert_data()
+    def clear_table(self):
+        self.insert_data()
+        self.delete_table()
+        self.insert_data()
         
     def insert_data(self):
         #Populate the table with data
@@ -80,8 +80,8 @@ class concurrent_class:
                                     ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
         self.connection.commit()
 
-    #def delete_table(self):
-        #self.cursor.execute('''DELETE FROM concurrent''')
+    def delete_table(self):
+        self.cursor.execute('''DELETE FROM concurrent''')
         
     def test(self):
         self.cursor.execute('''SELECT * FROM concurrent WHERE id = 1''')
