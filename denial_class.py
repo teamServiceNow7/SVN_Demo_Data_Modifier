@@ -200,7 +200,7 @@ class denial_class:
             sys_updated_on = self.get_updated_on(idx)  # sys_updated_on
             total_denial_count = self.get_total_denial_count(idx)  # total_denial_count
             denial_date = self.get_denial_date(idx)  # denial_date
-            data.append({'source':source, 'computer': computer, 'product':product, 'created_on': created_on, 'updated_on': updated_on, 'denial_count':denial_count, 'denial_date':denial_date}) 
+            data.append({'source':source, 'computer': computer, 'product':product, 'created_on': sys_created_on, 'updated_on': sys_updated_on, 'denial_count': total_denial_count, 'denial_date':denial_date}) 
         df = pd.DataFrame(data)
         return df
 
