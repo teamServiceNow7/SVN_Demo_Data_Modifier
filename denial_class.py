@@ -129,6 +129,7 @@ class denial_class:
     def delete_table(self):
         self.cursor.execute('DROP TABLE IF EXISTS denial')
         self.create_tables()
+        self.connection.commit()
 
     def getall(self):
         self.cursor.execute('''SELECT * FROM denial''')
