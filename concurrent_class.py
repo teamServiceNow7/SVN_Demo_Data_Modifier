@@ -376,7 +376,10 @@ class concurrent_class:
 
                 col_idx += 1
 
-    
+    def test(self):
+        self.cursor.execute('''SELECT * FROM denial''')
+        result = self.cursor.fetchall()
+        return result
 
 
     
