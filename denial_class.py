@@ -128,7 +128,6 @@ class denial_class:
 
     def delete_table(self):
         self.cursor.execute('DROP TABLE IF EXISTS concurrent')
-        # Recreate the table
         self.create_tables()
 
     def getall(self):
