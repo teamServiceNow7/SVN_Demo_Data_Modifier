@@ -519,7 +519,7 @@ def main():
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
-        page_title="[THURS]ServiceNow Engineering Demo Data Modifier",
+        page_title="[TEST]ServiceNow Engineering Demo Data Modifier",
         layout="wide",
         page_icon=DDMIcon
         )
