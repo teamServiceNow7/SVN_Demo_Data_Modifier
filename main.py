@@ -431,7 +431,25 @@ def main():
             
         elif concurrent:
             conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date)
-            error, tree = conc.update_concurrent()
+            if update_button:
+                if new_source is not None:
+                    conc.update_concurrent_source()
+                if new_date is not None:
+                    error = conc.update_concurrent_date()
+                modified_xml = save_modified_xml(file_name, tree)
+                st.sidebar.download_button(
+                    label="Download Modified XML",
+                    data=modified_xml,    
+                    file_name=file_name,
+                    mime='application/xml',
+                    type="primary"
+                )
+
+                if error:
+                    placeholder.error(":x: Not Updated!")
+                else:
+                    placeholder.success(":white_check_mark: All fields updated successfully!")
+            conc.disp_concurrent()
             conc.close()
     
         elif denial:
