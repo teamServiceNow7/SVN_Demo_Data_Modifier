@@ -346,7 +346,7 @@ class denial_class:
         return self.new_date 
 
     # UPDATE
-    def update_source(self):
+    def update_denial_source(self):
         if self.new_source is not None:
             self.cursor.execute('''
             UPDATE denial
@@ -362,7 +362,7 @@ class denial_class:
             WHERE id BETWEEN ? AND ?
             ''', (source_values, self.min, self.max))
     
-    def update_date(self):
+    def update_denial_date(self):
         error = False 
         if self.new_date is not None:
 
