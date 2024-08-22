@@ -92,7 +92,6 @@ class denial_class:
         self.connection.commit()
 
     def clear_table(self):
-        self.insert_data()
         self.delete_table()
         self.insert_data()
 
