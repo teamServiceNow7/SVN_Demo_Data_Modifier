@@ -127,7 +127,7 @@ class denial_class:
         self.connection.commit()
 
     def delete_table(self):
-        self.cursor.execute('DROP TABLE IF EXISTS concurrent')
+        self.cursor.execute('DROP TABLE IF EXISTS denial')
         self.create_tables()
 
     def getall(self):
