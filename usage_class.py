@@ -190,7 +190,7 @@ class usage_class:
         #Return the value to retain the increment date
         return value1
     
-    def update_usage(self):
+    def disp_usage(self):
 
         st.write("  ")
         cols = st.columns(4)  # Adjust the number of columns as needed
@@ -391,4 +391,8 @@ class usage_class:
 
     def get_total_session_dur(self):
         return self.total_session_dur
-    
+        
+    def test(self):
+        self.cursor.execute('''SELECT * FROM usage''')
+        result = self.cursor.fetchall()
+        return result
