@@ -442,7 +442,7 @@ def main():
             st.write(deny.test())
             if update_button:
                 if new_source is not None:
-                    # deny.update_source()
+                    deny.update_source()
                     return new_source
                 if new_date is not None:
                     error = deny.update_date()
