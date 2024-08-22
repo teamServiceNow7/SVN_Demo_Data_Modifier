@@ -104,31 +104,31 @@ class concurrent_class:
         self.connection.commit()
 
     def disp_concurrent(self):
-    col_idx = 0
-    cols = st.columns(4)
-
-    usage_date = self.get_usage_date()
-    license_name = self.get_license_name()
-    source = self.get_source()
-    sys_created_on = self.get_created_on()
-    sys_updated_on = self.get_updated_on()
-    concurrent_usage = self.get_concurrent_usage()
-
-    for idx in range(len(usage_date)):
-        display_idx = idx + 1
-
-        if self.min <= display_idx <= self.max:
-            with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
-                st.markdown(f"""
-                **Usage Date**: {usage_date[display_idx]}  
-                **License Name**: {license_name[display_idx]}  
-                **Source**: {source[display_idx]}  
-                **Created on**: {sys_created_on[display_idx]}  
-                **Updated on**: {sys_updated_on[display_idx]}  
-                **Concurrent Usage**: {concurrent_usage[display_idx]}  
-                """)
-
-            col_idx += 1
+        col_idx = 0
+        cols = st.columns(4)
+    
+        usage_date = self.get_usage_date()
+        license_name = self.get_license_name()
+        source = self.get_source()
+        sys_created_on = self.get_created_on()
+        sys_updated_on = self.get_updated_on()
+        concurrent_usage = self.get_concurrent_usage()
+    
+        for idx in range(len(usage_date)):
+            display_idx = idx + 1
+    
+            if self.min <= display_idx <= self.max:
+                with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
+                    st.markdown(f"""
+                    **Usage Date**: {usage_date[display_idx]}  
+                    **License Name**: {license_name[display_idx]}  
+                    **Source**: {source[display_idx]}  
+                    **Created on**: {sys_created_on[display_idx]}  
+                    **Updated on**: {sys_updated_on[display_idx]}  
+                    **Concurrent Usage**: {concurrent_usage[display_idx]}  
+                    """)
+    
+                col_idx += 1
             
     def delete_table(self):
         self.cursor.execute('''DELETE FROM concurrent''')
