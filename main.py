@@ -295,11 +295,14 @@ def save_modified_xml(file_name, tree):
 
 #Main Function 
 def main():
+    # Initialize session state variables
+    if 'previous_file_name' not in st.session_state:
+        st.session_state.previous_file_name = None
+        st.session_state.file_changed = False
 
     error = False
-    st.image("XML_TitleHeader.png")
-    #st.title("ServiceNow ENGINEERING DEMO DATA MODIFIER")
-    #st.divider()
+
+    # Progress bar (if needed)
     placeholder = st.empty()
     placeholder1 = st.empty()
     placeholder2 = st.empty()
@@ -320,23 +323,26 @@ def main():
         uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
 
     if uploaded_files:
-
         file_names = [file.name for file in uploaded_files]
         selected_file_name = st.sidebar.selectbox("Select a file to focus on", file_names)
 
-        
         selected_file = None
         for uploaded_file in uploaded_files:
             if uploaded_file.name == selected_file_name:
                 selected_file = uploaded_file
                 break
+        
+        # Check if the selected file has changed
+        if selected_file_name != st.session_state.previous_file_name:
+            st.session_state.file_changed = True
+            st.session_state.previous_file_name = selected_file_name
+        else:
+            st.session_state.file_changed = False
     else:
         file_name = output_file_path
         selected_file = xml_data
-        
 
     if selected_file:
-        
         # Load and parse the XML file
         if uploaded_files:
             tree = ET.parse(selected_file)
@@ -344,13 +350,12 @@ def main():
 
             file_name = selected_file.name
 
-            #Remove the prefix, file extension, and underscores, then convert to proper case
+            # Remove the prefix, file extension, and underscores, then convert to proper case
             display_file_name = file_name.replace("samp_eng_app_", "").replace("_", " ").rsplit('.', 1)[0].title()
         else:
             tree = ET.ElementTree(ET.fromstring(selected_file))
             root = tree.getroot()
             display_file_name = "Default File"
-
 
         st.header(f"Update {display_file_name}")
         elements = None
@@ -373,7 +378,7 @@ def main():
             # Count the elements
         count = len(elements)
 
-        min_range, max_range = st.sidebar.slider("Select Range",min_value=1, max_value=count,value=(1,count),key="select_range")
+        min_range, max_range = st.sidebar.slider("Select Range", min_value=1, max_value=count, value=(1, count), key="select_range")
         # Fields that are always visible
         with st.sidebar.expander(f"#### Edit Source Value", expanded=True):
             st.markdown("")
@@ -383,7 +388,7 @@ def main():
             new_source = None
         st.sidebar.subheader("New Date Value", "")
 
-        # Determine the appropriate label [EDITED  ]
+        # Determine the appropriate label [EDITED]
         if denial:
             label = "Update Denial Date"
         else:
@@ -392,82 +397,82 @@ def main():
         # Display the date input with the corresponding label
         with st.sidebar.expander(f"#### {label}", expanded=True):
             st.markdown("")
-            new_date = st.date_input("Enter Start Date",value=None)
+            new_date = st.date_input("Enter Start Date", value=None)
 
         if usage:
             with st.sidebar.expander(f"#### {{Update Idle Duration}}"):
                 st.markdown("")
-                idle_dur_date = st.date_input("Enter Idle Duration (Date)",value=None)
-                idle_dur_time = st.time_input("Enter Idle Duration (Time)",value=None,step=60)
+                idle_dur_date = st.date_input("Enter Idle Duration (Date)", value=None)
+                idle_dur_time = st.time_input("Enter Idle Duration (Time)", value=None, step=60)
                 
             with st.sidebar.expander(f"#### {{Session Duration}}"):
                 st.markdown("")
-                session_dur_date = st.date_input("Enter Session Duration (Date)",value=None)
-                session_dur_time = st.time_input("Enter Session Duration (Time)",value=None,step=60)
-            #condition to not update if there is one none in either idle_dur_date or idle_dur time
-            if((idle_dur_date is not None) and (idle_dur_time is not None)):
-                total_idle_dur = datetime.combine(idle_dur_date,idle_dur_time)
+                session_dur_date = st.date_input("Enter Session Duration (Date)", value=None)
+                session_dur_time = st.time_input("Enter Session Duration (Time)", value=None, step=60)
+            # Condition to not update if there is one none in either idle_dur_date or idle_dur_time
+            if ((idle_dur_date is not None) and (idle_dur_time is not None)):
+                total_idle_dur = datetime.combine(idle_dur_date, idle_dur_time)
             else:
                 total_idle_dur = None 
-            #condition to not update if there is one none in either session_dur_date or session_dur_time
-            if((session_dur_date is not None) and (session_dur_time is not None) ):        
-                total_session_dur = datetime.combine(session_dur_date,session_dur_time)
+            # Condition to not update if there is one none in either session_dur_date or session_dur_time
+            if ((session_dur_date is not None) and (session_dur_time is not None)):        
+                total_session_dur = datetime.combine(session_dur_date, session_dur_time)
             else:
                 total_session_dur = None
 
         update_button = st.sidebar.button("Update All Fields")
         st.sidebar.divider()
 
-    
+        if st.session_state.file_changed:
+            st.sidebar.text("The file has been changed.")
+
         if usage:
-            usg = usage_class(tree,root,min_range,max_range,db_path,new_source if update_button else None, new_date if update_button else None,
-                  total_idle_dur if update_button else None, total_session_dur if update_button else None)
+            usg = usage_class(tree, root, min_range, max_range, db_path, new_source if update_button else None, new_date if update_button else None,
+                              total_idle_dur if update_button else None, total_session_dur if update_button else None)
             error, tree = usg.update_usage()
             usg.close()
             
         elif concurrent:
-            conc = concurrent_class(tree,root,min_range,max_range,db_path,new_source if update_button else None,new_date if update_button else None)
+            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source if update_button else None, new_date if update_button else None)
             error, tree = conc.update_concurrent()
             conc.close()
     
         elif denial:
-            deny = denial_class(tree,root,min_range,max_range,db_path,new_source,new_date)
-        
-           
+            deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date)
+            deny.update_denial()
+
             if update_button:
-                
                 if new_source is not None:
-                    deny.update_source()
+                    # deny.update_source()
+                    return new_source
                 if new_date is not None:
                     error = deny.update_date()
 
-
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
-                label="Download Modified XML",
-                data = modified_xml,    
-                file_name=file_name,
-                mime='application/xml',
-                type="primary"
+                    label="Download Modified XML",
+                    data=modified_xml,    
+                    file_name=file_name,
+                    mime='application/xml',
+                    type="primary"
                 )
 
-                if error: placeholder.error(":x: Not Updated!")
-                else: placeholder.success(":white_check_mark: All fields updated successfully!")
-            deny.disp_denial()
-            st.write(deny.test())
-            deny.close()
+                if error:
+                    placeholder.error(":x: Not Updated!")
+                else:
+                    placeholder.success(":white_check_mark: All fields updated successfully!")
+                deny.close()
             
-            #placeholder1.dataframe(deny.display_data())
+            # placeholder1.dataframe(deny.display_data())
             with placeholder1:
-
                 df = deny.display_data()
 
-                #Dates Tab Graph
-                col1, col2= st.columns((2))
+                # Dates Tab Graph
+                col1, col2 = st.columns((2))
                 
                 df['denial_date'] = pd.to_datetime(df['denial_date'])
 
-                #Getting the min and max date
+                # Getting the min and max date
                 startDate = pd.to_datetime(df['denial_date']).min()
                 endDate = pd.to_datetime(df['denial_date']).max()
 
@@ -480,39 +485,24 @@ def main():
                     df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
 
             with placeholder2:
-                
-                col3, col4= st.columns([2, 1], gap="small")
+                col3, col4 = st.columns([2, 1], gap="small")
 
                 with col3:
-                  
                     container = st.container(border=True)
                     container.subheader("Denial Count over time")
-                    den_count= pd.Series(df['denial_count'])
+                    den_count = pd.Series(df['denial_count'])
                     df['denial_count'] = den_count.astype(int)
-                    #den_date= pd.Series(df['denial_date'])
-                    
-                    container.bar_chart(df, x = 'denial_date', 
-                                        y = 'denial_count', 
-                                        x_label= 'Denial Date', 
+                    container.bar_chart(df, x='denial_date', 
+                                        y='denial_count', 
+                                        x_label='Denial Date', 
                                         y_label='Denial Count', 
                                         use_container_width=True, 
                                         color="#920113")
-                    #date= pd.Series(df['denial_date'])
-                    #den_date  =date.astype(str)
-                    #den_date = df['denial_date']
-                    #den_count = df['denial_count']
-                    
-                    #container.pyplot(fig)
-                    #fig = px.bar(df, x= df['denial_date'], y = df['denial_count'], text_auto=True)
-                    #fig.update_traces(textfont_size=12, textangle=0, textposition="outside", marker_color='red')
-                    #fig.update_layout(xaxis_title="Denial Date", yaxis_title="Denial Count",  )
-                    #container.plotly_chart(fig, use_container_width= True, height =500)
                      
                 with col4:
                     container2 = st.container(border=True, height=130)
                     container2.subheader("Total Denial Count")
-                    #den_count= int(df['total_denial_count'])
-                    array= pd.Series(df['denial_count'])
+                    array = pd.Series(df['denial_count'])
                     array_int = array.astype(int)
                     container2.header(array_int.sum())
 
@@ -520,12 +510,9 @@ def main():
                     container3 = st.container(border=True, height=290)
                     container3.subheader("Users")
                     container3.write(df['computer'].tolist())
-            
         else:
             st.write(f"Unknown file type: {file_name}")
             return
-        
-       
 
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
