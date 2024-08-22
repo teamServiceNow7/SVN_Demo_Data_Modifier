@@ -304,6 +304,7 @@ def main():
         
     file_changed = False
     error = False
+    st.image("XML_TitleHeader.png")
 
     # Progress bar (if needed)
     placeholder = st.empty()
