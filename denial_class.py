@@ -107,21 +107,22 @@ class denial_class:
         rows = self.cursor.fetchone()[0]
 
         # Insert data into the table
-        for elem in self.root.findall('.//samp_eng_app_denial'):
-            data = []
-            for col in columns:
-                if col == 'id':
-                    value = int(elem.find(col).text) if elem.find(col) is not None and elem.find(col).text.isdigit() else None
-                elif col.endswith('_name'):
-                    # Handle columns that map to display_value attributes
-                    element_name = col.replace('_name', '')
-                    element = elem.find(element_name)
-                    value = element.get('display_value') if element is not None else ''
-                else:
-                    value = elem.find(col).text if elem.find(col) is not None else ''
-                data.append(value)
-
-            self.cursor.execute(insert_query, data)
+        if rows == 0
+            for elem in self.root.findall('.//samp_eng_app_denial'):
+                data = []
+                for col in columns:
+                    if col == 'id':
+                        value = int(elem.find(col).text) if elem.find(col) is not None and elem.find(col).text.isdigit() else None
+                    elif col.endswith('_name'):
+                        # Handle columns that map to display_value attributes
+                        element_name = col.replace('_name', '')
+                        element = elem.find(element_name)
+                        value = element.get('display_value') if element is not None else ''
+                    else:
+                        value = elem.find(col).text if elem.find(col) is not None else ''
+                    data.append(value)
+    
+                self.cursor.execute(insert_query, data)
 
         self.connection.commit()
 
