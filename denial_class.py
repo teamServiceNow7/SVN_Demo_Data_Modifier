@@ -42,8 +42,6 @@ class denial_class:
         self.create_tables()
         if self.file_changed:    
             self.clear_table()
-        else:
-            self.insert_data()
 
     def create_tables(self):
         """Create tables if they do not exist."""
