@@ -6,7 +6,7 @@ import os
 #class for usage 
 class usage_class:
 
-    def __init__(self, tree,root , min, max,db_path,new_source,new_date,total_idle_dur, total_session_dur):
+    def __init__(self, tree,root , min, max,db_path,new_source,new_date,total_idle_dur, total_session_dur,file_changed):
 
         self.tree = tree
         self.root = root
@@ -24,6 +24,7 @@ class usage_class:
         self.new_date = new_date
         self.total_idle_dur = total_idle_dur
         self.total_session_dur = total_session_dur
+        self.file_changed = file_changed
         self.db_path = db_path
         self.initialize_database()
 
@@ -43,7 +44,10 @@ class usage_class:
             print(f"Connected to the existing database '{self.db_path}'.")
             
         self.create_tables()
-        self.insert_data()
+        if self.file_changed:
+            self.clear_table()
+        else:
+            self.insert_data()
 
     def create_tables(self):
         """Create tables if they do not exist."""
@@ -73,6 +77,11 @@ class usage_class:
         ''')
         self.connection.commit()
 
+    def clear_table(self):
+        self.insert_data()
+        self.delete_table()
+        self.insert_data()
+        
     def insert_data(self):
         """Insert data from XML into the 'usage_summary' table."""
         self.cursor.execute("PRAGMA table_info(usage_summary)")
@@ -81,27 +90,34 @@ class usage_class:
         placeholders = ', '.join(['?'] * len(columns))
         insert_query = f'INSERT INTO usage_summary ({columns_str}) VALUES ({placeholders})'
 
+        self.cursor.execute('SELECT COUNT(*) FROM usage')
+        rows = self.cursor.fetchone()[0]
         # Insert data into the table
-        for elem in self.root.findall('.//samp_eng_app_usage_summary'):
-            data = []
-            for col in columns:
-                if col == 'id':
-                    # Handle the 'id' column; usually, this is an auto-incremented field
-                    value = None
-                elif col.endswith('_name'):
-                    # Handle columns that map to display_value attributes
-                    element_name = col.replace('_name', '')
-                    element = elem.find(element_name)
-                    value = element.get('display_value') if element is not None else ''
-                else:
-                    value = elem.find(col).text if elem.find(col) is not None else ''
-                    if col == 'sys_mod_count' and value.isdigit():
-                        value = int(value)
-                        
-                data.append(value)
+        if rows == 0:
+            for elem in self.root.findall('.//samp_eng_app_usage_summary'):
+                data = []
+                for col in columns:
+                    if col == 'id':
+                        # Handle the 'id' column; usually, this is an auto-incremented field
+                        value = None
+                    elif col.endswith('_name'):
+                        # Handle columns that map to display_value attributes
+                        element_name = col.replace('_name', '')
+                        element = elem.find(element_name)
+                        value = element.get('display_value') if element is not None else ''
+                    else:
+                        value = elem.find(col).text if elem.find(col) is not None else ''
+                        if col == 'sys_mod_count' and value.isdigit():
+                            value = int(value)
+                            
+                    data.append(value)
+    
+                self.cursor.execute(insert_query, data)
 
-            self.cursor.execute(insert_query, data)
+        self.connection.commit()
 
+    def delete_table(self):
+        self.cursor.execute('DELETE FROM denial')
         self.connection.commit()
 
     def close(self):
