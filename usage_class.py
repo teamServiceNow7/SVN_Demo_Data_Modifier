@@ -17,6 +17,7 @@ class usage_class:
         self.updated_on = None
         self.idle_dur = None
         self.sess_dur = None
+        self.usage_date = None
         self.min = min
         self.max = max
         self.new_source = new_source
@@ -277,6 +278,9 @@ class usage_class:
     
     def set_sess_dur(self, sess_dur):
         self.sess_dur = sess_dur
+
+    def set_usage_date(self, usage_date):
+        self.usage_date = usage_date
     
     def set_tree(self,tree):
         self.tree = tree
@@ -320,6 +324,9 @@ class usage_class:
     
     def get_sess_dur(self):
         return self.sess_dur 
+
+    def get_usage_date(self):
+        return self.usage_date
     
     def get_tree(self):
         return self.tree
