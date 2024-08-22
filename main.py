@@ -277,11 +277,10 @@ db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
  
-#xml_file_path = 'C:/Users/vince.durante/Documents/samp_eng_app_denial.xml'
+#xml_file_path = 'path here'
 #upload_xml(db_path, table_name, xml_column, xml_file_path)
  
 # Example usage for retrieving XML
-xml_files = []
 record_id = 1
 output_file_path = 'output_file.xml'
 xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
@@ -363,18 +362,10 @@ def main():
         denial = root.find('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
         
         # Find all elements with the specified action attribute
-        if usage and uploaded_files:
-            elements = root.findall('.//samp_eng_app_usage_summary[@action="INSERT_OR_UPDATE"]')
+        
+        elements = root.findall(".//*[@action]")
             
-        elif concurrent and uploaded_files:
-            elements = root.findall('.//samp_eng_app_concurrent_usage[@action="INSERT_OR_UPDATE"]')
-
-        elif denial and uploaded_files:
-            elements = root.findall('.//samp_eng_app_denial[@action="INSERT_OR_UPDATE"]')
-        else:
-            elements = root.findall(".//*[@action]")
-            
-            # Count the elements
+        # Count the elements
         count = len(elements)
 
         min_range, max_range = st.sidebar.slider("Select Range", min_value=1, max_value=count, value=(1, count), key="select_range")
@@ -399,12 +390,12 @@ def main():
             new_date = st.date_input("Enter Start Date", value=None)
 
         if usage:
-            with st.sidebar.expander(f"#### {{Update Idle Duration}}"):
+            with st.sidebar.expander(f"#### {Update Idle Duration}"):
                 st.markdown("")
                 idle_dur_date = st.date_input("Enter Idle Duration (Date)", value=None)
                 idle_dur_time = st.time_input("Enter Idle Duration (Time)", value=None, step=60)
                 
-            with st.sidebar.expander(f"#### {{Session Duration}}"):
+            with st.sidebar.expander(f"#### {Session Duration}"):
                 st.markdown("")
                 session_dur_date = st.date_input("Enter Session Duration (Date)", value=None)
                 session_dur_time = st.time_input("Enter Session Duration (Time)", value=None, step=60)
@@ -426,13 +417,13 @@ def main():
             st.sidebar.text("The file has been changed.")
 
         if usage:
-            usg = usage_class(tree, root, min_range, max_range, db_path, new_source if update_button else None, new_date if update_button else None,
-                              total_idle_dur if update_button else None, total_session_dur if update_button else None)
+            usg = usage_class(tree, root, min_range, max_range, db_path, new_source, new_date,
+                              total_idle_dur, total_session_dur)
             error, tree = usg.update_usage()
             usg.close()
             
         elif concurrent:
-            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source if update_button else None, new_date if update_button else None)
+            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date)
             error, tree = conc.update_concurrent()
             conc.close()
     
@@ -457,7 +448,6 @@ def main():
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
-            st.write(deny.test())
             deny.close()
             
             # placeholder1.dataframe(deny.display_data())
