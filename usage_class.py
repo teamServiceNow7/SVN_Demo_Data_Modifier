@@ -90,7 +90,7 @@ class usage_class:
         placeholders = ', '.join(['?'] * len(columns))
         insert_query = f'INSERT INTO usage_summary ({columns_str}) VALUES ({placeholders})'
 
-        self.cursor.execute('SELECT COUNT(*) FROM usage')
+        self.cursor.execute('SELECT COUNT(*) FROM usage_summary')
         rows = self.cursor.fetchone()[0]
         # Insert data into the table
         if rows == 0:
