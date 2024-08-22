@@ -126,7 +126,7 @@ class denial_class:
         self.connection.commit()
 
     def delete_table(self):
-        self.cursor.execute('DROP TABLE IF EXISTS denial')
+        self.cursor.execute('DELETE FROM denial')
         self.create_tables()
         self.connection.commit()
 
