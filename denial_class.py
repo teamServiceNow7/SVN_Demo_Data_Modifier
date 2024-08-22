@@ -8,7 +8,7 @@ import os
 # Class for denial
 class denial_class:
     
-    def __init__(self, tree, root, min, max, db_path, new_source, new_date):
+    def __init__(self, tree, root, min, max, db_path, new_source, new_date, file_changed):
         self.tree = tree
         self.root = root
         self.denial_date = None
@@ -22,6 +22,7 @@ class denial_class:
         self.max = max
         self.new_source = new_source
         self.new_date = new_date
+        self.file_changed = file_changed
         self.db_path = db_path
         self.initialize_database()
 
@@ -40,7 +41,10 @@ class denial_class:
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
         self.create_tables()
-        self.clear_table()
+        if file_changed:    
+            self.clear_table()
+        else:
+            self.insert_data()
 
     def create_tables(self):
         """Create tables if they do not exist."""
