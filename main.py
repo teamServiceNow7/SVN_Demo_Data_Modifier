@@ -91,6 +91,10 @@ sidebar_bg_img = """
     h4{
     color: #920113;
     }
+
+    .stProgress > div > div > div > div {
+        background-color: #920113;
+    }
     
     [data-testid= "stThumbValue"]{
     color: #920113;
