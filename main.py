@@ -442,7 +442,12 @@ def main():
                     mime='application/xml',
                     type="primary"
                 )
+                if error:
+                    placeholder.error(":x: Not Updated!")
+                else:
+                    placeholder.success(":white_check_mark: All fields updated successfully!")
             conc.disp_concurrent()
+            st.write(conc.test())
             conc.close()
     
         elif denial:
@@ -460,6 +465,10 @@ def main():
                     mime='application/xml',
                     type="primary"
                 )
+                if error:
+                    placeholder.error(":x: Not Updated!")
+                else:
+                    placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
             st.write(deny.test())
             deny.close()
@@ -515,10 +524,7 @@ def main():
             st.write(f"Unknown file type: {file_name}")
             return
 
-        if error:
-            placeholder.error(":x: Not Updated!")
-        else:
-            placeholder.success(":white_check_mark: All fields updated successfully!")
+        
 
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
