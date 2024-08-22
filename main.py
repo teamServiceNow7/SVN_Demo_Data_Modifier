@@ -438,9 +438,9 @@ def main():
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
             if update_button:
                 if new_source is not None:
-                    deny.update_source()
+                    deny.update_denial_source()
                 if new_date is not None:
-                    error = deny.update_date()
+                    error = deny.update_denial_date()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
