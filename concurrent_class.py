@@ -42,16 +42,24 @@ class concurrent_class:
 
     def create_tables(self):
         """Create tables if they do not exist."""
-        # Example table creation
+        # Creating the 'concurrent' table
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS concurrent(
+            CREATE TABLE IF NOT EXISTS concurrent (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                conc_usage_id TEXT,
+                concurrent_usage INTEGER,
+                license TEXT,
                 license_name TEXT,
-                normalized_name TEXT,
                 source TEXT,
-                usage_date TEXT,
-                created_on TEXT,
-                updated_on TEXT
+                sys_created_by TEXT,
+                sys_created_on TEXT,
+                sys_domain TEXT,
+                sys_domain_path TEXT,
+                sys_id TEXT,
+                sys_mod_count INTEGER,
+                sys_updated_by TEXT,
+                sys_updated_on TEXT,
+                usage_date TEXT
             )
         ''')
         self.connection.commit()
@@ -62,22 +70,36 @@ class concurrent_class:
         self.insert_data()
         
     def insert_data(self):
-        #Populate the table with data
-        self.cursor.execute('SELECT COUNT(*) FROM denial')
-        rows = self.cursor.fetchone()[0]
+        """Insert data from XML into the 'concurrent' table."""
+        self.cursor.execute("PRAGMA table_info(concurrent)")
+        columns = [row[1] for row in self.cursor.fetchall()]
+        columns_str = ', '.join([f'"{col}"' for col in columns])
+        placeholders = ', '.join(['?'] * len(columns))
+        insert_query = f'INSERT INTO concurrent ({columns_str}) VALUES ({placeholders})'
 
-        if rows == 0:
-            for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
-                self.license_name = elem.find('license').text
-                self.normalized_name = elem.find('license').get('display_value')
-                self.source = elem.find('source').text
-                self.usage_date = elem.find('usage_date').text
-                self.created_on = elem.find('sys_created_on').text
-                self.updated_on = elem.find('sys_updated_on').text
-                self.cursor.execute('''
-                                    INSERT INTO concurrent(license_name, normalized_name, source, usage_date, created_on, updated_on)
-                                    VALUES(?, ?, ?, ?, ?, ?)
-                                    ''', (self.license_name, self.normalized_name, self.source, self.usage_date, self.created_on, self.updated_on))
+        # Insert data into the table
+        for elem in self.root.findall('.//samp_eng_app_concurrent_usage'):
+            data = []
+            for col in columns:
+                if col == 'id':
+                    # Handle the 'id' column; usually, this is an auto-incremented field
+                    value = None
+                elif col.endswith('_name'):
+                    # Handle columns that map to display_value attributes
+                    element_name = col.replace('_name', '')
+                    element = elem.find(element_name)
+                    value = element.get('display_value') if element is not None else ''
+                else:
+                    value = elem.find(col).text if elem.find(col) is not None else ''
+                    if col == 'concurrent_usage' and value.isdigit():
+                        value = int(value)
+                    if col == 'sys_mod_count' and value.isdigit():
+                        value = int(value)
+
+                data.append(value)
+
+            self.cursor.execute(insert_query, data)
+
         self.connection.commit()
 
     def delete_table(self):
