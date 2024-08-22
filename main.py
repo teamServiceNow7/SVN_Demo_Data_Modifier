@@ -438,7 +438,7 @@ def main():
     
         elif denial:
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
-            deny.update_denial()
+            deny.disp_denial()
 
             if update_button:
                 if new_source is not None:
