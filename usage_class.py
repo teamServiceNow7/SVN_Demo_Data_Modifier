@@ -117,7 +117,7 @@ class usage_class:
         self.connection.commit()
 
     def delete_table(self):
-        self.cursor.execute('DELETE FROM denial')
+        self.cursor.execute('DELETE FROM usage_summary')
         self.connection.commit()
 
     def close(self):
@@ -393,6 +393,6 @@ class usage_class:
         return self.total_session_dur
         
     def test(self):
-        self.cursor.execute('''SELECT * FROM usage''')
+        self.cursor.execute('''SELECT * FROM usage_summary''')
         result = self.cursor.fetchall()
         return result
