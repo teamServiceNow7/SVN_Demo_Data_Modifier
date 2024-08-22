@@ -278,7 +278,7 @@ class concurrent_class:
                 WHERE id BETWEEN ? AND ?
             ''', (value, self.min, self.max))
 
-    def update_conccurent_date(self):
+    def update_concurrent_date(self):
         error = False 
         if self.new_date is not None:
 
