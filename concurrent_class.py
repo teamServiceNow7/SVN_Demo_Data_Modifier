@@ -82,28 +82,31 @@ class concurrent_class:
         placeholders = ', '.join(['?'] * len(columns))
         insert_query = f'INSERT INTO concurrent ({columns_str}) VALUES ({placeholders})'
 
+        self.cursor.execute('SELECT COUNT(*) FROM denial')
+        rows = self.cursor.fetchone()[0]
         # Insert data into the table
-        for elem in self.root.findall('.//samp_eng_app_concurrent_usage'):
-            data = []
-            for col in columns:
-                if col == 'id':
-                    # Handle the 'id' column; usually, this is an auto-incremented field
-                    value = None
-                elif col.endswith('_name'):
-                    # Handle columns that map to display_value attributes
-                    element_name = col.replace('_name', '')
-                    element = elem.find(element_name)
-                    value = element.get('display_value') if element is not None else ''
-                else:
-                    value = elem.find(col).text if elem.find(col) is not None else ''
-                    if col == 'concurrent_usage' and value.isdigit():
-                        value = int(value)
-                    if col == 'sys_mod_count' and value.isdigit():
-                        value = int(value)
-
-                data.append(value)
-
-            self.cursor.execute(insert_query, data)
+        if rows == 0:
+            for elem in self.root.findall('.//samp_eng_app_concurrent_usage'):
+                data = []
+                for col in columns:
+                    if col == 'id':
+                        # Handle the 'id' column; usually, this is an auto-incremented field
+                        value = None
+                    elif col.endswith('_name'):
+                        # Handle columns that map to display_value attributes
+                        element_name = col.replace('_name', '')
+                        element = elem.find(element_name)
+                        value = element.get('display_value') if element is not None else ''
+                    else:
+                        value = elem.find(col).text if elem.find(col) is not None else ''
+                        if col == 'concurrent_usage' and value.isdigit():
+                            value = int(value)
+                        if col == 'sys_mod_count' and value.isdigit():
+                            value = int(value)
+    
+                    data.append(value)
+    
+                self.cursor.execute(insert_query, data)
 
         self.connection.commit()
             
