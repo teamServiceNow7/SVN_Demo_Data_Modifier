@@ -41,7 +41,7 @@ class denial_class:
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
         self.create_tables()
-        if file_changed:    
+        if self.file_changed:    
             self.clear_table()
         else:
             self.insert_data()
