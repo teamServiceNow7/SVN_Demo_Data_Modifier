@@ -81,7 +81,7 @@ class concurrent_class:
         placeholders = ', '.join(['?'] * len(columns))
         insert_query = f'INSERT INTO concurrent ({columns_str}) VALUES ({placeholders})'
 
-        self.cursor.execute('SELECT COUNT(*) FROM denial')
+        self.cursor.execute('SELECT COUNT(*) FROM concurrent')
         rows = self.cursor.fetchone()[0]
         # Insert data into the table
         if rows == 0:
