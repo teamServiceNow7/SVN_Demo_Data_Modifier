@@ -107,9 +107,11 @@ class concurrent_class:
 
         self.connection.commit()
             
-    def delete_table(self):
-        self.cursor.execute('DROP TABLE IF EXISTS concurrent')
+   def delete_table(self):
+        self.cursor.execute('DELETE FROM concurrent')
+        self.cursor.execute('UPDATE sqlite_sequence SET seq = 0 WHERE name = "concurrent"')
         self.create_tables()
+        self.connection.commit()
         
     def test(self):
         self.cursor.execute('''SELECT * FROM concurrent WHERE id = 1''')
