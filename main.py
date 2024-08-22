@@ -430,7 +430,7 @@ def main():
             usg.close()
             
         elif concurrent:
-            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date)
+            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
             if update_button:
                 if new_source is not None:
                     conc.update_concurrent_source()
@@ -450,6 +450,7 @@ def main():
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             conc.disp_concurrent()
+            st.write(conc.test())
             conc.close()
     
         elif denial:
