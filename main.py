@@ -331,14 +331,14 @@ def main():
             if uploaded_file.name == selected_file_name:
                 selected_file = uploaded_file
                 break
+        # Check if the selected file has changed
+        if selected_file_name is not st.session_state.previous_file_name or selected_file is None:
+            file_changed = True
+        else:
+            file_changed = False
     else:
         file_name = output_file_path
         selected_file = xml_data
-
-    # Check if the selected file has changed
-    if selected_file_name is not st.session_state.previous_file_name or selected_file is None:
-        file_changed = True
-    else:
         file_changed = False
 
     if selected_file:
