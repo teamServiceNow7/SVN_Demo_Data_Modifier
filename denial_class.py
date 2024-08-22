@@ -1,5 +1,4 @@
 import streamlit as st
-from usage_class import usage_class
 from datetime import datetime, timedelta
 import pandas as pd
 import sqlite3
