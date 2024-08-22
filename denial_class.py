@@ -281,7 +281,7 @@ class denial_class:
     def get_product(self):
 
         self.cursor.execute('''
-        SELECT id, product FROM denial
+        SELECT id, norm_product_name FROM denial
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
