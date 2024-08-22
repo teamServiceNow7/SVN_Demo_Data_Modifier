@@ -474,7 +474,7 @@ def main():
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
-            #st.write(deny.test())
+            st.write(deny.test())
             
             #Code for Graphs
             with placeholder1:
