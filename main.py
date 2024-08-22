@@ -438,8 +438,6 @@ def main():
     
         elif denial:
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
-            deny.disp_denial()
-            st.write(deny.test())
             if update_button:
                 if new_source is not None:
                     deny.update_source()
@@ -460,7 +458,9 @@ def main():
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
-                deny.close()
+            deny.disp_denial()
+            st.write(deny.test())
+            deny.close()
             
             # placeholder1.dataframe(deny.display_data())
             with placeholder1:
