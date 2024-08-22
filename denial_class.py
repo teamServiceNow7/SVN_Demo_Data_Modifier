@@ -170,23 +170,6 @@ class denial_class:
                     """)
 
                 col_idx += 1
-       
-        
-    def display_data(self):
-        data = []
-
-        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
-
-            source = elem.find('source').text
-            computer = elem.find('computer').get('display_value')
-            product = elem.find('norm_product').get('display_value')
-            created_on = elem.find('sys_created_on').text
-            updated_on = elem.find('sys_updated_on').text
-            denial_count = elem.find('total_denial_count').text
-            denial_date = elem.find('denial_date').text
-            data.append({'source':source, 'computer': computer, 'product':product, 'created_on': created_on, 'updated_on': updated_on, 'denial_count':denial_count, 'denial_date':denial_date}) 
-        df = pd.DataFrame(data)
-        return df
 
     # SETTERS
     def set_tree(self, tree):
