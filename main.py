@@ -448,6 +448,7 @@ def main():
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
+            st.write(deny.test())
             deny.close()
             
             # placeholder1.dataframe(deny.display_data())
