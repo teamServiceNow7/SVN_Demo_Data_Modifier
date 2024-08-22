@@ -127,8 +127,7 @@ class denial_class:
         self.connection.commit()
 
     def delete_table(self):
-        self.cursor.execute('DELETE FROM denial')
-        self.cursor.execute('UPDATE sqlite_sequence SET seq = 0 WHERE name = "denial"')
+        self.cursor.execute('DROP TABLE IF EXISTS denial')
         self.create_tables()
         self.connection.commit()
 
