@@ -366,30 +366,43 @@ class denial_class:
     def update_date(self):
         error = False 
         if self.new_date is not None:
-            denial_dates = {idx: self.get_denial_date(idx) for idx in range(self.min, self.max + 1)}
-            for idx, date_str in denial_dates.items():
+
+            self.denial_date = self.get_denial_date()
+            min = self.min
+            
+            for idx, date_str in self.denial_date.items():
                 if self.min <= idx <= self.max:
                     if date_str is not None:
                         try:
                             date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
                             new_date_obj = self.new_date - date_obj
-                            interval_days = new_date_obj.days
+                            
+                            if idx == min:
+                                # Calculate the interval days
+                                interval_days = new_date_obj.days
+                                min = -1
+                                # Adjust the date by adding the interval days to the original date
                             new_date1 = date_obj + timedelta(days=interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d')
+    
                             self.cursor.execute('''
                             UPDATE denial
                             SET denial_date = ?
                             WHERE id = ?
-                            ''', (new_date1_str, idx))
+                        ''', (new_date1_str, idx))
+                            
                         except ValueError as e:
-                            st.error(f"Error parsing date at index {idx}: {str(e)}")
+                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
                             error = True
-                    else:
+                    
+                    else: 
+                        min = min + 1
                         self.cursor.execute('''
                         UPDATE denial
                         SET denial_date = ?
                         WHERE id = ?
-                        ''', (self.new_date.strftime('%Y-%m-%d'), idx))
+                    ''', (self.new_date.strftime('%Y-%m-%d'), idx))
+                    
             self.connection.commit()
         return error
 
