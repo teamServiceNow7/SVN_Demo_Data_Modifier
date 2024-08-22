@@ -304,9 +304,9 @@ def main():
         
     file_changed = False
     error = False
-    st.image("XML_TitleHeader.png")
 
     # Progress bar (if needed)
+    st.image("XML_TitleHeader.png")
     placeholder = st.empty()
     placeholder1 = st.empty()
     placeholder2 = st.empty()
@@ -430,34 +430,16 @@ def main():
             
         elif concurrent:
             conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date)
-            if update_button:
-                if new_source is not None:
-                    conc.update_concurrent_source()
-                if new_date is not None:
-                    error = conc.update_concurrent_date()
-                modified_xml = save_modified_xml(file_name, tree)
-                st.sidebar.download_button(
-                    label="Download Modified XML",
-                    data=modified_xml,    
-                    file_name=file_name,
-                    mime='application/xml',
-                    type="primary"
-                )
-                if error:
-                    placeholder.error(":x: Not Updated!")
-                else:
-                    placeholder.success(":white_check_mark: All fields updated successfully!")
-            conc.disp_concurrent()
-            st.write(conc.test())
+            error, tree = conc.update_concurrent()
             conc.close()
     
         elif denial:
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
             if update_button:
                 if new_source is not None:
-                    deny.update_denial_source()
+                    deny.update_source()
                 if new_date is not None:
-                    error = deny.update_denial_date()
+                    error = deny.update_date()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
@@ -466,18 +448,24 @@ def main():
                     mime='application/xml',
                     type="primary"
                 )
+
                 if error:
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
-            st.write(deny.test())
-            deny.close()
+            #st.write(deny.test())
             
-            # placeholder1.dataframe(deny.display_data())
+            #Code for Graphs
             with placeholder1:
-                df = deny.display_data()
-
+                #df = deny.display_data()
+                df = pd.DataFrame({
+                    'denial_date': deny.get_denial_date(),
+                    'denial_count': deny.get_total_denial_count(),
+                    'computer': deny.get_computer()
+                })
+                #st.dataframe(df)
+                
                 # Dates Tab Graph
                 col1, col2 = st.columns((2))
                 
@@ -521,16 +509,17 @@ def main():
                     container3 = st.container(border=True, height=290)
                     container3.subheader("Users")
                     container3.write(df['computer'].tolist())
+                
+            deny.close()
+            
         else:
             st.write(f"Unknown file type: {file_name}")
             return
 
-        
-
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
-        page_title="ServiceNow Engineering Demo Data Modifier",
+        page_title="[THURS]ServiceNow Engineering Demo Data Modifier",
         layout="wide",
         page_icon=DDMIcon
         )
