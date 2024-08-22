@@ -5,7 +5,7 @@ import os
 #class for concurrent
 class concurrent_class:
 
-    def __init__(self,tree,root,min,max,db_path,new_source,new_date):
+    def __init__(self,tree,root,min,max,db_path,new_source,new_date,file_changed):
 
         self.tree = tree
         self.root = root
@@ -20,6 +20,7 @@ class concurrent_class:
         self.usage_date = None
         self.created_on = None
         self.updated_on = None
+        self.file_changed = file_changed
         self.db_path = db_path
         self.initialize_database()
 
@@ -39,7 +40,10 @@ class concurrent_class:
             print(f"Connected to the existing database '{self.db_path}'.")
             
         self.create_tables()
-        self.clear_table()
+        if self.file_changed:
+            self.clear_table()
+        else:
+            self.insert_data()
 
     def create_tables(self):
         """Create tables if they do not exist."""
