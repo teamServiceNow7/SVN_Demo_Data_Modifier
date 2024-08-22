@@ -52,7 +52,7 @@ class concurrent_class:
             CREATE TABLE IF NOT EXISTS concurrent (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 conc_usage_id TEXT,
-                concurrent_usage INTEGER,
+                concurrent_usage TEXT,
                 license TEXT,
                 license_name TEXT,
                 source TEXT,
@@ -61,7 +61,7 @@ class concurrent_class:
                 sys_domain TEXT,
                 sys_domain_path TEXT,
                 sys_id TEXT,
-                sys_mod_count INTEGER,
+                sys_mod_count TEXT,
                 sys_updated_by TEXT,
                 sys_updated_on TEXT,
                 usage_date TEXT
