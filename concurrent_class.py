@@ -16,6 +16,7 @@ class concurrent_class:
         self.license_name = None
         self.normalized_name = None
         self.source = None
+        self.concurrent_usage = None
         self.usage_date = None
         self.created_on = None
         self.updated_on = None
@@ -116,65 +117,6 @@ class concurrent_class:
             self.connection.close()
             print("Database connection closed.")   
 
-        #TOdo
-        #initialize database if it doesn't exist
-        #if it exist then update or insert information
-        #when updating the concurrent, need to also update the database
-
-    def update_concurrent(self):
-    
-        st.write("  ")
-        cols = st.columns(4)  # Adjust the number of columns as needed
-        col_idx = 0
-        flag = 1
-        value1 = 0
-        error = False
- 
-        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
-            #condition for the slider
-            if (self.min <= idx <= self.max):
-                #to change the source
-                if self.new_source:
-                    source_elem = elem.find('source')
-                    if source_elem is not None:
-                        source_elem.text = self.new_source
-                #to change the usage_date in concurrent
-                if self.new_date:
-                    concurrent_date_elem = elem.find('usage_date')
-                    #condition if the concurrent_date_elem.text have a value
-                    if concurrent_date_elem is not None and concurrent_date_elem.text is not None:
-                        try:
-                            #calling the function to adjust the usage_date in concurrent
-                            value = usage_class.adjust_date_element(None,concurrent_date_elem,None, self.new_date, idx, self.min,flag,value1)
-                            #storing the increment date value to use to other iterations
-                            value1 = value
-                        #catching the errors (this will print if there are wrong format in date)
-                        except ValueError as e:
-                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
-                            error = True
-                    else:
-                        #adjusting the min_idle to get the next value if the first value is none
-                        min = min+1
-                        #replacing all that have the none value into the inputted start date
-                        concurrent_date_elem.text = self.new_date.strftime('%Y-%m-%d')
-            
-                with cols[col_idx % 4].expander(f"#### Object {idx}", expanded=True):
-                    st.markdown(f"""
-                    **License Name**: {elem.find('license').get('display_value') if elem.find('license') is not None else 'N/A'}  
-                    **Source**: {elem.find('source').text if elem.find('source') is not None else 'N/A'}  
-                    **Usage Date**: {elem.find('usage_date').text if elem.find('usage_date') is not None else 'N/A'}  
-                    **Created on**: {elem.find('sys_created_on').text if elem.find('sys_created_on') is not None else 'N/A'}  
-                    **Updated on**: {elem.find('sys_updated_on').text if elem.find('sys_updated_on') is not None else 'N/A'}  
-                    """)
-                col_idx += 1
-    
-        return error, self.tree
-    
-    #todo
-    # update database
-    # for every setters updated database
-    # for every getter read the updated database
-    
     #SETTERS
     def set_tree(self, tree):
         self.tree = tree
@@ -209,6 +151,9 @@ class concurrent_class:
     def set_updated_on(self,updated_on):
         self.updated_on = updated_on
 
+    def set_concurrent_usage(self,concurrent_usage):
+        self.concurrent_usage = concurrent_usage
+
 
     #GETTERS
     def get_tree(self):
@@ -229,18 +174,178 @@ class concurrent_class:
     def get_new_date(self):
         return self.new_date 
 
-    def get_License_Name(self):
+    def get_license_name(self):
+
+        self.cursor.execute('''
+        SELECT id, license_name FROM concurrent
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.license_name = {row[0]: row[1] for row in rows}
+
         return self.license_name
     
     def get_source(self):
+
+        self.cursor.execute('''
+        SELECT id, source FROM concurrent
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.source = {row[0]: row[1] for row in rows}
         return self.source
 
     def get_usage_date(self):
+        self.cursor.execute('''
+        SELECT id, usage_date FROM concurrent
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.usage_date = {row[0]: row[1] for row in rows}
         return self.usage_date 
 
     def get_created_on(self):
+        self.cursor.execute('''
+        SELECT id, sys_created_on FROM concurrent
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.created_on = {row[0]: row[1] for row in rows}
         return self.created_on 
     
     def get_updated_on(self):
+        self.cursor.execute('''
+        SELECT id, sys_updated_on FROM concurrent
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.updated_on = {row[0]: row[1] for row in rows}
         return self.updated_on 
+
+    def get_concurrent_usage(self):
+        self.cursor.execute('''
+        SELECT id, concurrent_usage FROM concurrent
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.concurrent_usage = {row[0]: row[1] for row in rows}
+        return self.concurrent_usage
+
+    #UPDATE
+    def update_concurrent_source(self):
+
+        if self.new_source is not None:
+            self.cursor.execute('''
+            UPDATE concurrent
+            SET source = ?
+            WHERE id BETWEEN ? AND ?
+        ''', (self.new_source, self.min, self.max))
+            self.connection.commit()
+        elif self.new_source == "" or self.new_source is None:
+            self.source = self.get_source()
+            for value in self.source.values():
+                self.cursor.execute('''
+                UPDATE concurrent
+                SET source = ?
+                WHERE id BETWEEN ? AND ?
+            ''', (value, self.min, self.max))
+
+    def update_conccurent_date(self):
+        error = False 
+        if self.new_date is not None:
+
+            self.usage_date = self.get_usage_date()
+            min = self.min
+            
+            for idx, date_str in self.usage_date.items():
+                if self.min <= idx <= self.max:
+                    if date_str is not None:
+                        try:
+                            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                            new_date_obj = self.new_date - date_obj
+                            
+                            if idx == min:
+                                # Calculate the interval days
+                                interval_days = new_date_obj.days
+                                min = -1
+                                # Adjust the date by adding the interval days to the original date
+                            new_date1 = date_obj + timedelta(days=interval_days)
+                            new_date1_str = new_date1.strftime('%Y-%m-%d')
+    
+                            self.cursor.execute('''
+                            UPDATE concurrent
+                            SET usage_date = ?
+                            WHERE id = ?
+                        ''', (new_date1_str, idx))
+                            
+                        except ValueError as e:
+                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
+                            error = True
+                    
+                    else: 
+                        min = min + 1
+                        self.cursor.execute('''
+                        UPDATE concurrent
+                        SET usage_date = ?
+                        WHERE id = ?
+                    ''', (self.new_date.strftime('%Y-%m-%d'), idx))
+                    
+            self.connection.commit()
+        return error
+
+    def disp_concurrent(self):
+
+        col_idx = 0
+        cols = st.columns(4)
+
+        usage_date = self.get_usage_date()
+        license_name = self.get_license_name()
+        source = self.get_source()
+        sys_created_on = self.get_created_on()
+        sys_updated_on = self.get_updated_on()
+        concurrent_usage = self.get_concurrent_usage()
+        for idx in range(len(usage_date)):
+            
+            display_idx = idx + 1
+
+            if self.min <= display_idx <= self.max:
+                with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
+                    st.markdown(f"""
+                    **Usage Date**: {usage_date[display_idx]}  
+                    **License Name**: {license_name[display_idx]}  
+                    **Source**: {source[display_idx]}  
+                    **Created on**: {sys_created_on[display_idx]}  
+                    **Updated on**: {sys_updated_on[display_idx]}  
+                    **Concurrent Usage**: {concurrent_usage[display_idx]}  
+                    """)
+
+                col_idx += 1
+
+    
+
+
     
