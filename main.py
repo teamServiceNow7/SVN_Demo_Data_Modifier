@@ -444,7 +444,7 @@ def main():
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
-            conc.disp_usage()
+            usg.disp_usage()
             st.write(usg.test())
             usg.close()
             
