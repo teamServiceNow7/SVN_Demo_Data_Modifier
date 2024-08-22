@@ -47,37 +47,61 @@ class usage_class:
 
     def create_tables(self):
         """Create tables if they do not exist."""
-        # Example table creation
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS usage (
+            CREATE TABLE IF NOT EXISTS usage_summary (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                product TEXT,
-                normalized_name TEXT,
+                norm_product TEXT,
+                norm_product_name TEXT,
+                norm_publisher TEXT,
+                norm_publisher_name TEXT,
+                reporting_version TEXT,
                 source TEXT,
-                created_on TEXT,
-                updated_on TEXT,
-                idle_dur TEXT,
-                sess_dur TEXT,
-                usage_date TEXT
+                sys_created_by TEXT,
+                sys_created_on TEXT,
+                sys_domain TEXT,
+                sys_domain_path TEXT,
+                sys_id TEXT,
+                sys_mod_count INTEGER,
+                sys_updated_by TEXT,
+                sys_updated_on TEXT,
+                total_idle_dur TEXT,
+                total_sess_dur TEXT,
+                usage_date TEXT,
+                user TEXT,
+                user_name TEXT
             )
         ''')
         self.connection.commit()
 
     def insert_data(self):
-    #Populate the table with data
-        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_usage_summary'), 1):
-            self.product = elem.find('norm_product').text
-            self.normalized_name = elem.find('norm_product').get('display_value')
-            self.source = elem.find('source').text
-            self.created_on = elem.find('sys_created_on').text
-            self.updated_on = elem.find('sys_updated_on').text
-            self.idle_dur = elem.find('total_idle_dur').text
-            self.sess_dur = elem.find('total_sess_dur').text
-            self.usage_date = elem.find('usage_date').text
-            self.cursor.execute('''
-                                INSERT INTO usage(product, normalized_name, source, created_on, updated_on, idle_dur, sess_dur, usage_date)
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-                                ''', (self.product, self.normalized_name, self.source, self.created_on, self.updated_on, self.total_idle_dur, self.total_session_dur, self.usage_date))
+        """Insert data from XML into the 'usage_summary' table."""
+        self.cursor.execute("PRAGMA table_info(usage_summary)")
+        columns = [row[1] for row in self.cursor.fetchall()]
+        columns_str = ', '.join([f'"{col}"' for col in columns])
+        placeholders = ', '.join(['?'] * len(columns))
+        insert_query = f'INSERT INTO usage_summary ({columns_str}) VALUES ({placeholders})'
+
+        # Insert data into the table
+        for elem in self.root.findall('.//samp_eng_app_usage_summary'):
+            data = []
+            for col in columns:
+                if col == 'id':
+                    # Handle the 'id' column; usually, this is an auto-incremented field
+                    value = None
+                elif col.endswith('_name'):
+                    # Handle columns that map to display_value attributes
+                    element_name = col.replace('_name', '')
+                    element = elem.find(element_name)
+                    value = element.get('display_value') if element is not None else ''
+                else:
+                    value = elem.find(col).text if elem.find(col) is not None else ''
+                    if col == 'sys_mod_count' and value.isdigit():
+                        value = int(value)
+                        
+                data.append(value)
+
+            self.cursor.execute(insert_query, data)
+
         self.connection.commit()
 
     def close(self):
