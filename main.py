@@ -333,6 +333,7 @@ def main():
         # Check if the selected file has changed
         if selected_file_name is not st.session_state.previous_file_name or selected_file is None:
             file_changed = True
+            st.session_state.previous_file_name = selected_file_name
         else:
             file_changed = False
     else:
