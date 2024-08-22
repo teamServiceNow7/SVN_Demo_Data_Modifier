@@ -441,10 +441,8 @@ def main():
             if update_button:
                 if new_source is not None:
                     deny.update_source()
-                    return new_source
                 if new_date is not None:
                     error = deny.update_date()
-                deny.disp_denial()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
