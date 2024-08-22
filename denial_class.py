@@ -107,7 +107,7 @@ class denial_class:
         rows = self.cursor.fetchone()[0]
 
         # Insert data into the table
-        if rows == 0
+        if rows == 0:
             for elem in self.root.findall('.//samp_eng_app_denial'):
                 data = []
                 for col in columns:
