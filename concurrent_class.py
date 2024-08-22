@@ -107,7 +107,7 @@ class concurrent_class:
 
         self.connection.commit()
             
-   def delete_table(self):
+    def delete_table(self):
         self.cursor.execute('DELETE FROM concurrent')
         self.cursor.execute('UPDATE sqlite_sequence SET seq = 0 WHERE name = "concurrent"')
         self.create_tables()
