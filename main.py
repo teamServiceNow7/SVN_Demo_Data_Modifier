@@ -298,8 +298,8 @@ def main():
     # Initialize session state variables
     if 'previous_file_name' not in st.session_state:
         st.session_state.previous_file_name = None
-        st.session_state.file_changed = False
-
+        
+    file_changed = False
     error = False
 
     # Progress bar (if needed)
@@ -333,11 +333,10 @@ def main():
                 break
         
         # Check if the selected file has changed
-        if selected_file_name != st.session_state.previous_file_name:
-            st.session_state.file_changed = True
-            st.session_state.previous_file_name = selected_file_name
+        if selected_file_name is not st.session_state.previous_file_name:
+            file_changed = True
         else:
-            st.session_state.file_changed = False
+            file_changed = False
     else:
         file_name = output_file_path
         selected_file = xml_data
@@ -438,7 +437,7 @@ def main():
             conc.close()
     
         elif denial:
-            deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date)
+            deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
             deny.update_denial()
 
             if update_button:
