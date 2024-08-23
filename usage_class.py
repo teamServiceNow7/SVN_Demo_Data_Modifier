@@ -348,24 +348,100 @@ class usage_class:
     
     #GETTERS
     def get_product(self):
-        return self.product 
+
+        self.cursor.execute('''
+        SELECT id, norm_product FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.product = {row[0]: row[1] for row in rows}
+
+        return self.product
 
     def get_source(self):
+
+        self.cursor.execute('''
+        SELECT id, source FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.source = {row[0]: row[1] for row in rows}
+
         return self.source 
     
     def get_created_on(self):
+        self.cursor.execute('''
+        SELECT id, sys_created_on FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.created_on = {row[0]: row[1] for row in rows}
         return self.created_on 
     
     def get_updated_on(self):
+
+        self.cursor.execute('''
+        SELECT id, sys_updated_on FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.updated_on = {row[0]: row[1] for row in rows}
         return self.updated_on
     
     def get_idle_dur(self):
+        self.cursor.execute('''
+        SELECT id, total_idle_dur FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.idle_dur = {row[0]: row[1] for row in rows}
         return self.idle_dur
     
     def get_sess_dur(self):
-        return self.sess_dur 
 
+        self.cursor.execute('''
+        SELECT id, total_sess_dur FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.sess_dur = {row[0]: row[1] for row in rows}
+        return self.sess_dur 
+    
     def get_usage_date(self):
+        self.cursor.execute('''
+        SELECT id, usage_date FROM usage_summary
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.usage_date = {row[0]: row[1] for row in rows}
         return self.usage_date
     
     def get_tree(self):
@@ -391,6 +467,196 @@ class usage_class:
 
     def get_total_session_dur(self):
         return self.total_session_dur
+
+    def update_usage_source(self):
+
+        if self.new_source is not None:
+            self.cursor.execute('''
+            UPDATE usage_summary
+            SET source = ?
+            WHERE id BETWEEN ? AND ?
+        ''', (self.new_source, self.min, self.max))
+            self.connection.commit()
+        elif self.new_source == "" or self.new_source is None:
+            self.source = self.get_source()
+            for value in self.source.values():
+                self.cursor.execute('''
+                UPDATE usage_summary
+                SET source = ?
+                WHERE id BETWEEN ? AND ?
+            ''', (value, self.min, self.max))
+    
+    def update_usage_date(self):
+        error = False 
+        if self.new_date is not None:
+
+            self.usage_date = self.get_usage_date()
+            min = self.min
+            
+            for idx, date_str in self.usage_date.items():
+                if self.min <= idx <= self.max:
+                    if date_str is not None:
+                        try:
+                            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+                            new_date_obj = self.new_date - date_obj
+                            
+                            if idx == min:
+                                # Calculate the interval days
+                                interval_days = new_date_obj.days
+                                min = -1
+                                # Adjust the date by adding the interval days to the original date
+                            new_date1 = date_obj + timedelta(days=interval_days)
+                            new_date1_str = new_date1.strftime('%Y-%m-%d')
+    
+                            self.cursor.execute('''
+                            UPDATE usage_summary
+                            SET usage_date = ?
+                            WHERE id = ?
+                        ''', (new_date1_str, idx))
+                            
+                        except ValueError as e:
+                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
+                            error = True
+                    
+                    else: 
+                        min = min + 1
+                        self.cursor.execute('''
+                        UPDATE usage_summary
+                        SET usage_date = ?
+                        WHERE id = ?
+                    ''', (self.new_date.strftime('%Y-%m-%d'), idx))
+                    
+            self.connection.commit()
+        return error
+    
+    def update_usage_idle_dur(self):
+
+        error = False 
+        if self.total_idle_dur is not None:
+
+            self.idle_dur = self.get_idle_dur()
+            min = self.min
+            
+            for idx, date_str in self.idle_dur.items():
+                if self.min <= idx <= self.max:
+                    if date_str is not None:
+                        try:
+                            date_obj = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+
+                            new_date_obj = self.total_idle_dur - date_obj
+                            
+                            if idx == min:
+                                # Calculate the interval days
+                                interval_days = new_date_obj.total_seconds() / 60
+                                min = -1
+                                # Adjust the date by adding the interval days to the original date
+                            new_date1 = date_obj + timedelta(minutes = interval_days)
+                            new_date1_str = new_date1.strftime('%Y-%m-%d %H:%M:%S')
+    
+                            self.cursor.execute('''
+                            UPDATE usage_summary
+                            SET total_idle_dur = ?
+                            WHERE id = ?
+                        ''', (new_date1_str, idx))
+                            
+                        #catching the errors (this will print if there are wrong format in date and if it have date calculation overflow)
+                        except OverflowError:
+                            st.error(f"Date calculation overflow at index {idx}. Original idle duration: {date_str}")
+                            error = True
+                        except ValueError as e:
+                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
+                            error = True
+                    
+                    else: 
+                        min = min + 1
+                        self.cursor.execute('''
+                        UPDATE usage_summary
+                        SET total_idle_dur = ?
+                        WHERE id = ?
+                    ''', (self.total_idle_dur.strftime('%Y-%m-%d %H:%M:%S'), idx))
+                    
+            self.connection.commit()
+        return error
+    
+    def update_usage_sess_dur(self):
+        error = False 
+        if self.total_session_dur is not None:
+
+            self.sess_dur = self.get_sess_dur()
+            min = self.min
+            
+            for idx, date_str in self.sess_dur.items():
+                if self.min <= idx <= self.max:
+                    if date_str is not None:
+                        try:
+                            date_obj = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+
+                            new_date_obj = self.total_session_dur - date_obj
+                            
+                            if idx == min:
+                                # Calculate the interval days
+                                interval_days = new_date_obj.total_seconds() / 60
+                                min = -1
+                                # Adjust the date by adding the interval days to the original date
+                            new_date1 = date_obj + timedelta(minutes = interval_days)
+                            new_date1_str = new_date1.strftime('%Y-%m-%d %H:%M:%S')
+    
+                            self.cursor.execute('''
+                            UPDATE usage_summary
+                            SET total_sess_dur = ?
+                            WHERE id = ?
+                        ''', (new_date1_str, idx))
+                            
+                        #catching the errors (this will print if there are wrong format in date and if it have date calculation overflow)
+                        except OverflowError:
+                            st.error(f"Date calculation overflow at index {idx}. Original idle duration: {date_str}")
+                            error = True
+                        except ValueError as e:
+                            st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
+                            error = True
+                    
+                    else: 
+                        min = min + 1
+                        self.cursor.execute('''
+                        UPDATE usage_summary
+                        SET total_sess_dur = ?
+                        WHERE id = ?
+                    ''', (self.total_session_dur.strftime('%Y-%m-%d %H:%M:%S'), idx))
+                    
+            self.connection.commit()
+        return error
+
+    def disp_usage(self):
+
+        col_idx = 0
+        cols = st.columns(4)
+
+        product = self.get_product()
+        source = self.get_source()
+        sys_created_on = self.get_created_on()
+        sys_updated_on = self.get_updated_on()
+        idle_dur = self.get_idle_dur()
+        sess_dur = self.get_sess_dur()
+        usage_date = self.get_usage_date()
+    
+        for idx in range(len(usage_date)):
+            
+            display_idx = idx + 1
+
+            if self.min <= display_idx <= self.max:
+                
+                with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
+                    st.markdown(f"""
+                    **Product**: {product[display_idx]}  
+                    **Source**: {source[display_idx]}  
+                    **Created on**: {sys_created_on[display_idx]}  
+                    **Updated on**: {sys_updated_on[display_idx]}  
+                    **Idle Duration**: {idle_dur[display_idx]}  
+                    **Session Duration**: {sess_dur[display_idx]}  
+                    **Usage Date**: {usage_date[display_idx]}   
+                    """)
+
+                col_idx += 1
         
     def test(self):
         self.cursor.execute('''SELECT * FROM usage_summary''')
