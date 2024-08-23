@@ -348,8 +348,9 @@ def main():
         else:
             file_changed = False
     else:
-         selected_file = xml_data
-         file_changed = True
+        file_name = output_file_path
+        selected_file = xml_data
+        file_changed = False
 
     if selected_file:
         # Load and parse the XML file
