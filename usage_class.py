@@ -453,6 +453,8 @@ class usage_class:
 
         col_idx = 0
         cols = st.columns(4)
+        self.cursor.execute('''SELECT COUNT(*) FROM usage_summary''')
+        rows = self.cursor.fetchone()[0]
 
         product = self.get_product()
         source = self.get_source()
@@ -462,7 +464,7 @@ class usage_class:
         sess_dur = self.get_sess_dur()
         usage_date = self.get_usage_date()
     
-        for idx in range(len(usage_date)):
+        for idx in range(0,rows):
             
             display_idx = idx + 1
 
