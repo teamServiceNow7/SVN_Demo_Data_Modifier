@@ -358,7 +358,6 @@ def main():
                 st.session_state.xml_data = xml_data
             selected_file = None
             file_changed = True
-            deny.clear_table()
         else:
             # Use the data from the uploaded file
             selected_file = st.session_state.current_file
