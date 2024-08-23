@@ -256,7 +256,7 @@ xml_column = 'xml_data'
 
 # Example usage for retrieving XML
 record_id = 1
-output_file_path = 'output_file.xml'
+output_file_path = 'default_file.xml'
 xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
 
 #Function for writing the XML file
