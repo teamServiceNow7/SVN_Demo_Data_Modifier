@@ -6,16 +6,13 @@ import pandas as pd
 import altair as alt
 from PIL import Image
 from io import BytesIO
-from xml.dom import minidom
 from datetime import datetime, timedelta
 from usage_class import usage_class
 from concurrent_class import concurrent_class
 from denial_class import denial_class
-
 sidebar_bg_img = """
     
     <style>
-
     #MainBg
     .st-emotion-cache-1r4qj8v {
     position: absolute;
@@ -25,7 +22,6 @@ sidebar_bg_img = """
     color-scheme: light;
     overflow: hidden;
     }
-
     h1 {
     font-family: "Font Awesome 6 Pro", sans-serif;
     font-weight: 800;
@@ -38,7 +34,6 @@ sidebar_bg_img = """
     margin: 0px;
     line-height: 1;
     }
-
     /*Image Title*/
     .st-emotion-cache-1v0mbdj {
     display: block;
@@ -54,12 +49,10 @@ sidebar_bg_img = """
     margin-bottom: 1rem;
     margin-top: 0rem;
     }
-
     .st-emotion-cache-1jicfl2 {
         padding-left: 2rem;
         padding-right: 2rem;
     }
-
     /* header red #920113-red hex*/ 
     h2{
     background-color: #920113;
@@ -68,7 +61,6 @@ sidebar_bg_img = """
     text-align: center;
     border-radius: 10px;
     }
-
     h2 {
     font-family: "Source Sans Pro", sans-serif;
     font-weight: 600;
@@ -77,12 +69,10 @@ sidebar_bg_img = """
     margin: 0px;
     line-height: 1.2;
     }
-
     h3{
     font-weight: bold;
     font-size: 20px;
     }
-
     /*side bar subhead*/
     .st-emotion-cache-1whx7iy p{
     font-weight: bold;
@@ -92,7 +82,6 @@ sidebar_bg_img = """
     h4{
     color: #920113;
     }
-
     .stProgress > div > div > div > div {
         background-color: #920113;
     }
@@ -100,7 +89,6 @@ sidebar_bg_img = """
     [data-testid= "stThumbValue"]{
     color: #920113;
     }
-
     /*Logo*/
     .st-emotion-cache-5drf04 {
     height: 7rem;
@@ -108,19 +96,16 @@ sidebar_bg_img = """
     margin: 0.25rem 0.5rem 0.25rem 0px;
     z-index: 999990;
     }
-
     /*sidebar heading-demodata xml*/
     .st-emotion-cache-1gwvy71 {
     padding: 0px 1.5rem 6rem;
     }
-
     .st-emotion-cache-1gwvy71 h1 {
     font-family: "League Spartan", sans-serif;
     color: #ffffff;
     background-color: #032C41;
     font-size: 23px;
     }
-
      /*sidebar gap */
     .st-emotion-cache-1dfdf75 {
     width: 282px;
@@ -131,7 +116,6 @@ sidebar_bg_img = """
     gap: 0.5rem;
     flex-wrap: nowrap;
     }
-
     /*date expander gap*/
     .st-emotion-cache-phzz4j {
     width: 248px;
@@ -141,7 +125,6 @@ sidebar_bg_img = """
     flex-direction: column;
     gap: 0.25rem;
     }
-
     .st-emotion-cache-1mi2ry5 {
     display: flex;
     -webkit-box-pack: justify;
@@ -150,7 +133,6 @@ sidebar_bg_img = """
     align-items: start;
     padding:  0.5rem 0.5rem 0.25rem ;
     }
-
     /*Sidebar Components*/
     .st-emotion-cache-ue6h4q {
     font-size: 14px;
@@ -165,33 +147,27 @@ sidebar_bg_img = """
     -webkit-box-align: center;
     align-items: center;
     }
-
     [data-testid="stSidebar"]{
     background-color: #E6EDF1;    
     width: 20%;
     }
-
     [data-testid= "stHeader"]{
     background-color: #920113;
     color: #ffffff;
     padding: 1rem;
     }
-
     [data-testid= "stSidebarUserContent"]{
     background-color: #6d0b17;
     height: 1px;
     }
-
     [data-testid= "stSidebarHeader"]{
     background-color: #6d0b17;
     }
-
     /*new date value*/
     .st-emotion-cache-1gwvy71 h3 {
     font-size: 20px;
     font-weight: bold;
     }   
-
     .st-emotion-cache-1ag92y2{
     background-color: #E6EDF1; 
     }
@@ -201,7 +177,6 @@ sidebar_bg_img = """
         font-size: 1rem;
         font-weight: 400;
     }
-
     /*expander margin*/
     .st-emotion-cache-p5msec {
         position: relative;
@@ -212,11 +187,9 @@ sidebar_bg_img = """
         list-style-type: none;
         background-color:#E6EDF1; 
     }
-
     </style>                 
             
 """
-
 def upload_xml(db_path, table_name, xml_column, xml_file_path):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
@@ -276,97 +249,116 @@ def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
     finally:
         # Close the connection
         conn.close()
-
 # Example usage for uploading XML
 db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
+
+# Example usage for retrieving XML
 record_id = 1
 output_file_path = 'output_file.xml'
-xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
 
+    
+        
+          
+    
+
+        
+        Expand All
+    
+    @@ -299,8 +296,8 @@ def save_modified_xml(file_name, tree):
+  
+xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
     modified_xml = BytesIO()
     tree.write(modified_xml, encoding='utf-8', xml_declaration=True)
     modified_xml.seek(0)
     return modified_xml
-
-def time_to_decimal_hours(time_str):
-    dt = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
-    hours = dt.hour
-    minutes = dt.minute
-    decimal_hours = hours + minutes / 60      # Convert time to decimal hours
-    return decimal_hours
-
 #Main Function 
 def main():
     # Initialize session state variables
     if 'previous_file_index' not in st.session_state:
         st.session_state.previous_file_index = None
-        
+
     file_changed = False
     error = False
 
+    
+          
+            
+    
+
+          
+          Expand Down
+          
+            
+    
+
+          
+          Expand Up
+    
+    @@ -335,10 +332,11 @@ def main():
+  
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
     placeholder = st.empty()
     placeholder1 = st.empty()
     placeholder2 = st.empty()
-
     progress_text = "Operation in progress. Please wait."
     my_bar = st.progress(0, text=progress_text)
-
     for percent_complete in range(100):
         time.sleep(0.01)
         my_bar.progress(percent_complete + 1, text=progress_text)
     time.sleep(1)
     my_bar.empty()
-
     # Sidebar for file selection and source update
     st.sidebar.title("ServiceNow ENGINEERING DEMO DATA MODIFIER")
     st.sidebar.divider()
     with st.sidebar.expander(f"#### UPLOADED FILES"):
         uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
-
     if uploaded_files:
         file_names = [file.name for file in uploaded_files]
         selected_file_name = st.sidebar.selectbox("Select a file to focus on", file_names)
-
         selected_file = None
         for uploaded_file in uploaded_files:
             if uploaded_file.name == selected_file_name:
                 selected_file = uploaded_file
                 break
         selected_file_index = file_names.index(selected_file_name)
-
-        if selected_file_index != st.session_state.previous_file_index:
+        # Check if the selected file has changed
+        if selected_file_index != st.session_state.previous_file_index or selected_file is None:
             file_changed = True
             st.session_state.previous_file_index = selected_file_index
-            st.session_state.current_file = selected_file
-            st.session_state.xml_data = selected_file.read()
         else:
             file_changed = False
     else:
+
+    
+          
+            
+    
+
+          
+          Expand Down
+    
+    
+  
         file_name = output_file_path
         selected_file = xml_data
         file_changed = False
-
     if selected_file:
         # Load and parse the XML file
         if uploaded_files:
             tree = ET.parse(selected_file)
             root = tree.getroot()
-
             file_name = selected_file.name
-
             # Remove the prefix, file extension, and underscores, then convert to proper case
             display_file_name = file_name.replace("samp_eng_app_", "").replace("_", " ").rsplit('.', 1)[0].title()
         else:
             tree = ET.ElementTree(ET.fromstring(selected_file))
             root = tree.getroot()
             display_file_name = "Default File"
-
         st.header(f"Update {display_file_name}")
         st.write(" ")
         elements = None
@@ -380,28 +372,23 @@ def main():
             
         # Count the elements
         count = len(elements)
-
         min_range, max_range = st.sidebar.slider("Select Range", min_value=1, max_value=count, value=(1, count), key="select_range")
         # Fields that are always visible
         with st.sidebar.expander(f"#### Edit Source Value", expanded=True):
             st.markdown("")
             new_source = st.text_input("New Source Value", "")
-
         if new_source == "":
             new_source = None
         st.sidebar.subheader("New Date Value", "")
-
         # Determine the appropriate label [EDITED]
         if denial:
             label = "Update Denial Date"
         else:
             label = "Update Usage Date"
-
         # Display the date input with the corresponding label
         with st.sidebar.expander(f"#### {label}", expanded=True):
             st.markdown("")
             new_date = st.date_input("Enter Start Date", value=None)
-
         if usage:
             with st.sidebar.expander(f"#### Update Idle Duration"):
                 st.markdown("")
@@ -422,13 +409,10 @@ def main():
                 total_session_dur = datetime.combine(session_dur_date, session_dur_time)
             else:
                 total_session_dur = None
-
         update_button = st.sidebar.button("Update All Fields")
         st.sidebar.divider()
-
         if file_changed:
             st.sidebar.text("The file has been changed.")
-
         if usage:
             usg = usage_class(tree, root, min_range, max_range, db_path, new_source, new_date,
                               total_idle_dur, total_session_dur, file_changed)
@@ -449,78 +433,12 @@ def main():
                     mime='application/xml',
                     type="primary"
                 )
-
                 if error:
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             usg.disp_usage()
             st.write(usg.test())
-
-            with placeholder1:
-            #Dates Tab Graph
-                                   
-                #For Graphs
-                df = pd.DataFrame({
-                    'usage_date': usg.get_usage_date(),
-                    'total_sess_dur': usg.get_sess_dur(),
-                    'norm_product': usg.get_product()
-                })
-            
-                col1, col2= st.columns((2))
-                df['usage_date'] = pd.to_datetime(df['usage_date'])
-
-                #Getting the min and max date
-                startDate = pd.to_datetime(df['usage_date']).min()
-                endDate = pd.to_datetime(df['usage_date']).max()
-
-                with col1:
-                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
-                with col2:
-                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
-
-            with placeholder2:    
-                col3, col4= st.columns([3, 1], gap="small")
-
-                with col3:
-                    containerA = st.container(border=True)
-                    containerA.subheader("Sesion Duration over time")
-                    #timestamp_str = df['total_sess_dur']
-                    #time_strings = [datetime_str.split(' ')[1] for datetime_str in timestamp_str]
-                    datetime_strings = df['total_sess_dur']
-                    decimal_hours_list = [time_to_decimal_hours(dt_str) for dt_str in datetime_strings]
-                    #print(decimal_hours_list)
-                    #containerA.write(decimal_hours_list)
-
-                    
-                    df['total_sess_dur'] = (decimal_hours_list)
-                    df.set_index('usage_date', inplace=True)
-                    df_daily = df.resample('D').sum()
-
-                    containerA.line_chart(
-                        df_daily,
-                        y="total_sess_dur", 
-                        x_label='Usage Date', 
-                        y_label='Session Duration', 
-                        color='#920113', 
-                        use_container_width=True
-                    )
-
-                    usage_count= pd.Series(df['total_sess_dur']).astype(int)
-                        
-                        #containerA.write(usage_count.sum() for x in df['usage_date'])
-                    
-                    #fig1 = px.bar(df, x= df['norm_product'], y =df['total_sess_dur'])
-                    #containerA.plotly_chart(fig, use_container_width= True, height =500)
-                    #fig1.update_layout(bargap=0)
-                    
-                    with col4:
-                        containerProducts = st.container(border=True)
-                        containerProducts.subheader("Normalized Products")
-                        containerProducts.write(list(set(df['norm_product'])))
             usg.close()
             
         elif concurrent:
@@ -538,70 +456,13 @@ def main():
                     mime='application/xml',
                     type="primary"
                 )
-
                 if error:
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             conc.disp_concurrent()
             st.write(conc.test())
-            with placeholder1:
-                #For Graphs
-                df = pd.DataFrame({
-                    'usage_date': conc.get_usage_date(),
-                    'concurrent_usage': conc.get_concurrent_usage(),
-                    'Product': conc.get_license_name()
-                })
-                #st.dataframe(df)
-
-                #Dates Tab Graph
-                col1, col2= st.columns((2))
-                df['usage_date'] = pd.to_datetime(df['usage_date'])
-
-                #Getting the min and max date
-                startDate = pd.to_datetime(df['usage_date']).min()
-                endDate = pd.to_datetime(df['usage_date']).max()
-
-                with col1:
-                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
-                with col2:
-                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
-                
-
-            with placeholder2:
-                containerA = st.container(border=True)
-                containerA.subheader("Concurrent Usage over time")
-                #timestamp_str = df['total_sess_dur']
-                #time_strings = [datetime_str.split(' ')[1] for datetime_str in timestamp_str]
-                #datetime_strings = df['total_sess_dur']
-                #decimal_hours_list = [time_to_decimal_hours(dt_str) for dt_str in datetime_strings]
-                #print(decimal_hours_list)
-                #containerA.write(decimal_hours_list)
-                con_count= pd.Series(df['concurrent_usage'])
-                df['concurrent_usage'] = con_count.astype(int)
-                
-                dateStr= pd.Series(df['usage_date'])
-                df['usage_date'] = dateStr.astype(str)
-
-                #df['total_sess_dur'] = (decimal_hours_list)
-                #df.set_index('usage_date', inplace=True)
-                #df_daily = df.resample('D').sum()
-
-                containerA.bar_chart(df,
-                    x='usage_date',
-                    y='concurrent_usage', 
-                    x_label='Usage Date', 
-                    y_label='Concurrent Usage', 
-                    color='Product', 
-                    stack= False,
-                    use_container_width=True
-                )
-
             conc.close()
-    
     
         elif denial:
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
@@ -610,7 +471,6 @@ def main():
                     deny.update_denial_source()
                 if new_date is not None:
                     error = deny.update_denial_date()
-                tree = deny.denial_parser()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
@@ -619,13 +479,12 @@ def main():
                     mime='application/xml',
                     type="primary"
                 )
-
                 if error:
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
-                    
             deny.disp_denial()
+            st.write(deny.test())
             
             #Code for Graphs
             with placeholder1:
@@ -641,22 +500,16 @@ def main():
                 col1, col2 = st.columns((2))
                 
                 df['denial_date'] = pd.to_datetime(df['denial_date'])
-
                 # Getting the min and max date
                 startDate = pd.to_datetime(df['denial_date']).min()
                 endDate = pd.to_datetime(df['denial_date']).max()
-
                 with col1:
                     date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
                 with col2:
                     date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
                     df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
-
             with placeholder2:
                 col3, col4 = st.columns([2, 1], gap="small")
-
                 with col3:
                     container = st.container(border=True)
                     container.subheader("Denial Count over time")
@@ -675,7 +528,6 @@ def main():
                     array = pd.Series(df['denial_count'])
                     array_int = array.astype(int)
                     container2.header(array_int.sum())
-
                 with col4:
                     container3 = st.container(border=True, height=290)
                     container3.subheader("Users")
@@ -686,11 +538,10 @@ def main():
         else:
             st.write(f"Unknown file type: {file_name}")
             return
-
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
-        page_title="[FRIDAY]SVN Demo Data Modifier",
+        page_title="[TEST]SVN Demo Data Modifier",
         layout="wide",
         page_icon=DDMIcon
         )
