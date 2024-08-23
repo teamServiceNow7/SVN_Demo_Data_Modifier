@@ -625,7 +625,7 @@ def main():
                     deny.update_denial_source()
                 if new_date is not None:
                     error = deny.update_denial_date()
-
+                print(deny.generate_xml())
                 modified_xml = save_modified_xml(file_name, deny.generate_xml())
                 st.sidebar.download_button(
                     label="Download Modified XML",
