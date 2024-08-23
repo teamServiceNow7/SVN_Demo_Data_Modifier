@@ -353,8 +353,15 @@ class concurrent_class:
                 
     def concurrent_parser(self):
 
-        new_source = self.get_source()
-        new_date = self.get_usage_date()
+        self.cursor.execute('''SELECT id, source FROM concurrent''',)
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+        # Extract the single column from the rows and store it in self.source        
+        new_source = {row[0]: row[1] for row in rows}
+
+        self.cursor.execute('''SELECT id, usage_date FROM concurrent''',)
+        rows1 = self.cursor.fetchall()
+        new_date = {row[0]: row[1] for row in rows1}
 
         for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
 
