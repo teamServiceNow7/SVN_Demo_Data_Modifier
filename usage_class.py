@@ -485,10 +485,24 @@ class usage_class:
 
     def usage_parser(self):
 
-        new_source = self.get_source()
-        new_date = self.get_usage_date()
-        new_idle_dur = self.get_idle_dur()
-        new_sess_dur = self.get_sess_dur()
+        self.cursor.execute('''SELECT id, source FROM usage_summary''',)
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+        # Extract the single column from the rows and store it in self.source        
+        new_source = {row[0]: row[1] for row in rows}
+
+        self.cursor.execute('''SELECT id, usage_date FROM usage_summary''',)
+        rows1 = self.cursor.fetchall()
+        new_date = {row[0]: row[1] for row in rows1}
+
+        self.cursor.execute('''SELECT id, total_idle_dur FROM usage_summary''',)
+        rows2 = self.cursor.fetchall()
+        new_idle_dur = {row[0]: row[1] for row in rows2}
+
+        self.cursor.execute('''SELECT id, total_sess_dur FROM usage_summary''',)
+        rows3 = self.cursor.fetchall()
+        new_sess_dur = {row[0]: row[1] for row in rows3}
+
 
         for idx, elem in enumerate(self.root.findall('.//samp_eng_app_usage_summary'), 1):
 
