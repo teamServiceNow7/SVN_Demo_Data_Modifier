@@ -297,6 +297,7 @@ def time_to_decimal_hours(time_str):
     return decimal_hours
 
 def parse_denial():
+    
     conn = sqlite3.connect('xmlDB.db')
     cursor.execute('''SELECT * FROM denial''')
     # Fetch all data from the query
@@ -710,7 +711,6 @@ def main():
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
-            st.write(deny.test())
             
             #Code for Graphs
             with placeholder1:
