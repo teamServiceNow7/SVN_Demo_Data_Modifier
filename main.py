@@ -281,9 +281,6 @@ db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
  
-#xml_file_path = 'path here'
-#upload_xml(db_path, table_name, xml_column, xml_file_path)
- 
 # Example usage for retrieving XML
 record_id = 1
 output_file_path = 'output_file.xml'
@@ -299,8 +296,8 @@ def save_modified_xml(file_name, tree):
 #Main Function 
 def main():
     # Initialize session state variables
-    if 'previous_file_name' not in st.session_state:
-        st.session_state.previous_file_name = None
+    if 'previous_file_index' not in st.session_state:
+        st.session_state.previous_file_index = None
         
     file_changed = False
     error = False
@@ -335,10 +332,11 @@ def main():
             if uploaded_file.name == selected_file_name:
                 selected_file = uploaded_file
                 break
+        selected_file_index = file_names.index(selected_file_name)
         # Check if the selected file has changed
-        if selected_file_name is not st.session_state.previous_file_name or selected_file is None:
+        if selected_file_index != st.session_state.previous_file_index or selected_file is None:
             file_changed = True
-            st.session_state.previous_file_name = selected_file_name
+            st.session_state.previous_file_index = selected_file_index
         else:
             file_changed = False
     else:
