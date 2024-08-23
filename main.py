@@ -472,7 +472,63 @@ def main():
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             conc.disp_concurrent()
             st.write(conc.test())
+            with placeholder1:
+                #For Graphs
+                df = pd.DataFrame({
+                    'usage_date': conc.get_usage_date(),
+                    'concurrent_usage': conc.get_concurrent_usage(),
+                    'Product': conc.get_license_name()
+                })
+                #st.dataframe(df)
+
+                #Dates Tab Graph
+                col1, col2= st.columns((2))
+                df['usage_date'] = pd.to_datetime(df['usage_date'])
+
+                #Getting the min and max date
+                startDate = pd.to_datetime(df['usage_date']).min()
+                endDate = pd.to_datetime(df['usage_date']).max()
+
+                with col1:
+                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+                with col2:
+                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
+                
+
+            with placeholder2:
+                containerA = st.container(border=True)
+                containerA.subheader("Concurrent Usage over time")
+                #timestamp_str = df['total_sess_dur']
+                #time_strings = [datetime_str.split(' ')[1] for datetime_str in timestamp_str]
+                #datetime_strings = df['total_sess_dur']
+                #decimal_hours_list = [time_to_decimal_hours(dt_str) for dt_str in datetime_strings]
+                #print(decimal_hours_list)
+                #containerA.write(decimal_hours_list)
+                con_count= pd.Series(df['concurrent_usage'])
+                df['concurrent_usage'] = con_count.astype(int)
+                
+                dateStr= pd.Series(df['usage_date'])
+                df['usage_date'] = dateStr.astype(str)
+
+                #df['total_sess_dur'] = (decimal_hours_list)
+                #df.set_index('usage_date', inplace=True)
+                #df_daily = df.resample('D').sum()
+
+                containerA.bar_chart(df,
+                    x='usage_date',
+                    y='concurrent_usage', 
+                    x_label='Usage Date', 
+                    y_label='Concurrent Usage', 
+                    color='Product', 
+                    stack= False,
+                    use_container_width=True
+                )
+
             conc.close()
+    
     
         elif denial:
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
