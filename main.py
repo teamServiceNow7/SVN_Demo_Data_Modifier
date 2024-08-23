@@ -389,6 +389,7 @@ def main():
                     usg.update_usage_idle_dur()
                 if total_session_dur is not None:
                     usg.update_usage_sess_dur()
+                tree = deny.usage_parser()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
@@ -413,6 +414,7 @@ def main():
                     conc.update_concurrent_source()
                 if new_date is not None:
                     error = conc.update_concurrent_date()
+                tree = deny.concurrent_parser()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
