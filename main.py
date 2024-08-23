@@ -293,6 +293,13 @@ def save_modified_xml(file_name, tree):
     modified_xml.seek(0)
     return modified_xml
 
+def time_to_decimal_hours(time_str):
+    dt = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+    hours = dt.hour
+    minutes = dt.minute
+    decimal_hours = hours + minutes / 60      # Convert time to decimal hours
+    return decimal_hours
+
 #Main Function 
 def main():
     # Initialize session state variables
@@ -448,6 +455,71 @@ def main():
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             usg.disp_usage()
             st.write(usg.test())
+
+            with placeholder1:
+            #Dates Tab Graph
+                                   
+                #For Graphs
+                df = pd.DataFrame({
+                    'usage_date': usg.get_usage_date(),
+                    'total_sess_dur': usg.get_sess_dur(),
+                    'norm_product': usg.get_product()
+                })
+            
+                col1, col2= st.columns((2))
+                df['usage_date'] = pd.to_datetime(df['usage_date'])
+
+                #Getting the min and max date
+                startDate = pd.to_datetime(df['usage_date']).min()
+                endDate = pd.to_datetime(df['usage_date']).max()
+
+                with col1:
+                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+                with col2:
+                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
+
+            with placeholder2:    
+                col3, col4= st.columns([3, 1], gap="small")
+
+                with col3:
+                    containerA = st.container(border=True)
+                    containerA.subheader("Sesion Duration over time")
+                    #timestamp_str = df['total_sess_dur']
+                    #time_strings = [datetime_str.split(' ')[1] for datetime_str in timestamp_str]
+                    datetime_strings = df['total_sess_dur']
+                    decimal_hours_list = [time_to_decimal_hours(dt_str) for dt_str in datetime_strings]
+                    #print(decimal_hours_list)
+                    #containerA.write(decimal_hours_list)
+
+                    
+                    df['total_sess_dur'] = (decimal_hours_list)
+                    df.set_index('usage_date', inplace=True)
+                    df_daily = df.resample('D').sum()
+
+                    containerA.line_chart(
+                        df_daily,
+                        y="total_sess_dur", 
+                        x_label='Usage Date', 
+                        y_label='Session Duration (Hours)', 
+                        color='#920113', 
+                        use_container_width=True
+                    )
+
+                    usage_count= pd.Series(df['total_sess_dur']).astype(int)
+                        
+                        #containerA.write(usage_count.sum() for x in df['usage_date'])
+                    
+                    #fig1 = px.bar(df, x= df['norm_product'], y =df['total_sess_dur'])
+                    #containerA.plotly_chart(fig, use_container_width= True, height =500)
+                    #fig1.update_layout(bargap=0)
+                    
+                    with col4:
+                        containerProducts = st.container(border=True)
+                        containerProducts.subheader("Normalized Products")
+                        containerProducts.write(list(set(df['norm_product'])))
             usg.close()
             
         elif concurrent:
