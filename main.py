@@ -374,7 +374,7 @@ def main():
             else:
                 total_session_dur = None
         update_button = st.sidebar.button("Update All Fields")
-        st.sidebar.divider()
+        #st.sidebar.divider()
         if file_changed:
             st.sidebar.text("The file has been changed.")
         if usage:
