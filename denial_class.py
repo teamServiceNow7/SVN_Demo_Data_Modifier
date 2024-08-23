@@ -92,7 +92,9 @@ class denial_class:
         self.connection.commit()
 
     def clear_table(self):
-        self.delete_table()
+        self.cursor.execute('DROP TABLE IF EXISTS denial')
+        self.create_tables()
+        self.cursor.execute('DELETE FROM sqlite_sequence WHERE name="denial"')
         self.insert_data()
 
     def insert_data(self):
@@ -126,11 +128,6 @@ class denial_class:
 
         self.connection.commit()
 
-    def delete_table(self):
-        self.cursor.execute('DELETE FROM denial')
-        self.create_tables()
-        self.connection.commit()
-
     def getall(self):
         self.cursor.execute('''SELECT * FROM denial''')
         return self.cursor.fetchall()
@@ -141,8 +138,7 @@ class denial_class:
             self.connection.close()
             print("Database connection closed.")
         
-    def disp_denial(self):
-        
+    def disp_denial(self):   
         col_idx = 0
         cols = st.columns(4)
 
