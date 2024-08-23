@@ -431,6 +431,10 @@ def main():
                     usg.update_usage_source()
                 if new_date is not None:
                     error = usg.update_usage_date()
+                if total_idle_dur is not None:
+                    usg.update_usage_idle_dur()
+                if total_session_dur is not None:
+                    usg.update_usage_sess_dur()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
