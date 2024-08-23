@@ -297,7 +297,7 @@ def time_to_decimal_hours(time_str):
     return decimal_hours
 
 def parse_denial():
-
+    conn = sqlite3.connect('xmlDB.db')
     cursor.execute('''SELECT * FROM denial''')
     # Fetch all data from the query
     rows = cursor.fetchall()
