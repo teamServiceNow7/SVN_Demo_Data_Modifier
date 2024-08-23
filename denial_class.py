@@ -388,7 +388,7 @@ class denial_class:
                     
             self.connection.commit()
         return error
-    def generate_xml_from_database(self, output_file):
+    def generate_xml(self):
         """Generate XML from the 'denial' table and save to a file with the specified structure."""
         
         # Fetch data from the database
@@ -418,15 +418,10 @@ class denial_class:
                     # Handle regular text elements
                     element = ET.SubElement(item, col_name)
                     element.text = str(col_value) if col_value is not None else ''
-        
+    
         # Generate the XML string
         tree = ET.ElementTree(root)
-    
-    # Write the XML to a file
-    with open(output_file, 'wb') as file:
-        tree.write(file, encoding='utf-8', xml_declaration=True)
-
-    return tree
+        return tree
     
     def test(self):
         self.cursor.execute('''SELECT * FROM denial''')
