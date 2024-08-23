@@ -118,6 +118,7 @@ class usage_class:
 
     def delete_table(self):
         self.cursor.execute('DELETE FROM usage_summary')
+        self.create_tables()
         self.connection.commit()
 
     def close(self):
