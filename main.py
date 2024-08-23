@@ -304,10 +304,6 @@ def main():
     # Initialize session state variables
     if 'previous_file_index' not in st.session_state:
         st.session_state.previous_file_index = None
-    if 'xml_data' not in st.session_state:
-        st.session_state.xml_data = None
-    if 'current_file' not in st.session_state:
-        st.session_state.current_file = None
         
     file_changed = False
     error = False
@@ -352,16 +348,8 @@ def main():
         else:
             file_changed = False
     else:
-        if st.session_state.current_file is None:
-            # Load default XML data from database
-            if 'xml_data' not in st.session_state:
-                st.session_state.xml_data = xml_data
-            selected_file = None
-            file_changed = True
-        else:
-            # Use the data from the uploaded file
-            selected_file = st.session_state.current_file
-            file_changed = False
+         selected_file = xml_data
+         file_changed = True
 
     if selected_file:
         # Load and parse the XML file
