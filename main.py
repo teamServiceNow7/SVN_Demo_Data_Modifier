@@ -503,7 +503,7 @@ def main():
                         df_daily,
                         y="total_sess_dur", 
                         x_label='Usage Date', 
-                        y_label='Session Duration (Hours)', 
+                        y_label='Session Duration', 
                         color='#920113', 
                         use_container_width=True
                     )
