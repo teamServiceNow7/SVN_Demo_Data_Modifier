@@ -146,6 +146,9 @@ class denial_class:
         col_idx = 0
         cols = st.columns(4)
 
+        self.cursor.execute('''SELECT COUNT(*) FROM denial''')
+        rows = self.cursor.fetchone()[0]
+        
         denial_date = self.get_denial_date()
         computer = self.get_computer()
         product = self.get_product()
@@ -154,7 +157,7 @@ class denial_class:
         sys_updated_on = self.get_updated_on()
         total_denial_count = self.get_total_denial_count()
         source = self.get_source()
-        for idx in range(len(denial_date)):
+        for idx in range(0,rows):
             
             display_idx = idx + 1
 
