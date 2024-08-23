@@ -78,7 +78,9 @@ class usage_class:
         self.connection.commit()
 
     def clear_table(self):
-        self.delete_table()
+        self.cursor.execute('DROP TABLE IF EXISTS usage_summary')
+        self.create_tables()
+        self.cursor.execute('DELETE FROM sqlite_sequence WHERE name="usage_summary"')
         self.insert_data()
         
     def insert_data(self):
@@ -113,11 +115,6 @@ class usage_class:
     
                 self.cursor.execute(insert_query, data)
 
-        self.connection.commit()
-
-    def delete_table(self):
-        self.cursor.execute('DELETE FROM usage_summary')
-        self.create_tables()
         self.connection.commit()
 
     def close(self):
