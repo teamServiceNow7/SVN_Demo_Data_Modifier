@@ -627,9 +627,10 @@ def main():
                     error = deny.update_denial_date()
                 print(deny.generate_xml())
                 modified_xml = save_modified_xml(file_name, deny.generate_xml())
+                pretty_xml = deny.parse_denial()
                 st.sidebar.download_button(
                     label="Download Modified XML",
-                    data=modified_xml,    
+                    data=pretty_xml,    
                     file_name=file_name,
                     mime='application/xml',
                     type="primary"
