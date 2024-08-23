@@ -610,7 +610,7 @@ def main():
                     deny.update_denial_source()
                 if new_date is not None:
                     error = deny.update_denial_date()
-                tree = deny.parser()
+                tree = deny.denial_parser()
                 modified_xml = save_modified_xml(file_name, tree)
                 st.sidebar.download_button(
                     label="Download Modified XML",
