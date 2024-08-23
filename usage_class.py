@@ -176,7 +176,7 @@ class usage_class:
     def get_product(self):
 
         self.cursor.execute('''
-        SELECT id, norm_product FROM usage_summary
+        SELECT id, norm_product_name FROM usage_summary
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
