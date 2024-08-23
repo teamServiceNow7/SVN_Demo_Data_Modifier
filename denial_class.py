@@ -390,6 +390,20 @@ class denial_class:
                     
             self.connection.commit()
         return error
+
+    def denial_parser(self):
+
+        new_source = self.get_source()
+        new_date = self.get_denial_date()
+
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_denial'), 1):
+
+            source = elem.find('source')
+            source.text = new_source[idx]
+            denial_date = elem.find('denial_date')
+            denial_date.text = new_date[idx]
+    
+        return self.tree
         
     def test(self):
         self.cursor.execute('''SELECT * FROM denial''')
