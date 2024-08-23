@@ -428,8 +428,8 @@ def main():
                 st.session_state.xml_data = xml_data
             selected_file = None
             file_changed = True
-            #deny = denial_class(None, None, None, None, db_path, None, None, file_changed)
-            #deny.clear_table()
+            deny = denial_class(None, None, None, None, db_path, None, None, file_changed)
+            deny.clear_table()
         else:
             # Use the data from the uploaded file
             selected_file = st.session_state.current_file
