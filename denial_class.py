@@ -345,6 +345,7 @@ class denial_class:
             SET source = ?
             WHERE id BETWEEN ? AND ?
             ''', (source_values, self.min, self.max))
+        self.connection.commit()
     
     def update_denial_date(self):
         error = False 
