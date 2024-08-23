@@ -349,6 +349,21 @@ class concurrent_class:
                     """)
 
                 col_idx += 1
+                
+    def concurrent_parser(self):
+
+        new_source = self.get_source()
+        new_date = self.get_usage_date()
+
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_concurrent_usage'), 1):
+
+            source = elem.find('source')
+            source.text = new_source[idx]
+            usage_date = elem.find('usage_date')
+            usage_date.text = new_date[idx]
+    
+        return self.tree
+
 
     def test(self):
         self.cursor.execute('''SELECT * FROM concurrent''')
