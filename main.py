@@ -359,7 +359,7 @@ def main():
                 xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
                 st.session_state.xml_data = xml_data
             selected_file = None
-            file_changed = False
+            file_changed = True
         else:
             # Use the data from the uploaded file
             selected_file = st.session_state.current_file
