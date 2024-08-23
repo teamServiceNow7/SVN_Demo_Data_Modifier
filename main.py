@@ -281,6 +281,9 @@ def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
 db_path = 'xmlDB.db'
 table_name = 'xml_table'
 xml_column = 'xml_data'
+record_id = 1
+output_file_path = 'output_file.xml'
+xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
 
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
@@ -419,12 +422,6 @@ def main():
         if st.session_state.current_file is None:
             # Load default XML data from database
             if 'xml_data' not in st.session_state:
-                db_path = 'xmlDB.db'
-                table_name = 'xml_table'
-                xml_column = 'xml_data'
-                record_id = 1
-                output_file_path = 'output_file.xml'
-                xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
                 st.session_state.xml_data = xml_data
             selected_file = None
             file_changed = True
@@ -693,8 +690,7 @@ def main():
                     deny.update_denial_source()
                 if new_date is not None:
                     error = deny.update_denial_date()
-                #print(deny.generate_xml())
-                #modified_xml = save_modified_xml(file_name, deny.generate_xml())
+                modified_xml = save_modified_xml(file_name, tree)
                 pretty_xml = parse_denial()
                 st.sidebar.download_button(
                     label="Download Modified XML",
