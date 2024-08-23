@@ -480,6 +480,26 @@ class usage_class:
                     """)
 
                 col_idx += 1
+
+    def usage_parser(self):
+
+        new_source = self.get_source()
+        new_date = self.get_usage_date()
+        new_idle_dur = self.get_idle_dur()
+        new_sess_dur = self.get_sess_dur()
+
+        for idx, elem in enumerate(self.root.findall('.//samp_eng_app_usage_summary'), 1):
+
+            source = elem.find('source')
+            source.text = new_source[idx]
+            usage_date = elem.find('usage_date')
+            usage_date.text = new_date[idx]
+            idle_dur = elem.find('total_idle_dur')
+            idle_dur.text = new_idle_dur[idx]
+            sess_dur = elem.find('total_sess_dur')
+            sess_dur.text = new_sess_dur[idx]
+    
+        return self.tree
         
     def test(self):
         self.cursor.execute('''SELECT * FROM usage_summary''')
