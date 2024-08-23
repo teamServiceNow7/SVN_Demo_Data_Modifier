@@ -257,24 +257,15 @@ xml_column = 'xml_data'
 # Example usage for retrieving XML
 record_id = 1
 output_file_path = 'output_file.xml'
-
-    
-        
-          
-    
-
-        
-        Expand All
-    
-    @@ -299,8 +296,8 @@ def save_modified_xml(file_name, tree):
-  
 xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
+
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
     modified_xml = BytesIO()
     tree.write(modified_xml, encoding='utf-8', xml_declaration=True)
     modified_xml.seek(0)
     return modified_xml
+    
 #Main Function 
 def main():
     # Initialize session state variables
@@ -283,22 +274,6 @@ def main():
 
     file_changed = False
     error = False
-
-    
-          
-            
-    
-
-          
-          Expand Down
-          
-            
-    
-
-          
-          Expand Up
-    
-    @@ -335,10 +332,11 @@ def main():
   
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
@@ -333,17 +308,6 @@ def main():
         else:
             file_changed = False
     else:
-
-    
-          
-            
-    
-
-          
-          Expand Down
-    
-    
-  
         file_name = output_file_path
         selected_file = xml_data
         file_changed = False
