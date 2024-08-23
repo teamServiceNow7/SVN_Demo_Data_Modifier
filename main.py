@@ -316,7 +316,6 @@ def parse_denial():
 
     # Define the number of items to repeat
     repeat_count = len(data_dict['id'])
-    st.write(data_dict)
     # Create the root element
     root = ET.Element("unload", unload_date="2024-07-04 11:44:16")
     # Add static elements
@@ -696,7 +695,6 @@ def main():
                     error = deny.update_denial_date()
                 #print(deny.generate_xml())
                 #modified_xml = save_modified_xml(file_name, deny.generate_xml())
-                st.write(parse_denial())
                 pretty_xml = parse_denial()
                 st.sidebar.download_button(
                     label="Download Modified XML",
@@ -710,6 +708,7 @@ def main():
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
+                    
             deny.disp_denial()
             
             #Code for Graphs
