@@ -265,6 +265,13 @@ def save_modified_xml(file_name, tree):
     tree.write(modified_xml, encoding='utf-8', xml_declaration=True)
     modified_xml.seek(0)
     return modified_xml
+
+def time_to_decimal_hours(time_str):
+    dt = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
+    hours = dt.hour
+    minutes = dt.minute
+    decimal_hours = hours + minutes / 60      # Convert time to decimal hours
+    return decimal_hours
     
 #Main Function 
 def main():
@@ -377,6 +384,7 @@ def main():
         #st.sidebar.divider()
         if file_changed:
             st.sidebar.text("The file has been changed.")
+            
         if usage:
             usg = usage_class(tree, root, min_range, max_range, db_path, new_source, new_date,
                               total_idle_dur, total_session_dur, file_changed)
@@ -405,6 +413,60 @@ def main():
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             usg.disp_usage()
             st.write(usg.test())
+
+            #For Graphs of Usage Summary
+            with placeholder1:
+                 
+                df = pd.DataFrame({
+                    'usage_date': usg.get_usage_date(),
+                    'total_sess_dur': usg.get_sess_dur(),
+                    'norm_product': usg.get_product()
+                })
+            
+                col1, col2= st.columns((2))
+                df['usage_date'] = pd.to_datetime(df['usage_date'])
+
+                #Getting the min and max date
+                startDate = pd.to_datetime(df['usage_date']).min()
+                endDate = pd.to_datetime(df['usage_date']).max()
+
+                with col1:
+                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+                with col2:
+                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
+
+            with placeholder2:    
+                col3, col4= st.columns([3, 1], gap="small")
+
+                with col3:
+                    containerA = st.container(border=True)
+                    containerA.subheader("Sesion Duration over time")
+                    datetime_strings = df['total_sess_dur']
+                    decimal_hours_list = [time_to_decimal_hours(dt_str) for dt_str in datetime_strings]
+                    
+                    df['total_sess_dur'] = (decimal_hours_list)
+                    df.set_index('usage_date', inplace=True)
+                    df_daily = df.resample('D').sum()
+
+                    containerA.line_chart(
+                        df_daily,
+                        y="total_sess_dur", 
+                        x_label='Usage Date', 
+                        y_label='Session Duration (Hours)', 
+                        color='#920113', 
+                        use_container_width=True
+                    )
+                    
+                    usage_count= pd.Series(df['total_sess_dur']).astype(int)
+                   
+                    with col4:
+                        containerProducts = st.container(border=True)
+                        containerProducts.subheader("Normalized Products")
+                        containerProducts.write(list(set(df['norm_product'])))
+
             usg.close()
             
         elif concurrent:
@@ -430,6 +492,52 @@ def main():
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             conc.disp_concurrent()
             st.write(conc.test())
+
+            #For Graphs of Concurrent Usage
+            with placeholder1:
+                
+                df = pd.DataFrame({
+                    'usage_date': conc.get_usage_date(),
+                    'concurrent_usage': conc.get_concurrent_usage(),
+                    'Product': conc.get_license_name()
+                })
+                #st.dataframe(df)
+
+                #Dates Tab Graph
+                col1, col2= st.columns((2))
+                df['usage_date'] = pd.to_datetime(df['usage_date'])
+
+                #Getting the min and max date
+                startDate = pd.to_datetime(df['usage_date']).min()
+                endDate = pd.to_datetime(df['usage_date']).max()
+
+                with col1:
+                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+                with col2:
+                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
+                
+            with placeholder2:
+                containerA = st.container(border=True)
+                containerA.subheader("Concurrent Usage over time")
+                con_count= pd.Series(df['concurrent_usage'])
+                df['concurrent_usage'] = con_count.astype(int)
+                
+                dateStr= pd.Series(df['usage_date'])
+                df['usage_date'] = dateStr.astype(str)
+
+                containerA.bar_chart(df,
+                    x='usage_date',
+                    y='concurrent_usage', 
+                    x_label='Usage Date', 
+                    y_label='Concurrent Usage', 
+                    color='Product', 
+                    stack= False,
+                    use_container_width=True
+                )
+
             conc.close()
     
         elif denial:
@@ -455,7 +563,7 @@ def main():
                     placeholder.success(":white_check_mark: All fields updated successfully!")
             deny.disp_denial()
             
-            #Code for Graphs
+            #Code for Graphs of Denial
             with placeholder1:
                 #df = deny.display_data()
                 df = pd.DataFrame({
