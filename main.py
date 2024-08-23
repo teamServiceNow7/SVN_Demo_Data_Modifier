@@ -608,7 +608,8 @@ def main():
                 with col4:
                     container3 = st.container(border=True, height=290)
                     container3.subheader("Users")
-                    container3.write(df['computer'].tolist())
+                    #container3.write(df['computer'].tolist())
+                    container3.write(list(set(df['computer'])))
                 
             deny.close()
             
