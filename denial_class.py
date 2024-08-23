@@ -388,7 +388,46 @@ class denial_class:
                     
             self.connection.commit()
         return error
+    def generate_xml_from_database(self, output_file):
+        """Generate XML from the 'denial' table and save to a file with the specified structure."""
+        
+        # Fetch data from the database
+        self.cursor.execute('SELECT * FROM denial')
+        rows = self.cursor.fetchall()
+        
+        # Get column names
+        self.cursor.execute("PRAGMA table_info(denial)")
+        columns = [row[1] for row in self.cursor.fetchall()]
+        
+        # Create the root element
+        root = ET.Element("unload", unload_date="2024-07-04 11:44:16")  # Adjust the attribute as needed
+        
+        # Process each row and create XML elements
+        for row in rows:
+            item = ET.SubElement(root, "samp_eng_app_denial", action="INSERT_OR_UPDATE")
+            
+            for col_name, col_value in zip(columns, row):
+                if col_name.endswith('_name'):
+                    # Handle columns that map to display_value attributes
+                    element_name = col_name.replace('_name', '')
+                    if col_value:
+                        ET.SubElement(item, element_name, display_value=col_value)
+                    else:
+                        ET.SubElement(item, element_name)
+                else:
+                    # Handle regular text elements
+                    element = ET.SubElement(item, col_name)
+                    element.text = str(col_value) if col_value is not None else ''
+        
+        # Generate the XML string
+        tree = ET.ElementTree(root)
+    
+    # Write the XML to a file
+    with open(output_file, 'wb') as file:
+        tree.write(file, encoding='utf-8', xml_declaration=True)
 
+    return tree
+    
     def test(self):
         self.cursor.execute('''SELECT * FROM denial''')
         result = self.cursor.fetchall()
