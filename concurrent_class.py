@@ -326,14 +326,15 @@ class concurrent_class:
 
         col_idx = 0
         cols = st.columns(4)
-
+        self.cursor.execute('''SELECT COUNT(*) FROM concurrent''')
+        rows = self.cursor.fetchone()[0]
         usage_date = self.get_usage_date()
         license_name = self.get_license_name()
         source = self.get_source()
         sys_created_on = self.get_created_on()
         sys_updated_on = self.get_updated_on()
         concurrent_usage = self.get_concurrent_usage()
-        for idx in range(len(usage_date)):
+        for idx in range(0,rows):
             
             display_idx = idx + 1
 
