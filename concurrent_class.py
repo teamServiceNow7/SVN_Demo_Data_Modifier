@@ -70,7 +70,9 @@ class concurrent_class:
         self.connection.commit()
 
     def clear_table(self):
-        self.delete_table()
+        self.cursor.execute('DROP TABLE IF EXISTS concurrent')
+        self.create_tables()  # Recreate the table schema
+        self.cursor.execute('DELETE FROM sqlite_sequence WHERE name="concurrent"')  # Reset sequence
         self.insert_data()
         
     def insert_data(self):
