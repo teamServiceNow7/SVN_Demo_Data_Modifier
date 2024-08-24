@@ -465,7 +465,22 @@ def main():
                     with col4:
                         containerProducts = st.container(border=True)
                         containerProducts.subheader("Normalized Products")
-                        containerProducts.write(list(set(df['norm_product'])))
+                        dfProduct = pd.DataFrame({
+                        'norm_product': df['norm_product'].unique(),
+                        })
+                        containerProducts.data_editor(
+                        dfProduct,
+                            column_config={
+                                'norm_product': st.column_config.Column(
+                                    "Product Name",
+                                    help="User **Denial Count**",
+                                    width = "small",
+                                    disabled=True
+                                )                                
+                            },
+                            hide_index=True,
+                            use_container_width=True
+                        )          
 
             usg.close()
             
@@ -565,14 +580,13 @@ def main():
             
             #Code for Graphs of Denial
             with placeholder1:
-                #df = deny.display_data()
+ 
                 df = pd.DataFrame({
                     'denial_date': deny.get_denial_date(),
                     'denial_count': deny.get_total_denial_count(),
                     'computer': deny.get_computer()
                 })
-                #st.dataframe(df)
-                
+
                 # Dates Tab Graph
                 col1, col2 = st.columns((2))
                 
@@ -587,6 +601,7 @@ def main():
                     df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
             with placeholder2:
                 col3, col4 = st.columns([2, 1], gap="small")
+                
                 with col3:
                     container = st.container(border=True)
                     container.subheader("Denial Count over time")
@@ -605,12 +620,45 @@ def main():
                     array = pd.Series(df['denial_count'])
                     array_int = array.astype(int)
                     container2.header(array_int.sum())
+
                 with col4:
+                    
+                    dfUser = pd.DataFrame({
+                    'Computer': df['computer'],
+                    'Denial Count': df['denial_count']
+                    })
+
+                    # Convert 'Denial Count' from string to numeric, coercing errors to NaN
+                    dfUser['Denial Count'] = pd.to_numeric(dfUser['Denial Count'], errors='coerce')
+
+                    # Group by 'Computer' and sum 'Denial Count'
+                    unique_user_df = dfUser.groupby('Computer', as_index=False)['Denial Count'].sum()
+
+                    # Optionally, rename columns
+                    unique_user_df.columns = ['Computer', 'Total Denial Count']
+
                     container3 = st.container(border=True, height=290)
-                    container3.subheader("Users")
-                    #container3.write(df['computer'].tolist())
-                    container3.write(list(set(df['computer'])))
-                
+                    container3.subheader("Denials per User")
+                    container3.data_editor(
+                       unique_user_df,
+                        column_config={
+                            'Total Denial Count': st.column_config.Column(
+                                "Denial Count",
+                                help="User **Denial Count**",
+                                width = "small",
+                                disabled=True
+                            ),
+                            "Computer": st.column_config.TextColumn(
+                                "PC Name",
+                                help="User **PC Name**",
+                                default="st.",
+                                width = "medium",
+                                disabled=True
+                            ),
+                        },
+                        hide_index=True,
+                        use_container_width=True
+                    )             
             deny.close()
             
         else:
