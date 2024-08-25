@@ -386,19 +386,30 @@ def main():
             st.sidebar.text("The file has been changed.")
             
         if usage:
+
+            # Create an instance of the `usage_class`
             usg = usage_class(tree, root, min_range, max_range, db_path, new_source, new_date,
                               total_idle_dur, total_session_dur, file_changed)
+
+            # Check if the 'update_button' is press
             if update_button:
+
+                # If a new source is provided, update the usage source
                 if new_source is not None:
                     usg.update_usage_source()
+                # If a new date is provided, update the usage date
                 if new_date is not None:
                     error = usg.update_usage_date()
+                 # If a new total idle duration is provided, update the idle duration
                 if total_idle_dur is not None:
                     usg.update_usage_idle_dur()
+                 # If a new total idle duration is provided, update the sess duration
                 if total_session_dur is not None:
                     usg.update_usage_sess_dur()
+                # Parse the updated usage data and save the modified XML
                 tree = usg.usage_parser()
                 modified_xml = save_modified_xml(file_name, tree)
+                # Provide a button in the sidebar to download the modified XML file
                 st.sidebar.download_button(
                     label="Download Modified XML",
                     data=modified_xml,    
@@ -411,8 +422,9 @@ def main():
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
+
+            # Display the usage information
             usg.disp_usage()
-            st.write(usg.test())
 
             #For Graphs of Usage Summary
             with placeholder1:
@@ -485,14 +497,21 @@ def main():
             usg.close()
             
         elif concurrent:
+            # Create an instance of the `concurrent_class`
             conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
+
+            # Check if the 'update_button' is press
             if update_button:
+                # If a new source is provided, update the concurrent source
                 if new_source is not None:
                     conc.update_concurrent_source()
+                # If a new date is provided, update the concurrent date
                 if new_date is not None:
                     error = conc.update_concurrent_date()
+                # Parse the updated concurrent data and save the modified XML
                 tree = conc.concurrent_parser()
                 modified_xml = save_modified_xml(file_name, tree)
+                # Provide a button in the sidebar to download the modified XML file
                 st.sidebar.download_button(
                     label="Download Modified XML",
                     data=modified_xml,    
@@ -505,8 +524,8 @@ def main():
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
+            # Display the concurrent information
             conc.disp_concurrent()
-            st.write(conc.test())
 
             #For Graphs of Concurrent Usage
             with placeholder1:
@@ -556,14 +575,20 @@ def main():
             conc.close()
     
         elif denial:
+            # Create an instance of the `denial_class`
             deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
+            # Check if the 'update_button' is press
             if update_button:
+                # If a new source is provided, update the denial source
                 if new_source is not None:
                     deny.update_denial_source()
+                # If a new date is provided, update the denial date
                 if new_date is not None:
                     error = deny.update_denial_date()
+                # Parse the updated usage data and save the modified XML
                 tree = deny.denial_parser()
                 modified_xml = save_modified_xml(file_name, tree)
+                # Provide a button in the sidebar to download the modified XML file
                 st.sidebar.download_button(
                     label="Download Modified XML",
                     data=modified_xml,    
@@ -576,6 +601,7 @@ def main():
                     placeholder.error(":x: Not Updated!")
                 else:
                     placeholder.success(":white_check_mark: All fields updated successfully!")
+            # Display the denial information       
             deny.disp_denial()
             
             #Code for Graphs of Denial
