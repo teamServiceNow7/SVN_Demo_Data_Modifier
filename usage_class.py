@@ -475,7 +475,6 @@ class usage_class:
                     st.markdown(f"""
                     **Product**: {product[display_idx]}  
                     **Publisher**: {norm_publisher[display_idx]}
-                    
                     **Source**: {source[display_idx]}  
                     **Created on**: {sys_created_on[display_idx]}  
                     **Updated on**: {sys_updated_on[display_idx]}  
