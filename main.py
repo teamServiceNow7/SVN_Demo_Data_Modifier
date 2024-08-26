@@ -313,19 +313,16 @@ def main():
 
     # Initialize session state variables if not already set
     if 'show_uploader' not in st.session_state:
-        st.session_state.show_uploader = True
-
+        st.session_state.show_uploader = False  # Hide uploader initially
     if 'show_default' not in st.session_state:
         st.session_state.show_default = False
-
     if 'default_files_clicked' not in st.session_state:
         st.session_state.default_files_clicked = False
-
     if 'previous_file_index' not in st.session_state:
         st.session_state.previous_file_index = -1
 
     # Sidebar buttons
-    upload_button = st.sidebar.button("Upload XML Files", use_container_width=True, type = "primary")
+    upload_button = st.sidebar.button("Upload XML Files", use_container_width=True, type="primary")
     default_button = st.sidebar.button("Use Default Files", use_container_width=True)
     st.sidebar.divider()
 
@@ -401,7 +398,7 @@ def main():
             st.session_state.previous_file_index = selected_file_index
         else:
             file_changed = False
-
+            
     if selected_file:
         
         # Load and parse the XML file
