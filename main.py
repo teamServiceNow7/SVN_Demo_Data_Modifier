@@ -505,7 +505,7 @@ def main():
                     date1 = pd.to_datetime(st.date_input(":date: Start Date", startDate))
                 with col2:
                     date2 = pd.to_datetime(st.date_input(":date: End Date", endDate))
-                    df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
+                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
 
             with placeholder2:    
                 col3, col4= st.columns([3, 1], gap="small")
@@ -605,7 +605,7 @@ def main():
                     date1 = pd.to_datetime(st.date_input(":date: Start Date", startDate))
                 with col2:
                     date2 = pd.to_datetime(st.date_input(":date: End Date", endDate))
-                    df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
+                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
                 
             with placeholder2:
                 containerA = st.container(border=True)
