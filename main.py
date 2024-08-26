@@ -190,38 +190,37 @@ sidebar_bg_img = """
     </style>                 
             
 """
-def upload_xml(db_path, table_name, xml_column, xml_file_path):
-    # Connect to the SQLite database
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-   
-    # Create table if it does not exist
-    cursor.execute(f'''
-        CREATE TABLE IF NOT EXISTS {table_name} (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            {xml_column} BLOB
-        )
-    ''')
- 
-    # Read XML file
-    with open(xml_file_path, 'rb') as file:
-        xml_data = file.read()
- 
-    # Insert XML data into the database
-    cursor.execute(f''' SELECT COUNT(*) FROM {table_name}''')
-    rows = cursor.fetchone()[0]
-    if rows == 0:
+def upload_xml(db_path, xml_file_path):
+        # Connect to the SQLite database
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+    
+        # Create table if it does not exist
         cursor.execute(f'''
-            INSERT INTO {table_name} ({xml_column}) VALUES (?)
-        ''', (xml_data,))
-    else:
-        return
-    # Commit and close the connection
-    conn.commit()
-    conn.close()
-    print(f"XML file {xml_file_path} uploaded to database.")
- 
-def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
+            CREATE TABLE IF NOT EXISTS default_files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                xml_files BLOB
+            )
+        ''')
+    
+        # Read XML file
+        with open(xml_file_path, 'rb') as file:
+            xml_data = file.read()
+    
+        # Insert XML data into the database
+        cursor.execute(f''' SELECT COUNT(*) FROM default_files''')
+        rows = cursor.fetchone()[0]
+
+        if rows < 3:
+            cursor.execute(f'''
+                INSERT INTO default_files (xml_files) VALUES (?)
+            ''', (xml_data,))
+            # Commit and close the connection
+            conn.commit()
+            conn.close()
+            print(f"XML file {xml_file_path} uploaded to database.")
+
+def retrieve_xml(db_path, record_id, output_file_path):
     # Connect to the SQLite database
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -229,7 +228,7 @@ def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
     try:
         # Query to fetch XML data
         cursor.execute(f'''
-            SELECT {xml_column} FROM {table_name} WHERE id = ?
+            SELECT xml_files FROM default_files WHERE id = ?
         ''', (record_id,))
        
         # Fetch the data
@@ -249,15 +248,9 @@ def retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path):
     finally:
         # Close the connection
         conn.close()
+
 # Example usage for uploading XML
 db_path = 'xmlDB.db'
-table_name = 'xml_table'
-xml_column = 'xml_data'
-
-# Example usage for retrieving XML
-record_id = 1
-output_file_path = 'default_file.xml'
-xml_data = retrieve_xml(db_path, table_name, xml_column, record_id, output_file_path)
 
 #Function for writing the XML file
 def save_modified_xml(file_name, tree):
@@ -281,6 +274,9 @@ def main():
 
     file_changed = False
     error = False
+    def_file = False
+    selected_file = None
+    uploaded_files = None
   
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
@@ -297,27 +293,64 @@ def main():
     # Sidebar for file selection and source update
     st.sidebar.title("ServiceNow ENGINEERING DEMO DATA MODIFIER")
     st.sidebar.divider()
-    with st.sidebar.expander(f"#### UPLOADED FILES"):
-        uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
-    if uploaded_files:
-        file_names = [file.name for file in uploaded_files]
-        selected_file_name = st.sidebar.selectbox("Select a file to focus on", file_names)
-        selected_file = None
-        for uploaded_file in uploaded_files:
-            if uploaded_file.name == selected_file_name:
-                selected_file = uploaded_file
-                break
+    st.sidebar.subheader("Choose file to modify")
+
+    upload_button = st.sidebar.button("Upload XML Files", use_container_width=True, type="primary")
+    default_button = st.sidebar.button("Use Default Files", use_container_width=True)
+
+    if upload_button:
+        with st.sidebar.expander(f"#### UPLOADED FILES"):
+            uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
+        if uploaded_files:
+            file_names = [file.name for file in uploaded_files]
+            selected_file_name = st.sidebar.selectbox("Select a file to focus on", file_names)
+            selected_file = None
+            for uploaded_file in uploaded_files:
+                if uploaded_file.name == selected_file_name:
+                    selected_file = uploaded_file
+                    break
+            selected_file_index = file_names.index(selected_file_name)
+            # Check if the selected file has changed
+            if selected_file_index != st.session_state.previous_file_index or selected_file is None:
+                file_changed = True
+                st.session_state.previous_file_index = selected_file_index
+            else:
+                file_changed = False
+    if default_button:
+        # Retrieve the default XML files for use
+        record_id = 1
+        output_file_path = 'default_denial.xml'
+        default_denial = retrieve_xml(db_path, record_id, output_file_path)
+
+        record_id = 2
+        output_file_path = 'default_concurrent.xml'
+        default_concurrent = retrieve_xml(db_path, record_id, output_file_path)
+
+        record_id = 3
+        output_file_path = 'default_usage.xml'
+        default_usage = retrieve_xml(db_path, record_id, output_file_path)
+
+        default_files = [default_denial, default_concurrent, default_usage]
+
+        #Process the default files
+        file_names = ['default_denial.xml', 'default_concurrent.xml', 'default_usage.xml']
+        selected_file_name = st.sidebar.selectbox("Select a default file to focus on", file_names)
+
+        if selected_file_name == file_names[0]:
+            selected_file = default_files[0]
+        elif selected_file_name == file_names[1]:
+            selected_file = default_files[1]
+        elif selected_file_name == file_names[2]:
+            selected_file = default_files[2]
+        def_file = True
+
         selected_file_index = file_names.index(selected_file_name)
         # Check if the selected file has changed
-        if selected_file_index != st.session_state.previous_file_index or selected_file is None:
+        if selected_file_index != st.session_state.previous_file_index:
             file_changed = True
             st.session_state.previous_file_index = selected_file_index
         else:
             file_changed = False
-    else:
-        file_name = output_file_path
-        selected_file = xml_data
-        file_changed = False
     if selected_file:
         # Load and parse the XML file
         if uploaded_files:
@@ -389,7 +422,7 @@ def main():
 
             # Create an instance of the `usage_class`
             usg = usage_class(tree, root, min_range, max_range, db_path, new_source, new_date,
-                              total_idle_dur, total_session_dur, file_changed)
+                              total_idle_dur, total_session_dur, file_changed, def_file)
 
             # Check if the 'update_button' is press
             if update_button:
@@ -496,7 +529,7 @@ def main():
             
         elif concurrent:
             # Create an instance of the `concurrent_class`
-            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
+            conc = concurrent_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed, def_file)
 
             # Check if the 'update_button' is press
             if update_button:
@@ -572,7 +605,7 @@ def main():
     
         elif denial:
             # Create an instance of the `denial_class`
-            deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed)
+            deny = denial_class(tree, root, min_range, max_range, db_path, new_source, new_date, file_changed, def_file)
             # Check if the 'update_button' is press
             if update_button:
                 # If a new source is provided, update the denial source
