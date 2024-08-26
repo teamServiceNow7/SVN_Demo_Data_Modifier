@@ -327,7 +327,7 @@ def main():
                 st.session_state.previous_file_index = selected_file_index
             else:
                 file_changed = False
-    if default_button:
+    elif default_button:
         # Retrieve the default XML files for use
         record_id = 1
         output_file_path = 'default_denial.xml'
