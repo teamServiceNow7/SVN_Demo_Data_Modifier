@@ -400,7 +400,7 @@ class denial_class:
         # Extract the single column from the rows and store it in self.source        
         new_source = {row[0]: row[1] for row in rows}
 
-        self.cursor.execute('''SELECT id, denial_date FROM {self.table_name}''',)
+        self.cursor.execute('''SELECT id, denial_date FROM denial''',)
         rows1 = self.cursor.fetchall()
         new_date = {row[0]: row[1] for row in rows1}
 
