@@ -309,7 +309,7 @@ def main():
     default_button = st.sidebar.button("Use Default Files", use_container_width=True)
 
     if upload_button:
-        with st.sidebar.expander(f"#### UPLOADED FILES"):
+        with st.sidebar.expander(f"#### UPLOAD FILES", expanded=True):
             uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
         if uploaded_files:
             file_names = [file.name for file in uploaded_files]
