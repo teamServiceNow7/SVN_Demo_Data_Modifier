@@ -443,12 +443,10 @@ def main():
                 endDate = pd.to_datetime(df['usage_date']).max()
 
                 with col1:
-                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
+                    date1 = pd.to_datetime(st.date_input(":date: Start Date", startDate))
                 with col2:
-                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
+                    date2 = pd.to_datetime(st.date_input(":date: End Date", endDate))
+                    df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
 
             with placeholder2:    
                 col3, col4= st.columns([3, 1], gap="small")
@@ -545,13 +543,11 @@ def main():
                 startDate = pd.to_datetime(df['usage_date']).min()
                 endDate = pd.to_datetime(df['usage_date']).max()
 
-                with col1:
-                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
-
+               with col1:
+                    date1 = pd.to_datetime(st.date_input(":date: Start Date", startDate))
                 with col2:
-                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
-
-                    df = df[(df['usage_date'] >= date1) & (df['usage_date'] <= date2)].copy()
+                    date2 = pd.to_datetime(st.date_input(":date: End Date", endDate))
+                    df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
                 
             with placeholder2:
                 containerA = st.container(border=True)
@@ -620,11 +616,13 @@ def main():
                 # Getting the min and max date
                 startDate = pd.to_datetime(df['denial_date']).min()
                 endDate = pd.to_datetime(df['denial_date']).max()
+                
                 with col1:
-                    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+                    date1 = pd.to_datetime(st.date_input(":date: Start Date", startDate))
                 with col2:
-                    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+                    date2 = pd.to_datetime(st.date_input(":date: End Date", endDate))
                     df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
+                    
             with placeholder2:
                 col3, col4 = st.columns([2, 1], gap="small")
                 
