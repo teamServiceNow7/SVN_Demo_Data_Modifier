@@ -22,7 +22,6 @@ sidebar_bg_img = """
     color-scheme: light;
     overflow: hidden;
     }
-    
     h1 {
     font-family: "Font Awesome 6 Pro", sans-serif;
     font-weight: 800;
@@ -35,7 +34,6 @@ sidebar_bg_img = """
     margin: 0px;
     line-height: 1;
     }
-    
     /*Image Title*/
     .st-emotion-cache-1v0mbdj {
     display: block;
@@ -51,12 +49,10 @@ sidebar_bg_img = """
     margin-bottom: 1rem;
     margin-top: 0rem;
     }
-    
     .st-emotion-cache-1jicfl2 {
         padding-left: 2rem;
         padding-right: 2rem;
     }
-    
     /* header red #920113-red hex*/ 
     h2{
     background-color: #920113;
@@ -65,7 +61,6 @@ sidebar_bg_img = """
     text-align: center;
     border-radius: 10px;
     }
-    
     h2 {
     font-family: "Source Sans Pro", sans-serif;
     font-weight: 600;
@@ -74,12 +69,10 @@ sidebar_bg_img = """
     margin: 0px;
     line-height: 1.2;
     }
-    
     h3{
     font-weight: bold;
     font-size: 20px;
     }
-    
     /*side bar subhead*/
     .st-emotion-cache-1whx7iy p{
     font-weight: bold;
@@ -89,7 +82,6 @@ sidebar_bg_img = """
     h4{
     color: #920113;
     }
-    
     .stProgress > div > div > div > div {
         background-color: #920113;
     }
@@ -97,7 +89,6 @@ sidebar_bg_img = """
     [data-testid= "stThumbValue"]{
     color: #920113;
     }
-    
     /*Logo*/
     .st-emotion-cache-5drf04 {
     height: 7rem;
@@ -105,19 +96,16 @@ sidebar_bg_img = """
     margin: 0.25rem 0.5rem 0.25rem 0px;
     z-index: 999990;
     }
-    
     /*sidebar heading-demodata xml*/
     .st-emotion-cache-1gwvy71 {
     padding: 0px 1.5rem 6rem;
     }
-    
     .st-emotion-cache-1gwvy71 h1 {
     font-family: "League Spartan", sans-serif;
     color: #ffffff;
     background-color: #032C41;
     font-size: 23px;
     }
-    
      /*sidebar gap */
     .st-emotion-cache-1dfdf75 {
     width: 282px;
@@ -128,7 +116,6 @@ sidebar_bg_img = """
     gap: 0.5rem;
     flex-wrap: nowrap;
     }
-    
     /*date expander gap*/
     .st-emotion-cache-phzz4j {
     width: 248px;
@@ -138,7 +125,6 @@ sidebar_bg_img = """
     flex-direction: column;
     gap: 0.25rem;
     }
-    
     .st-emotion-cache-1mi2ry5 {
     display: flex;
     -webkit-box-pack: justify;
@@ -147,7 +133,6 @@ sidebar_bg_img = """
     align-items: start;
     padding:  0.5rem 0.5rem 0.25rem ;
     }
-    
     /*Sidebar Components*/
     .st-emotion-cache-ue6h4q {
     font-size: 14px;
@@ -162,33 +147,27 @@ sidebar_bg_img = """
     -webkit-box-align: center;
     align-items: center;
     }
-    
     [data-testid="stSidebar"]{
     background-color: #E6EDF1;    
     width: 20%;
     }
-    
     [data-testid= "stHeader"]{
     background-color: #920113;
     color: #ffffff;
     padding: 1rem;
     }
-    
     [data-testid= "stSidebarUserContent"]{
     background-color: #6d0b17;
     height: 1px;
     }
-    
     [data-testid= "stSidebarHeader"]{
     background-color: #6d0b17;
     }
-    
     /*new date value*/
     .st-emotion-cache-1gwvy71 h3 {
     font-size: 20px;
     font-weight: bold;
-    } 
-    
+    }   
     .st-emotion-cache-1ag92y2{
     background-color: #E6EDF1; 
     }
@@ -213,7 +192,7 @@ sidebar_bg_img = """
         color: #920113;
         font-size: 50px
     }
-    
+
     /*expander margin*/
     .st-emotion-cache-p5msec {
         position: relative;
@@ -425,7 +404,8 @@ def main():
         else:
             tree = ET.ElementTree(ET.fromstring(selected_file))
             root = tree.getroot()
-            display_file_name = "Default File"
+            
+            display_file_name = selected_file_name.replace("_", " ").replace(".xml", " ").title()
         st.header(f"Update {display_file_name}")
         st.write(" ")
         elements = None
