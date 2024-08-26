@@ -289,6 +289,8 @@ def main():
     uploaded_files = None
     if 'show_uploader' not in st.session_state:
         st.session_state.show_uploader = False
+    if 'show_default' not in st.session_state:
+        st.session_state.show_default = False
   
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
@@ -339,6 +341,9 @@ def main():
     else:
         pass
     if default_button:
+        st.session_state.show_default = True
+        
+    if st.session_state.show_default:
         # Retrieve the default XML files for use
         record_id = 1
         output_file_path = 'default_denial.xml'
