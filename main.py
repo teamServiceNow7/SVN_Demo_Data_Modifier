@@ -171,6 +171,16 @@ sidebar_bg_img = """
     .st-emotion-cache-1ag92y2{
     background-color: #E6EDF1; 
     }
+
+    /*gap between buttons*/
+    .st-emotion-cache-z0kkir {
+    width: 301px;
+    position: relative;
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+    gap: 0.5rem;
+    }
     
     /*for paragraph*/
     p, ol, ul, dl {
