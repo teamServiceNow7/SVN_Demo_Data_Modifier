@@ -287,6 +287,8 @@ def main():
     def_file = False
     selected_file = None
     uploaded_files = None
+    if 'show_uploader' not in st.session_state:
+        st.session_state.show_uploader = False
   
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
@@ -310,24 +312,33 @@ def main():
     st.sidebar.divider()
 
     if upload_button:
-        with st.sidebar.expander(f"#### UPLOAD FILES", expanded=True):
-            uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
+        st.session_state.show_uploader = True
+
+    if st.session_state.show_uploader is True:
+        with st.sidebar.expander(f"#### UPLOAD FILES", expanded = True):
+           uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
+            
         if uploaded_files:
             file_names = [file.name for file in uploaded_files]
             selected_file_name = st.sidebar.selectbox("Select a file to focus on", file_names)
-            selected_file = None
+            
             for uploaded_file in uploaded_files:
                 if uploaded_file.name == selected_file_name:
                     selected_file = uploaded_file
                     break
             selected_file_index = file_names.index(selected_file_name)
+
             # Check if the selected file has changed
             if selected_file_index != st.session_state.previous_file_index or selected_file is None:
                 file_changed = True
                 st.session_state.previous_file_index = selected_file_index
             else:
                 file_changed = False
-    elif default_button:
+        else:
+            pass
+    else:
+        pass
+    if default_button:
         # Retrieve the default XML files for use
         record_id = 1
         output_file_path = 'default_denial.xml'
