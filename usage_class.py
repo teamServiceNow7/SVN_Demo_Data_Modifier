@@ -473,9 +473,9 @@ class usage_class:
                 
                 with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
                     st.markdown(f"""
+                    **Source**: {source[display_idx]} 
                     **Product**: {product[display_idx]}  
-                    **Publisher**: {norm_publisher[display_idx]}
-                    **Source**: {source[display_idx]}  
+                    **Publisher**: {norm_publisher[display_idx]} 
                     **Created on**: {sys_created_on[display_idx]}  
                     **Updated on**: {sys_updated_on[display_idx]}  
                     **Idle Duration**: {idle_dur[display_idx]}  
