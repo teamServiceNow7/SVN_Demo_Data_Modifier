@@ -318,7 +318,7 @@ class concurrent_class:
                     
             self.connection.commit()
         return error
-    #function to display the denial data
+    #function to display the concurrent data
     def disp_concurrent(self):
 
         col_idx = 0
@@ -349,7 +349,7 @@ class concurrent_class:
                     """)
 
                 col_idx += 1
-    #function to parse the denial file into xml file
+    #function to parse the concurrent file into xml file
     def concurrent_parser(self):
 
         self.cursor.execute(f'''SELECT id, source FROM {self.table_name}''',)
