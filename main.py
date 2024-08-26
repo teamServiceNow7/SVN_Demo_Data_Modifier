@@ -194,7 +194,7 @@ sidebar_bg_img = """
     }
 
     /*expander margin*/
-    .st-emotion-cache-p5msec {
+    .st-emotion-cache-1fnth58 {
         position: relative;
         display: flex;
         width: 100%;
