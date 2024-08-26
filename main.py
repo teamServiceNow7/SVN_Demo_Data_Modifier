@@ -173,13 +173,13 @@ sidebar_bg_img = """
     }
 
     /*gap between buttons*/
-   .st-emotion-cache-1kqfhsx {
-    width: 293.003px;
-    position: relative;
-    display: flex;
-    flex: 1 1 0%;
-    flex-direction: column;
-    gap: 0.5rem;
+    .st-emotion-cache-1dv6mx9 {
+        width: 293px;
+        position: relative;
+        display: flex;
+        flex: 1 1 0%;
+        flex-direction: column;
+        gap: 0.5rem;
     }
     
     /*for paragraph*/
