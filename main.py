@@ -712,14 +712,14 @@ def main():
                                         color="#920113")
                      
                 with col4:
-                    container2 = st.container(border=True, height=130)
-                    container2.subheader("Total Denial Count")
+                    container2 = st.container(border=True, height=150)
                     array = pd.Series(df['denial_count'])
-                    array_int = array.astype(int)
-                    container2.header(array_int.sum())
+                    array_int = array.astype(int).sum()
+                    container2.metric(label="Total Denial Count", value= array_int)
+                    #container2.subheader("Total Denial Count")
+                    #container2.header(array_int)
 
                 with col4:
-                    
                     dfUser = pd.DataFrame({
                     'Computer': df['computer'],
                     'Denial Count': df['denial_count']
@@ -734,7 +734,7 @@ def main():
                     # Optionally, rename columns
                     unique_user_df.columns = ['Computer', 'Total Denial Count']
 
-                    container3 = st.container(border=True, height=290)
+                    container3 = st.container(border=True, height=270)
                     container3.subheader("Denials per User")
                     container3.data_editor(
                        unique_user_df,
