@@ -435,9 +435,8 @@ def main():
             else:
                 total_session_dur = None
         update_button = st.sidebar.button("Update All Fields")
-        st.sidebar.write(" ")
+        #st.sidebar.write(" ")
 
-            
         if usage:
 
             # Create an instance of the `usage_class`
