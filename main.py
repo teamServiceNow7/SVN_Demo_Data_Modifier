@@ -325,7 +325,7 @@ def main():
         st.session_state.previous_file_index = -1
 
     # Sidebar buttons
-    upload_button = st.sidebar.button("Upload XML Files", use_container_width=True)
+    upload_button = st.sidebar.button("Upload XML Files", use_container_width=True, type = "primary")
     default_button = st.sidebar.button("Use Default Files", use_container_width=True)
     st.sidebar.divider()
 
