@@ -543,7 +543,7 @@ def main():
                 startDate = pd.to_datetime(df['usage_date']).min()
                 endDate = pd.to_datetime(df['usage_date']).max()
 
-               with col1:
+                with col1:
                     date1 = pd.to_datetime(st.date_input(":date: Start Date", startDate))
                 with col2:
                     date2 = pd.to_datetime(st.date_input(":date: End Date", endDate))
