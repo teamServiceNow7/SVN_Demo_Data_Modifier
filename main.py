@@ -425,9 +425,7 @@ def main():
             else:
                 total_session_dur = None
         update_button = st.sidebar.button("Update All Fields")
-        #st.sidebar.divider()
-        if file_changed:
-            st.sidebar.text("The file has been changed.")
+
             
         if usage:
 
@@ -577,7 +575,6 @@ def main():
                     'concurrent_usage': conc.get_concurrent_usage(),
                     'Product': conc.get_license_name()
                 })
-                #st.dataframe(df)
 
                 #Dates Tab Graph
                 col1, col2= st.columns((2))
