@@ -457,6 +457,7 @@ class usage_class:
         rows = self.cursor.fetchone()[0]
 
         product = self.get_product()
+        norm_publisher = self.get_norm_publisher()
         source = self.get_source()
         sys_created_on = self.get_created_on()
         sys_updated_on = self.get_updated_on()
@@ -473,6 +474,7 @@ class usage_class:
                 with cols[col_idx % 4].expander(f"#### Object {display_idx}", expanded=True):
                     st.markdown(f"""
                     **Product**: {product[display_idx]}  
+                    **Publisher**: {norm_publisher[display_idx]}
                     **Source**: {source[display_idx]}  
                     **Created on**: {sys_created_on[display_idx]}  
                     **Updated on**: {sys_updated_on[display_idx]}  
