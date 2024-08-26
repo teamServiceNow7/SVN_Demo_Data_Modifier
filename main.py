@@ -777,7 +777,7 @@ def main():
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
-        page_title="[NOW]SVN Demo Data Modifier",
+        page_title="SVN Demo Data Modifier",
         layout="wide",
         page_icon=DDMIcon
         )
