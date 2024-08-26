@@ -123,7 +123,7 @@ sidebar_bg_img = """
     display: flex;
     flex: 0.5 0.5 0%;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
     flex-wrap: nowrap;
     }
     
