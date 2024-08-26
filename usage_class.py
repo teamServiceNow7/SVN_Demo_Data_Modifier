@@ -6,7 +6,7 @@ import os
 #class for usage 
 class usage_class:
 
-    def __init__(self, tree,root , min, max,db_path,new_source,new_date,total_idle_dur, total_session_dur,file_changed):
+    def __init__(self, tree,root, min, max, db_path, new_source, new_date, total_idle_dur, total_session_dur, file_changed, def_file):
 
         self.tree = tree
         self.root = root
@@ -25,7 +25,13 @@ class usage_class:
         self.total_idle_dur = total_idle_dur
         self.total_session_dur = total_session_dur
         self.file_changed = file_changed
+        self.def_file = def_file
         self.db_path = db_path
+
+        if self.def_file is True:
+            self.table_name = "default_usage"
+        else:
+            self.table_name = "usage_summary"
         self.initialize_database()
 
     def initialize_database(self):
@@ -51,70 +57,44 @@ class usage_class:
 
     def create_tables(self):
         """Create tables if they do not exist."""
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS usage_summary (
+        self.cursor.execute(f'''
+            CREATE TABLE IF NOT EXISTS {self.table_name} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                norm_product TEXT,
-                norm_product_name TEXT,
-                norm_publisher TEXT,
-                norm_publisher_name TEXT,
-                reporting_version TEXT,
+                product TEXT,
                 source TEXT,
-                sys_created_by TEXT,
                 sys_created_on TEXT,
-                sys_domain TEXT,
-                sys_domain_path TEXT,
-                sys_id TEXT,
-                sys_mod_count INTEGER,
-                sys_updated_by TEXT,
                 sys_updated_on TEXT,
-                total_idle_dur TEXT,
-                total_sess_dur TEXT,
-                usage_date TEXT,
-                user TEXT,
-                user_name TEXT
+                idle_dur TEXT,
+                sess_dur TEXT,
+                usage_date TEXT
             )
         ''')
         self.connection.commit()
 
     def clear_table(self):
-        self.cursor.execute('DROP TABLE IF EXISTS usage_summary')
+        self.cursor.execute(f'DROP TABLE IF EXISTS {self.table_name}')
         self.create_tables()
-        self.cursor.execute('DELETE FROM sqlite_sequence WHERE name="usage_summary"')
+        self.cursor.execute(f'DELETE FROM sqlite_sequence WHERE name="{self.table_name}"')
         self.insert_data()
         
     def insert_data(self):
-        """Insert data from XML into the 'usage_summary' table."""
-        self.cursor.execute("PRAGMA table_info(usage_summary)")
-        columns = [row[1] for row in self.cursor.fetchall()]
-        columns_str = ', '.join([f'"{col}"' for col in columns])
-        placeholders = ', '.join(['?'] * len(columns))
-        insert_query = f'INSERT INTO usage_summary ({columns_str}) VALUES ({placeholders})'
-
-        self.cursor.execute('SELECT COUNT(*) FROM usage_summary')
+        self.cursor.execute(f'SELECT COUNT(*) FROM {self.table_name}')
         rows = self.cursor.fetchone()[0]
         # Insert data into the table
         if rows == 0:
             for elem in self.root.findall('.//samp_eng_app_usage_summary'):
-                data = []
-                for col in columns:
-                    if col == 'id':
-                        # Handle the 'id' column; usually, this is an auto-incremented field
-                        value = None
-                    elif col.endswith('_name'):
-                        # Handle columns that map to display_value attributes
-                        element_name = col.replace('_name', '')
-                        element = elem.find(element_name)
-                        value = element.get('display_value') if element is not None else ''
-                    else:
-                        value = elem.find(col).text if elem.find(col) is not None else ''
-                        if col == 'sys_mod_count' and value.isdigit():
-                            value = int(value)
-                            
-                    data.append(value)
-    
-                self.cursor.execute(insert_query, data)
+                product = elem.find('norm_product').get('display_value')
+                source = elem.find('source').text
+                sys_created_on = elem.find('sys_created_on').text
+                sys_updated_on = elem.find('sys_updated_on').text
+                idle_dur = elem.find('total_idle_dur').text
+                sess_dur = elem.find('total_sess_dur').text
+                usage_date = elem.find('usage_date').text
 
+                self.cursor.execute(f'''
+                                    INSERT INTO {self.table_name}(product, source, sys_created_on, sys_updated_on, idle_dur, sess_dur, usage_date)
+                                    VALUES(?, ?, ?, ?, ?, ?, ?)
+                                    ''', (product, source, sys_created_on, sys_updated_on, idle_dur, sess_dur, usage_date))
         self.connection.commit()
 
     def close(self):
@@ -172,8 +152,8 @@ class usage_class:
     #GETTERS
     def get_product(self):
 
-        self.cursor.execute('''
-        SELECT id, norm_product_name FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, product FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -187,8 +167,8 @@ class usage_class:
 
     def get_source(self):
 
-        self.cursor.execute('''
-        SELECT id, source FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, source FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -201,8 +181,8 @@ class usage_class:
         return self.source 
     
     def get_created_on(self):
-        self.cursor.execute('''
-        SELECT id, sys_created_on FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, sys_created_on FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -215,8 +195,8 @@ class usage_class:
     
     def get_updated_on(self):
 
-        self.cursor.execute('''
-        SELECT id, sys_updated_on FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, sys_updated_on FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -228,8 +208,8 @@ class usage_class:
         return self.updated_on
     
     def get_idle_dur(self):
-        self.cursor.execute('''
-        SELECT id, total_idle_dur FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, idle_dur FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -242,8 +222,8 @@ class usage_class:
     
     def get_sess_dur(self):
 
-        self.cursor.execute('''
-        SELECT id, total_sess_dur FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, sess_dur FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -255,8 +235,8 @@ class usage_class:
         return self.sess_dur 
     
     def get_usage_date(self):
-        self.cursor.execute('''
-        SELECT id, usage_date FROM usage_summary
+        self.cursor.execute(f'''
+        SELECT id, usage_date FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -294,8 +274,8 @@ class usage_class:
     def update_usage_source(self):
 
         if self.new_source is not None:
-            self.cursor.execute('''
-            UPDATE usage_summary
+            self.cursor.execute(f'''
+            UPDATE {self.table_name}
             SET source = ?
             WHERE id BETWEEN ? AND ?
         ''', (self.new_source, self.min, self.max))
@@ -303,8 +283,8 @@ class usage_class:
         elif self.new_source == "" or self.new_source is None:
             self.source = self.get_source()
             for value in self.source.values():
-                self.cursor.execute('''
-                UPDATE usage_summary
+                self.cursor.execute(f'''
+                UPDATE {self.table_name}
                 SET source = ?
                 WHERE id BETWEEN ? AND ?
             ''', (value, self.min, self.max))
@@ -331,8 +311,8 @@ class usage_class:
                             new_date1 = date_obj + timedelta(days=interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d')
     
-                            self.cursor.execute('''
-                            UPDATE usage_summary
+                            self.cursor.execute(f'''
+                            UPDATE {self.table_name}
                             SET usage_date = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
@@ -343,8 +323,8 @@ class usage_class:
                     
                     else: 
                         min = min + 1
-                        self.cursor.execute('''
-                        UPDATE usage_summary
+                        self.cursor.execute(f'''
+                        UPDATE {self.table_name}
                         SET usage_date = ?
                         WHERE id = ?
                     ''', (self.new_date.strftime('%Y-%m-%d'), idx))
@@ -376,8 +356,8 @@ class usage_class:
                             new_date1 = date_obj + timedelta(minutes = interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d %H:%M:%S')
     
-                            self.cursor.execute('''
-                            UPDATE usage_summary
+                            self.cursor.execute(f'''
+                            UPDATE {self.table_name}
                             SET total_idle_dur = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
@@ -392,8 +372,8 @@ class usage_class:
                     
                     else: 
                         min = min + 1
-                        self.cursor.execute('''
-                        UPDATE usage_summary
+                        self.cursor.execute(f'''
+                        UPDATE {self.table_name}
                         SET total_idle_dur = ?
                         WHERE id = ?
                     ''', (self.total_idle_dur.strftime('%Y-%m-%d %H:%M:%S'), idx))
@@ -424,8 +404,8 @@ class usage_class:
                             new_date1 = date_obj + timedelta(minutes = interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d %H:%M:%S')
     
-                            self.cursor.execute('''
-                            UPDATE usage_summary
+                            self.cursor.execute(f'''
+                            UPDATE {self.table_name}
                             SET total_sess_dur = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
@@ -440,8 +420,8 @@ class usage_class:
                     
                     else: 
                         min = min + 1
-                        self.cursor.execute('''
-                        UPDATE usage_summary
+                        self.cursor.execute(f'''
+                        UPDATE {self.table_name}
                         SET total_sess_dur = ?
                         WHERE id = ?
                     ''', (self.total_session_dur.strftime('%Y-%m-%d %H:%M:%S'), idx))
@@ -453,7 +433,7 @@ class usage_class:
 
         col_idx = 0
         cols = st.columns(4)
-        self.cursor.execute('''SELECT COUNT(*) FROM usage_summary''')
+        self.cursor.execute(f'''SELECT COUNT(*) FROM {self.table_name}''')
         rows = self.cursor.fetchone()[0]
 
         product = self.get_product()
@@ -485,21 +465,21 @@ class usage_class:
 
     def usage_parser(self):
 
-        self.cursor.execute('''SELECT id, source FROM usage_summary''',)
+        self.cursor.execute(f'''SELECT id, source FROM {self.table_name}''',)
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
         # Extract the single column from the rows and store it in self.source        
         new_source = {row[0]: row[1] for row in rows}
 
-        self.cursor.execute('''SELECT id, usage_date FROM usage_summary''',)
+        self.cursor.execute(f'''SELECT id, usage_date FROM {self.table_name}''',)
         rows1 = self.cursor.fetchall()
         new_date = {row[0]: row[1] for row in rows1}
 
-        self.cursor.execute('''SELECT id, total_idle_dur FROM usage_summary''',)
+        self.cursor.execute(f'''SELECT id, total_idle_dur FROM {self.table_name}''',)
         rows2 = self.cursor.fetchall()
         new_idle_dur = {row[0]: row[1] for row in rows2}
 
-        self.cursor.execute('''SELECT id, total_sess_dur FROM usage_summary''',)
+        self.cursor.execute(f'''SELECT id, total_sess_dur FROM {self.table_name}''',)
         rows3 = self.cursor.fetchall()
         new_sess_dur = {row[0]: row[1] for row in rows3}
 
