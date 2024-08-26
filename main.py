@@ -333,11 +333,8 @@ def main():
                 file_changed = False
         else:
             pass
-    else:
-        pass
         
     else:
-        def_file = True
         # Retrieve the default XML files for use
         record_id = 1
         output_file_path = 'default_denial.xml'
