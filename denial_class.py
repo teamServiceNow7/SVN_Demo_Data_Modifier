@@ -8,7 +8,7 @@ import os
 # Class for denial
 class denial_class:
     
-    def __init__(self, tree, root, min, max, db_path, new_source, new_date, file_changed):
+    def __init__(self, tree, root, min, max, db_path, new_source, new_date, file_changed, def_file):
         self.tree = tree
         self.root = root
         self.denial_date = None
@@ -23,7 +23,14 @@ class denial_class:
         self.new_source = new_source
         self.new_date = new_date
         self.file_changed = file_changed
+        self.def_file = def_file
         self.db_path = db_path
+
+        if self.def_file is True:
+            self.table_name = "default_denial"
+        else:
+            self.table_name = "denial"
+
         self.initialize_database()
 
     def initialize_database(self):
@@ -40,6 +47,7 @@ class denial_class:
             self.connection = sqlite3.connect(self.db_path, timeout = 1)
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
+
         self.create_tables()
         if self.file_changed:    
             self.clear_table()
@@ -48,46 +56,16 @@ class denial_class:
 
     def create_tables(self):
         """Create tables if they do not exist."""
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS denial (
+        self.cursor.execute(f'''
+            CREATE TABLE IF NOT EXISTS {self.table_name} (
                 id INTEGER PRIMARY KEY,
-                unload_date TEXT,
-                action TEXT,
-                additional_key TEXT,
-                computer TEXT,
-                computer_name TEXT,
                 denial_date TEXT,
-                denial_id TEXT,
-                discovery_model TEXT,
-                "group" TEXT,
-                group_name TEXT,
-                is_product_normalized TEXT,
-                last_denial_time TEXT,
-                license_server TEXT,
-                license_server_name TEXT,
-                license_type TEXT,
-                license_type_name TEXT,
-                norm_product TEXT,
-                nom_product_name TEXT,
-                norm_publisher TEXT,
-                norm_publisher_name TEXT,
+                computer TEXT,
                 product TEXT,
-                publisher TEXT,
                 source TEXT,
-                sys_created_by TEXT,
-                sys_created_on TEXT, 
-                sys_domain TEXT,
-                sys_domain_path TEXT,
-                sys_id TEXT,
-                sys_mod_count TEXT,
-                sys_updated_by TEXT,
+                sys_created_on TEXT,
                 sys_updated_on TEXT,
-                total_denial_count TEXT,
-                "user" TEXT,
-                user_name TEXT,
-                version TEXT,
-                workstation TEXT,
-                workstation_name TEXT
+                total_denial_count TEXT
             )
         ''')
         self.connection.commit()
@@ -97,43 +75,34 @@ class denial_class:
         self.insert_data()
 
     def insert_data(self):
-        """Insert data from XML into the database."""
-        self.cursor.execute("PRAGMA table_info(denial)")
-        columns = [row[1] for row in self.cursor.fetchall()]
-        columns_str = ', '.join([f'"{col}"' for col in columns])
-        placeholders = ', '.join(['?'] * len(columns))
-        insert_query = f'INSERT INTO denial ({columns_str}) VALUES ({placeholders})'
-
-        self.cursor.execute('SELECT COUNT(*) FROM denial')
+        self.cursor.execute(f'SELECT COUNT(*) FROM {self.table_name}')
         rows = self.cursor.fetchone()[0]
 
         # Insert data into the table
         if rows == 0:
             for elem in self.root.findall('.//samp_eng_app_denial'):
-                data = []
-                for col in columns:
-                    if col == 'id':
-                        value = int(elem.find(col).text) if elem.find(col) is not None and elem.find(col).text.isdigit() else None
-                    elif col.endswith('_name'):
-                        # Handle columns that map to display_value attributes
-                        element_name = col.replace('_name', '')
-                        element = elem.find(element_name)
-                        value = element.get('display_value') if element is not None else ''
-                    else:
-                        value = elem.find(col).text if elem.find(col) is not None else ''
-                    data.append(value)
-    
-                self.cursor.execute(insert_query, data)
+                denial_date = elem.find('denial_date').text
+                computer = elem.find('computer').get('display_value')
+                product = elem.find('norm_product').get('display_value')
+                source = elem.find('source').text
+                sys_created_on = elem.find('sys_created_on').text
+                sys_updated_on = elem.find('sys_updated_on').text
+                total_denial_count = elem.find('total_denial_count').text
+
+                self.cursor.execute(f'''
+                                    INSERT INTO {self.table_name}(denial_date, computer, product, source, sys_created_on, sys_updated_on, total_denial_count)
+                                    VALUES(?, ?, ?, ?, ?, ?, ?)
+                                    ''', (denial_date, computer, product, source, sys_created_on, sys_updated_on, total_denial_count))
 
         self.connection.commit()
 
     def delete_table(self):
-        self.cursor.execute('DELETE FROM denial')
+        self.cursor.execute(f'DELETE FROM {self.table_name}')
         self.create_tables()
         self.connection.commit()
 
     def getall(self):
-        self.cursor.execute('''SELECT * FROM denial''')
+        self.cursor.execute(f'''SELECT * FROM {self.table_name}''')
         return self.cursor.fetchall()
 
     def close(self):
@@ -146,7 +115,7 @@ class denial_class:
         col_idx = 0
         cols = st.columns(4)
 
-        self.cursor.execute('''SELECT COUNT(*) FROM denial''')
+        self.cursor.execute(f'''SELECT COUNT(*) FROM {self.table_name}''')
         rows = self.cursor.fetchone()[0]
         
         denial_date = self.get_denial_date()
@@ -222,8 +191,8 @@ class denial_class:
     
     def get_denial_date(self):
         
-        self.cursor.execute('''
-        SELECT id, denial_date FROM denial
+        self.cursor.execute(f'''
+        SELECT id, denial_date FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -237,8 +206,8 @@ class denial_class:
 
     def get_computer(self):
     
-        self.cursor.execute('''
-        SELECT id, computer_name FROM denial
+        self.cursor.execute(f'''
+        SELECT id, computer FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -252,8 +221,8 @@ class denial_class:
 
     def get_source(self):
  
-        self.cursor.execute('''
-        SELECT id, source FROM denial
+        self.cursor.execute(f'''
+        SELECT id, source FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
        
@@ -267,8 +236,8 @@ class denial_class:
     
     def get_product(self):
 
-        self.cursor.execute('''
-        SELECT id, norm_product_name FROM denial
+        self.cursor.execute(f'''
+        SELECT id, product FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -281,8 +250,8 @@ class denial_class:
         return self.product
     
     def get_created_on(self):
-        self.cursor.execute('''
-        SELECT id, sys_created_on FROM denial
+        self.cursor.execute(f'''
+        SELECT id, sys_created_on FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -295,8 +264,8 @@ class denial_class:
     
     def get_updated_on(self):
 
-        self.cursor.execute('''
-        SELECT id, sys_updated_on FROM denial
+        self.cursor.execute(f'''
+        SELECT id, sys_updated_on FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -309,8 +278,8 @@ class denial_class:
     
     def get_total_denial_count(self):
 
-        self.cursor.execute('''
-        SELECT id, total_denial_count FROM denial
+        self.cursor.execute(f'''
+        SELECT id, total_denial_count FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -336,16 +305,16 @@ class denial_class:
     # UPDATE
     def update_denial_source(self):
         if self.new_source is not None:
-            self.cursor.execute('''
-            UPDATE denial
+            self.cursor.execute(f'''
+            UPDATE {self.table_name}
             SET source = ?
             WHERE id BETWEEN ? AND ?
             ''', (self.new_source, self.min, self.max))
             self.connection.commit()
         elif self.new_source == "" or self.new_source is None:
             source_values = self.get_source(self.min)
-            self.cursor.execute('''
-            UPDATE denial
+            self.cursor.execute(f'''
+            UPDATE {self.table_name}
             SET source = ?
             WHERE id BETWEEN ? AND ?
             ''', (source_values, self.min, self.max))
@@ -373,8 +342,8 @@ class denial_class:
                             new_date1 = date_obj + timedelta(days=interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d')
     
-                            self.cursor.execute('''
-                            UPDATE denial
+                            self.cursor.execute(f'''
+                            UPDATE {self.table_name}
                             SET denial_date = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
@@ -396,7 +365,7 @@ class denial_class:
 
     def denial_parser(self):
 
-        self.cursor.execute('''SELECT id, source FROM denial''',)
+        self.cursor.execute(f'''SELECT id, source FROM {self.table_name}''',)
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
         # Extract the single column from the rows and store it in self.source        
