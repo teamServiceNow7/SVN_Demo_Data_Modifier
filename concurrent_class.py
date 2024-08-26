@@ -5,7 +5,7 @@ import os
 #class for concurrent
 class concurrent_class:
 
-    def __init__(self,tree,root,min,max,db_path,new_source,new_date,file_changed):
+    def __init__(self,tree,root,min,max,db_path,new_source,new_date,file_changed, def_file):
 
         self.tree = tree
         self.root = root
@@ -21,7 +21,13 @@ class concurrent_class:
         self.created_on = None
         self.updated_on = None
         self.file_changed = file_changed
+        self.def_file = def_file
         self.db_path = db_path
+
+        if self.def_file is True:
+            self.table_name = "default_concurrent"
+        else:
+            self.table_name = "concurrent"
         self.initialize_database()
 
     def initialize_database(self):
@@ -48,71 +54,48 @@ class concurrent_class:
     def create_tables(self):
         """Create tables if they do not exist."""
         # Creating the 'concurrent' table
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS concurrent (
+        self.cursor.execute(f'''
+            CREATE TABLE IF NOT EXISTS {self.table_name} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                conc_usage_id TEXT,
-                concurrent_usage INTEGER,
-                license TEXT,
+                usage_date TEXt,
                 license_name TEXT,
                 source TEXT,
-                sys_created_by TEXT,
                 sys_created_on TEXT,
-                sys_domain TEXT,
-                sys_domain_path TEXT,
-                sys_id TEXT,
-                sys_mod_count INTEGER,
-                sys_updated_by TEXT,
                 sys_updated_on TEXT,
-                usage_date TEXT
+                concurrent_usage TEXT
             )
         ''')
         self.connection.commit()
 
     def clear_table(self):
-        self.cursor.execute('DROP TABLE IF EXISTS concurrent')
+        self.cursor.execute(f'DROP TABLE IF EXISTS {self.table_name}')
         self.create_tables()
-        self.cursor.execute('DELETE FROM sqlite_sequence WHERE name="concurrent"')
+        self.cursor.execute(f'DELETE FROM sqlite_sequence WHERE name="{self.table_name}"')
         self.insert_data()
         
     def insert_data(self):
-        """Insert data from XML into the 'concurrent' table."""
-        self.cursor.execute("PRAGMA table_info(concurrent)")
-        columns = [row[1] for row in self.cursor.fetchall()]
-        columns_str = ', '.join([f'"{col}"' for col in columns])
-        placeholders = ', '.join(['?'] * len(columns))
-        insert_query = f'INSERT INTO concurrent ({columns_str}) VALUES ({placeholders})'
-
-        self.cursor.execute('SELECT COUNT(*) FROM concurrent')
+        self.cursor.execute(f'SELECT COUNT(*) FROM {self.table_name}')
         rows = self.cursor.fetchone()[0]
+
         # Insert data into the table
         if rows == 0:
             for elem in self.root.findall('.//samp_eng_app_concurrent_usage'):
-                data = []
-                for col in columns:
-                    if col == 'id':
-                        # Handle the 'id' column; usually, this is an auto-incremented field
-                        value = None
-                    elif col.endswith('_name'):
-                        # Handle columns that map to display_value attributes
-                        element_name = col.replace('_name', '')
-                        element = elem.find(element_name)
-                        value = element.get('display_value') if element is not None else ''
-                    else:
-                        value = elem.find(col).text if elem.find(col) is not None else ''
-                        if col == 'concurrent_usage' and value.isdigit():
-                            value = int(value)
-                        if col == 'sys_mod_count' and value.isdigit():
-                            value = int(value)
-    
-                    data.append(value)
-    
-                self.cursor.execute(insert_query, data)
+                usage_date = elem.find('usage_date').text
+                license_name = elem.find('license').get('display_value')
+                source = elem.find('source').text
+                sys_created_on = elem.find('sys_created_on').text
+                sys_updated_on = elem.find('sys_updated_on').text
+                concurrent_usage = elem.find('concurrent_usage').text
+
+                self.cursor.execute(f'''
+                                    INSERT INTO {self.table_name}(usage_date, license_name, source, sys_created_on, sys_updated_on, concurrent_usage)
+                                    VALUES(?, ?, ?, ?, ?, ?)
+                                    ''', (usage_date, license_name, source, sys_created_on, sys_updated_on, concurrent_usage))
 
         self.connection.commit()
         
     def test(self):
-        self.cursor.execute('''SELECT * FROM concurrent WHERE id = 1''')
+        self.cursor.execute(f'''SELECT * FROM {self.table_name} WHERE id = 1''')
         result = self.cursor.fetchall()
         return result
         
@@ -181,8 +164,8 @@ class concurrent_class:
 
     def get_license_name(self):
 
-        self.cursor.execute('''
-        SELECT id, license_name FROM concurrent
+        self.cursor.execute(f'''
+        SELECT id, license_name FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -196,8 +179,8 @@ class concurrent_class:
     
     def get_source(self):
 
-        self.cursor.execute('''
-        SELECT id, source FROM concurrent
+        self.cursor.execute(f'''
+        SELECT id, source FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -209,8 +192,8 @@ class concurrent_class:
         return self.source
 
     def get_usage_date(self):
-        self.cursor.execute('''
-        SELECT id, usage_date FROM concurrent
+        self.cursor.execute(f'''
+        SELECT id, usage_date FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -222,8 +205,8 @@ class concurrent_class:
         return self.usage_date 
 
     def get_created_on(self):
-        self.cursor.execute('''
-        SELECT id, sys_created_on FROM concurrent
+        self.cursor.execute(f'''
+        SELECT id, sys_created_on FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -235,8 +218,8 @@ class concurrent_class:
         return self.created_on 
     
     def get_updated_on(self):
-        self.cursor.execute('''
-        SELECT id, sys_updated_on FROM concurrent
+        self.cursor.execute(f'''
+        SELECT id, sys_updated_on FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -248,8 +231,8 @@ class concurrent_class:
         return self.updated_on 
 
     def get_concurrent_usage(self):
-        self.cursor.execute('''
-        SELECT id, concurrent_usage FROM concurrent
+        self.cursor.execute(f'''
+        SELECT id, concurrent_usage FROM {self.table_name}
         WHERE id BETWEEN ? AND ?
     ''', (self.min, self.max))
         
@@ -264,8 +247,8 @@ class concurrent_class:
     def update_concurrent_source(self):
 
         if self.new_source is not None:
-            self.cursor.execute('''
-            UPDATE concurrent
+            self.cursor.execute(f'''
+            UPDATE {self.table_name}
             SET source = ?
             WHERE id BETWEEN ? AND ?
         ''', (self.new_source, self.min, self.max))
@@ -273,8 +256,8 @@ class concurrent_class:
         elif self.new_source == "" or self.new_source is None:
             self.source = self.get_source()
             for value in self.source.values():
-                self.cursor.execute('''
-                UPDATE concurrent
+                self.cursor.execute(f'''
+                UPDATE {self.table_name}
                 SET source = ?
                 WHERE id BETWEEN ? AND ?
             ''', (value, self.min, self.max))
@@ -301,8 +284,8 @@ class concurrent_class:
                             new_date1 = date_obj + timedelta(days=interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d')
     
-                            self.cursor.execute('''
-                            UPDATE concurrent
+                            self.cursor.execute(f'''
+                            UPDATE {self.table_name}
                             SET usage_date = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
@@ -313,8 +296,8 @@ class concurrent_class:
                     
                     else: 
                         min = min + 1
-                        self.cursor.execute('''
-                        UPDATE concurrent
+                        self.cursor.execute(f'''
+                        UPDATE {self.table_name}
                         SET usage_date = ?
                         WHERE id = ?
                     ''', (self.new_date.strftime('%Y-%m-%d'), idx))
@@ -326,7 +309,7 @@ class concurrent_class:
 
         col_idx = 0
         cols = st.columns(4)
-        self.cursor.execute('''SELECT COUNT(*) FROM concurrent''')
+        self.cursor.execute(f'''SELECT COUNT(*) FROM {self.table_name}''')
         rows = self.cursor.fetchone()[0]
         usage_date = self.get_usage_date()
         license_name = self.get_license_name()
@@ -353,13 +336,13 @@ class concurrent_class:
                 
     def concurrent_parser(self):
 
-        self.cursor.execute('''SELECT id, source FROM concurrent''',)
+        self.cursor.execute(f'''SELECT id, source FROM {self.table_name}''',)
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
         # Extract the single column from the rows and store it in self.source        
         new_source = {row[0]: row[1] for row in rows}
 
-        self.cursor.execute('''SELECT id, usage_date FROM concurrent''',)
+        self.cursor.execute(f'''SELECT id, usage_date FROM {self.table_name}''',)
         rows1 = self.cursor.fetchall()
         new_date = {row[0]: row[1] for row in rows1}
 
@@ -374,7 +357,7 @@ class concurrent_class:
 
 
     def test(self):
-        self.cursor.execute('''SELECT * FROM concurrent''')
+        self.cursor.execute(f'''SELECT * FROM {self.table_name}''')
         result = self.cursor.fetchall()
         return result
 
