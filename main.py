@@ -200,6 +200,13 @@ sidebar_bg_img = """
         flex-direction: column;
         gap: 0.5rem;
     }
+
+    /*sidebar subheader text*/
+    .st-emotion-cache-gz3mvp p {
+        word-break: break-word;
+        font-size: 20px;
+        font-weight: bold;
+    }
     
     /*for paragraph*/
     p, ol, ul, dl {
