@@ -173,8 +173,8 @@ sidebar_bg_img = """
     }
 
     /*gap between buttons*/
-    .st-emotion-cache-z0kkir {
-    width: 301px;
+   .st-emotion-cache-1kqfhsx {
+    width: 293.003px;
     position: relative;
     display: flex;
     flex: 1 1 0%;
