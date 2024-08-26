@@ -346,6 +346,7 @@ def main():
             pass
     else:
         pass
+
     if default_button:
         st.session_state.show_default = True
         
@@ -384,7 +385,9 @@ def main():
             st.session_state.previous_file_index = selected_file_index
         else:
             file_changed = False
+
     if selected_file:
+        
         # Load and parse the XML file
         if uploaded_files:
             tree = ET.parse(selected_file)
@@ -497,7 +500,8 @@ def main():
                 df = pd.DataFrame({
                     'usage_date': usg.get_usage_date(),
                     'total_sess_dur': usg.get_sess_dur(),
-                    'norm_product': usg.get_product()
+                    'norm_product': usg.get_product(),
+                    'norm_publisher': usg.get_norm_publisher()
                 })
             
                 col1, col2= st.columns((2))
@@ -517,7 +521,7 @@ def main():
                 col3, col4= st.columns([3, 1], gap="small")
 
                 with col3:
-                    containerA = st.container(border=True)
+                    containerA = st.container(border=True, height=400)
                     containerA.subheader("Sesion Duration over time")
                     datetime_strings = df['total_sess_dur']
                     decimal_hours_list = [time_to_decimal_hours(dt_str) for dt_str in datetime_strings]
@@ -532,30 +536,35 @@ def main():
                         x_label='Usage Date', 
                         y_label='Session Duration (Hours)', 
                         color='#920113', 
-                        use_container_width=True
+                        use_container_width=True,
+                        height=320
                     )
                     
                     usage_count= pd.Series(df['total_sess_dur']).astype(int)
                    
                     with col4:
-                        containerProducts = st.container(border=True)
+                        containerProducts = st.container(border=True, height=400)
                         containerProducts.subheader("Normalized Products")
-                        dfProduct = pd.DataFrame({
-                        'norm_product': df['norm_product'].unique(),
-                        })
+                        dfProduct= df[['norm_product', 'norm_publisher']].drop_duplicates()
                         containerProducts.data_editor(
                         dfProduct,
                             column_config={
                                 'norm_product': st.column_config.Column(
                                     "Product Name",
-                                    help="User **Denial Count**",
+                                    help="**Product Feature**",
                                     width = "small",
                                     disabled=True
-                                )                                
+                                ),
+                                'norm_publisher': st.column_config.Column(
+                                    "Publisher Name",
+                                    help="**Publisher**",
+                                    width = "small",
+                                    disabled=True
+                                )                                 
                             },
                             hide_index=True,
                             use_container_width=True
-                        )          
+                        )  
 
             usg.close()
             
@@ -755,7 +764,7 @@ def main():
 if __name__ == "__main__":
     DDMIcon= Image.open("DDM_Icon.ico")
     st.set_page_config(
-        page_title="[FRIDAY]SVN Demo Data Modifier",
+        page_title="[NOW]SVN Demo Data Modifier",
         layout="wide",
         page_icon=DDMIcon
         )
