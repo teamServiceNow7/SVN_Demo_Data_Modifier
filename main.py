@@ -320,6 +320,9 @@ def main():
         visibility = "collapsed"
         
     if upload_button:
+        st.session_state.show_uploader = True
+
+    if st.session_state.show_uploader is True:
         with st.sidebar.expander(f"#### UPLOAD FILES", expanded = True):
            uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"],label_visibility=visibility)
             
@@ -341,9 +344,12 @@ def main():
                 file_changed = False
         else:
             pass
-            
+    else:
+        pass
     if default_button:
-    
+        st.session_state.show_default = True
+        
+    if st.session_state.show_default:
         # Retrieve the default XML files for use
         record_id = 1
         output_file_path = 'default_denial.xml'
