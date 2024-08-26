@@ -697,7 +697,7 @@ def main():
                     df = df[(df['denial_date'] >= date1) & (df['denial_date'] <= date2)].copy()
                     
             with placeholder2:
-                col3, col4 = st.columns([2, 1], gap="small")
+                col3, col4 = st.columns([3, 1], gap="small")
                 
                 with col3:
                     container = st.container(border=True)
