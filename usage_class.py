@@ -378,7 +378,7 @@ class usage_class:
     
                             self.cursor.execute(f'''
                             UPDATE {self.table_name}
-                            SET total_idle_dur = ?
+                            SET idle_dur = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
                             
@@ -426,7 +426,7 @@ class usage_class:
     
                             self.cursor.execute(f'''
                             UPDATE {self.table_name}
-                            SET total_sess_dur = ?
+                            SET sess_dur = ?
                             WHERE id = ?
                         ''', (new_date1_str, idx))
                             
@@ -442,7 +442,7 @@ class usage_class:
                         min = min + 1
                         self.cursor.execute(f'''
                         UPDATE {self.table_name}
-                        SET total_sess_dur = ?
+                        SET sess_dur = ?
                         WHERE id = ?
                     ''', (self.total_session_dur.strftime('%Y-%m-%d %H:%M:%S'), idx))
                     
@@ -497,11 +497,11 @@ class usage_class:
         rows1 = self.cursor.fetchall()
         new_date = {row[0]: row[1] for row in rows1}
 
-        self.cursor.execute(f'''SELECT id, total_idle_dur FROM {self.table_name}''',)
+        self.cursor.execute(f'''SELECT id, idle_dur FROM {self.table_name}''',)
         rows2 = self.cursor.fetchall()
         new_idle_dur = {row[0]: row[1] for row in rows2}
 
-        self.cursor.execute(f'''SELECT id, total_sess_dur FROM {self.table_name}''',)
+        self.cursor.execute(f'''SELECT id, sess_dur FROM {self.table_name}''',)
         rows3 = self.cursor.fetchall()
         new_sess_dur = {row[0]: row[1] for row in rows3}
 
