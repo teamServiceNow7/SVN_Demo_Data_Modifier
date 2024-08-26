@@ -84,7 +84,7 @@ class usage_class:
         # Insert data into the table
         if rows == 0:
             for elem in self.root.findall('.//samp_eng_app_usage_summary'):
-                product = elem.find('norm_publisher').get('display_value')
+                product = elem.find('norm_product').get('display_value')
                 norm_publisher = elem.find('norm_publisher').get('display_value')
                 source = elem.find('source').text
                 sys_created_on = elem.find('sys_created_on').text
