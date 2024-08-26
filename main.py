@@ -292,11 +292,6 @@ def main():
     error = False
     def_file = False
     selected_file = None
-    uploaded_files = None
-    if 'show_uploader' not in st.session_state:
-        st.session_state.show_uploader = False
-    if 'show_default' not in st.session_state:
-        st.session_state.show_default = False
   
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
@@ -313,18 +308,12 @@ def main():
     # Sidebar for file selection and source update
     st.sidebar.title("ServiceNow ENGINEERING DEMO DATA MODIFIER")
     st.sidebar.divider()
-    st.sidebar.subheader("Choose file to modify")
 
-    upload_button = st.sidebar.button("Upload XML Files", use_container_width=True, type="primary")
-    default_button = st.sidebar.button("Use Default Files", use_container_width=True)
+    with st.sidebar.expander(f"#### UPLOAD FILES", expanded = True):
+           uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
     st.sidebar.divider()
 
-    if upload_button:
-        st.session_state.show_uploader = True
-
-    if st.session_state.show_uploader is True:
-        with st.sidebar.expander(f"#### UPLOAD FILES", expanded = True):
-           uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
+    if uploaded_files:
             
         if uploaded_files:
             file_names = [file.name for file in uploaded_files]
@@ -346,11 +335,9 @@ def main():
             pass
     else:
         pass
-
-    if default_button:
-        st.session_state.show_default = True
         
-    if st.session_state.show_default:
+    else:
+        def_file = True
         # Retrieve the default XML files for use
         record_id = 1
         output_file_path = 'default_denial.xml'
