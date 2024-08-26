@@ -183,7 +183,7 @@ class usage_class:
         # Extract the single column from the rows and store it in self.computer      
         self.norm_publisher = {row[0]: row[1] for row in rows}
 
-        return self.product
+        return self.norm_publisher
 
     def get_source(self):
 
