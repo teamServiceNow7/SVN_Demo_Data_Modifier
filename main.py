@@ -292,6 +292,7 @@ def main():
     error = False
     def_file = False
     selected_file = None
+    uploaded_files = None
       
     # Progress bar (if needed)
     st.image("XML_TitleHeader.png")
