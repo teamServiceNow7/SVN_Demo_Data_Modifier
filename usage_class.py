@@ -8,11 +8,10 @@ class usage_class:
 
     def __init__(self, tree,root, min, max, db_path, new_source, new_date, total_idle_dur, total_session_dur, file_changed, def_file):
 
-        # Initialize instance variables
         self.tree = tree
         self.root = root
         self.product = None
-        self.normalized_name = None
+        self.norm_publisher = None
         self.source = None
         self.created_on = None
         self.updated_on = None
@@ -29,15 +28,12 @@ class usage_class:
         self.def_file = def_file
         self.db_path = db_path
 
-        # Determine the table name based on the def_file flag
         if self.def_file is True:
             self.table_name = "default_usage"
         else:
             self.table_name = "usage_summary"
-        # Initialize the database
         self.initialize_database()
 
-    #Function to initialize database
     def initialize_database(self):
         """Initialize the database and create tables if they don't exist."""
         if not os.path.exists(self.db_path):
@@ -45,28 +41,27 @@ class usage_class:
             self.connection = sqlite3.connect(self.db_path)
             self.cursor = self.connection.cursor()
             print(f"Database '{self.db_path}' created.")
-        
+            # Create tables
+            
         else:
             # Connect to the existing database
             self.connection = sqlite3.connect(self.db_path)
             self.cursor = self.connection.cursor()
             print(f"Connected to the existing database '{self.db_path}'.")
-        # Create tables 
+            
         self.create_tables()
-        # Check if the file has changed
         if self.file_changed:
-            # If the file has changed, clear the existing table data
             self.clear_table()
         else:
-            # If the file has not changed, insert new data into the table
             self.insert_data()
-    #function to create tables in the database
+
     def create_tables(self):
         """Create tables if they do not exist."""
         self.cursor.execute(f'''
             CREATE TABLE IF NOT EXISTS {self.table_name} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 product TEXT,
+                norm_publisher TEXT,
                 source TEXT,
                 sys_created_on TEXT,
                 sys_updated_on TEXT,
@@ -77,13 +72,12 @@ class usage_class:
         ''')
         self.connection.commit()
 
-    #function to clear table in the database 
     def clear_table(self):
         self.cursor.execute(f'DROP TABLE IF EXISTS {self.table_name}')
         self.create_tables()
         self.cursor.execute(f'DELETE FROM sqlite_sequence WHERE name="{self.table_name}"')
         self.insert_data()
-    #function to insert data into the database
+        
     def insert_data(self):
         self.cursor.execute(f'SELECT COUNT(*) FROM {self.table_name}')
         rows = self.cursor.fetchone()[0]
@@ -91,6 +85,7 @@ class usage_class:
         if rows == 0:
             for elem in self.root.findall('.//samp_eng_app_usage_summary'):
                 product = elem.find('norm_product').get('display_value')
+                norm_publisher = elem.find('norm_publisher').get('display_value')
                 source = elem.find('source').text
                 sys_created_on = elem.find('sys_created_on').text
                 sys_updated_on = elem.find('sys_updated_on').text
@@ -99,12 +94,11 @@ class usage_class:
                 usage_date = elem.find('usage_date').text
 
                 self.cursor.execute(f'''
-                                    INSERT INTO {self.table_name}(product, source, sys_created_on, sys_updated_on, idle_dur, sess_dur, usage_date)
-                                    VALUES(?, ?, ?, ?, ?, ?, ?)
-                                    ''', (product, source, sys_created_on, sys_updated_on, idle_dur, sess_dur, usage_date))
+                                    INSERT INTO {self.table_name}(product, norm_publisher, source, sys_created_on, sys_updated_on, idle_dur, sess_dur, usage_date)
+                                    VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                                    ''', (product, norm_publisher, source, sys_created_on, sys_updated_on, idle_dur, sess_dur, usage_date))
         self.connection.commit()
 
-    #function to close the database connection        
     def close(self):
         """Close the database connection."""
         if self.connection:
@@ -112,54 +106,55 @@ class usage_class:
             print("Database connection closed.")
         
     #SETTERS
-    #function to set the value of product
     def set_product(self, product):
         self.product = product
-    #function to set the value of source
+
+    def set_norm_publisher(self, norm_publisher):
+        self.norm_publisher = norm_publisher
+    
     def set_source(self,source):
         self.source = source
-    #function to set the value of created_on
+    
     def set_created_on(self,created_on):
         self.created_on = created_on
-    #function to set the value of updated_on
+    
     def set_updated_on(self,updated_on):
         self.updated_on = updated_on
-    #function to set the value of idle_dur
+    
     def set_idle_dur(self,idle_dur):
         self.idle_dur = idle_dur
-    #function to set the value of sess_dur
+    
     def set_sess_dur(self, sess_dur):
         self.sess_dur = sess_dur
-    #function to set the value of usage_date
+
     def set_usage_date(self, usage_date):
         self.usage_date = usage_date
-    #function to set the value of tree
+    
     def set_tree(self,tree):
         self.tree = tree
-    #function to set the value of root
+    
     def set_root(self,root):
         self.root = root
-    #function to set the value of min
+    
     def set_min(self, min):
         self.min = min
-    #function to set the value of max
+    
     def set_max(self,max):
         self.max = max
-    #function to set the value of new_source
+    
     def set_new_source(self,new_source):
         self.new_source = new_source
-    #function to set the value of new_date
+    
     def set_new_date(self,new_date):
         self.new_date = new_date
-    #function to set the value of total idle dur
+    
     def set_total_idle_dur(self,total_idle_dur):
         self.total_idle_dur = total_idle_dur
-    #function to set the value of total session dur
+
     def set_total_session_dur(self,total_session_dur):
         self.total_session_dur = total_session_dur
     
     #GETTERS
-    #function to get the value of product from database (return dict)
     def get_product(self):
 
         self.cursor.execute(f'''
@@ -170,11 +165,26 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.product      
+        # Extract the single column from the rows and store it in self.computer      
         self.product = {row[0]: row[1] for row in rows}
 
         return self.product
-    #function to get the value of source from database (return dict)
+    
+    def get_norm_publisher(self):
+
+        self.cursor.execute(f'''
+        SELECT id, norm_publisher FROM {self.table_name}
+        WHERE id BETWEEN ? AND ?
+    ''', (self.min, self.max))
+        
+        # Fetch all rows from the executed query
+        rows = self.cursor.fetchall()
+
+        # Extract the single column from the rows and store it in self.computer      
+        self.norm_publisher = {row[0]: row[1] for row in rows}
+
+        return self.product
+
     def get_source(self):
 
         self.cursor.execute(f'''
@@ -185,11 +195,11 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.source      
+        # Extract the single column from the rows and store it in self.computer      
         self.source = {row[0]: row[1] for row in rows}
 
         return self.source 
-    #function to get the value of created_on from database (return dict)
+    
     def get_created_on(self):
         self.cursor.execute(f'''
         SELECT id, sys_created_on FROM {self.table_name}
@@ -199,10 +209,10 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.created_on      
+        # Extract the single column from the rows and store it in self.computer      
         self.created_on = {row[0]: row[1] for row in rows}
         return self.created_on 
-    #function to get the value of product from database (return dict)
+    
     def get_updated_on(self):
 
         self.cursor.execute(f'''
@@ -213,10 +223,10 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.updated_on      
+        # Extract the single column from the rows and store it in self.computer      
         self.updated_on = {row[0]: row[1] for row in rows}
         return self.updated_on
-    #function to get the value of idle_dur from database (return dict)
+    
     def get_idle_dur(self):
         self.cursor.execute(f'''
         SELECT id, idle_dur FROM {self.table_name}
@@ -226,10 +236,10 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.idle_dur      
+        # Extract the single column from the rows and store it in self.computer      
         self.idle_dur = {row[0]: row[1] for row in rows}
         return self.idle_dur
-    #function to get the value of sess_dur from database (return dict)
+    
     def get_sess_dur(self):
 
         self.cursor.execute(f'''
@@ -240,10 +250,10 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.sess_dur      
+        # Extract the single column from the rows and store it in self.computer      
         self.sess_dur = {row[0]: row[1] for row in rows}
         return self.sess_dur 
-    #function to get the value of usage_date from database (return dict)
+    
     def get_usage_date(self):
         self.cursor.execute(f'''
         SELECT id, usage_date FROM {self.table_name}
@@ -253,36 +263,34 @@ class usage_class:
         # Fetch all rows from the executed query
         rows = self.cursor.fetchall()
 
-        # Extract the single column from the rows and store it in self.usage_date      
+        # Extract the single column from the rows and store it in self.computer      
         self.usage_date = {row[0]: row[1] for row in rows}
         return self.usage_date
-    #function to get the value of tree
+    
     def get_tree(self):
         return self.tree
-    #function to get the value of root
+    
     def get_root(self):
         return self.root 
-    #function to get the value of min
+    
     def get_min(self):
         return self.min
-    #function to get the value of max
+
     def get_max(self):
         return self.max 
-    #function to get the value of new_source
+    
     def get_new_source(self):
         return self.new_source 
-    #function to get the value of new_date
+    
     def get_new_date(self):
         return self.new_date 
-    #function to get the value of total_idle_dur
+    
     def get_total_idle_dur(self):
         return self.total_idle_dur 
-    #function to get the value of total_session_dur
+
     def get_total_session_dur(self):
         return self.total_session_dur
-        
-    #UPDATE
-    #function to update source value of the database
+
     def update_usage_source(self):
 
         if self.new_source is not None:
@@ -300,7 +308,7 @@ class usage_class:
                 SET source = ?
                 WHERE id BETWEEN ? AND ?
             ''', (value, self.min, self.max))
-    #function to update usage date value of the database
+    
     def update_usage_date(self):
         error = False 
         if self.new_date is not None:
@@ -309,15 +317,10 @@ class usage_class:
             min = self.min
             
             for idx, date_str in self.usage_date.items():
-                # Iterate through each item in the denial_date dictionary
-                # `idx` is the index or ID, `date_str` is the date string associated with that index
-                if self.min <= idx <= self.max: # Check if the index is within the specified range [min, max]
-                    # Ensure that the date string is not None
+                if self.min <= idx <= self.max:
                     if date_str is not None:
                         try:
-                            # parse the date string into a date object
                             date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
-                            # Calculate the difference between the new date and the parsed date
                             new_date_obj = self.new_date - date_obj
                             
                             if idx == min:
@@ -327,7 +330,7 @@ class usage_class:
                                 # Adjust the date by adding the interval days to the original date
                             new_date1 = date_obj + timedelta(days=interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d')
-                            # Update the database record with the new adjusted date
+    
                             self.cursor.execute(f'''
                             UPDATE {self.table_name}
                             SET usage_date = ?
@@ -335,12 +338,10 @@ class usage_class:
                         ''', (new_date1_str, idx))
                             
                         except ValueError as e:
-                            # Handle errors if date parsing fails
                             st.error(f"Error parsing date at index {idx}: time data '01-01-2024' does not match format YYYY-MM-DD")
                             error = True
                     
                     else: 
-                        # If the date string is None, update the record with the new date
                         min = min + 1
                         self.cursor.execute(f'''
                         UPDATE {self.table_name}
@@ -350,7 +351,7 @@ class usage_class:
                     
             self.connection.commit()
         return error
-    #function to update usage idle dur value of the database
+    
     def update_usage_idle_dur(self):
 
         error = False 
@@ -360,15 +361,11 @@ class usage_class:
             min = self.min
             
             for idx, date_str in self.idle_dur.items():
-                # Iterate through each item in the denial_date dictionary
-                # `idx` is the index or ID, `date_str` is the date string associated with that index
-                if self.min <= idx <= self.max: # Check if the index is within the specified range [min, max]
-                    # Ensure that the date string is not None
+                if self.min <= idx <= self.max:
                     if date_str is not None:
                         try:
-                            # parse the date string into a date object
                             date_obj = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
-                            # Calculate the difference between the new date and the parsed date
+
                             new_date_obj = self.total_idle_dur - date_obj
                             
                             if idx == min:
@@ -378,7 +375,7 @@ class usage_class:
                                 # Adjust the date by adding the interval days to the original date
                             new_date1 = date_obj + timedelta(minutes = interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d %H:%M:%S')
-                            # Update the database record with the new adjusted date
+    
                             self.cursor.execute(f'''
                             UPDATE {self.table_name}
                             SET total_idle_dur = ?
@@ -394,7 +391,6 @@ class usage_class:
                             error = True
                     
                     else: 
-                        # If the date string is None, update the record with the new date
                         min = min + 1
                         self.cursor.execute(f'''
                         UPDATE {self.table_name}
@@ -404,7 +400,7 @@ class usage_class:
                     
             self.connection.commit()
         return error
-    #function to update usage sess dur value of the database
+    
     def update_usage_sess_dur(self):
         error = False 
         if self.total_session_dur is not None:
@@ -413,15 +409,11 @@ class usage_class:
             min = self.min
             
             for idx, date_str in self.sess_dur.items():
-                # Iterate through each item in the denial_date dictionary
-                # `idx` is the index or ID, `date_str` is the date string associated with that index
-                if self.min <= idx <= self.max: # Check if the index is within the specified range [min, max]
-                    # Ensure that the date string is not None
+                if self.min <= idx <= self.max:
                     if date_str is not None:
                         try:
-                            # parse the date string into a date object
                             date_obj = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
-                            # Calculate the difference between the new date and the parsed date
+
                             new_date_obj = self.total_session_dur - date_obj
                             
                             if idx == min:
@@ -431,7 +423,7 @@ class usage_class:
                                 # Adjust the date by adding the interval days to the original date
                             new_date1 = date_obj + timedelta(minutes = interval_days)
                             new_date1_str = new_date1.strftime('%Y-%m-%d %H:%M:%S')
-                            # Update the database record with the new adjusted date
+    
                             self.cursor.execute(f'''
                             UPDATE {self.table_name}
                             SET total_sess_dur = ?
@@ -447,7 +439,6 @@ class usage_class:
                             error = True
                     
                     else: 
-                        # If the date string is None, update the record with the new date
                         min = min + 1
                         self.cursor.execute(f'''
                         UPDATE {self.table_name}
@@ -457,14 +448,14 @@ class usage_class:
                     
             self.connection.commit()
         return error
-    #function to display the usage data
+
     def disp_usage(self):
 
         col_idx = 0
         cols = st.columns(4)
         self.cursor.execute(f'''SELECT COUNT(*) FROM {self.table_name}''')
         rows = self.cursor.fetchone()[0]
-        #getting the values from the database
+
         product = self.get_product()
         source = self.get_source()
         sys_created_on = self.get_created_on()
@@ -472,7 +463,7 @@ class usage_class:
         idle_dur = self.get_idle_dur()
         sess_dur = self.get_sess_dur()
         usage_date = self.get_usage_date()
-        #iterating the values to display it to the UI
+    
         for idx in range(0,rows):
             
             display_idx = idx + 1
@@ -491,7 +482,7 @@ class usage_class:
                     """)
 
                 col_idx += 1
-    #function to parse the usage file into xml file
+
     def usage_parser(self):
 
         self.cursor.execute(f'''SELECT id, source FROM {self.table_name}''',)
@@ -525,7 +516,7 @@ class usage_class:
             sess_dur.text = new_sess_dur[idx]
     
         return self.tree
-    #to test if it is updating in the database
+        
     def test(self):
         self.cursor.execute('''SELECT * FROM usage_summary''')
         result = self.cursor.fetchall()
