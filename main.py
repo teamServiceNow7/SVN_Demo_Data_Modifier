@@ -284,6 +284,7 @@ def main():
 
     file_changed = False
     error = False
+    visibility = None
     def_file = False
     selected_file = None
     uploaded_files = None
@@ -314,11 +315,16 @@ def main():
     st.sidebar.divider()
 
     if upload_button:
+        visibility = "visible"
+    else:
+        visibility = "collapsed"
+        
+    if upload_button:
         st.session_state.show_uploader = True
 
     if st.session_state.show_uploader is True:
         with st.sidebar.expander(f"#### UPLOAD FILES", expanded = True):
-           uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"])
+           uploaded_files = st.file_uploader("Choose XML files", accept_multiple_files=True, type=["xml"],label_visibility=visibility)
             
         if uploaded_files:
             file_names = [file.name for file in uploaded_files]
