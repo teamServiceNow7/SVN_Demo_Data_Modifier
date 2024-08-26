@@ -190,7 +190,7 @@ sidebar_bg_img = """
 
     div[data-testid="stMetricValue"] > div {
         color: #920113;
-        font-size: 60px
+        font-size: 50px
     }
 
     /*expander margin*/
