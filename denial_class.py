@@ -333,7 +333,7 @@ class denial_class:
             WHERE id BETWEEN ? AND ?
             ''', (self.new_source, self.min, self.max))
             self.connection.commit()
-        elif self.new_source == "" or self.new_source is None:
+        else:
             source_values = self.get_source(self.min)
             self.cursor.execute(f'''
             UPDATE {self.table_name}
