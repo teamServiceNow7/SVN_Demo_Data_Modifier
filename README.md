@@ -9,7 +9,7 @@ duration. Additionally, it formats the data in the XML file in a more comprehens
 making it accessible to non-technical users. The primary goal is to enhance the efficiency 
 of modifying demo data for users of all technical backgrounds </p>
 
-Developed by: 
+ <b> Developed by: </b>
 * Mark Anthony O. Berin (mark.berin@openit.com)
 * John Mikhail M. Buloan (miks.buloan@openit.com)
 * Vince Rodney B. Durante (vince.durante@openit.com)
