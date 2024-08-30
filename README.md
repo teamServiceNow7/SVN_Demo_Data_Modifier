@@ -1,3 +1,4 @@
+<img src="https://github.com/teamServiceNow7/SVN_Demo_Data_Modifier/blob/main/DDMLogo.png">
 # ServiceNow Engineering Demo Data Modifier 
 
 <p> The ServiceNow Engineering Demo Data Modifier was developed to facilitate the 
