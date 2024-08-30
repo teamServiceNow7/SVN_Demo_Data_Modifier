@@ -1,6 +1,6 @@
-<img src="https://github.com/teamServiceNow7/SVN_Demo_Data_Modifier/blob/main/DDMLogo.png">
-# ServiceNow Engineering Demo Data Modifier 
 
+# ServiceNow Engineering Demo Data Modifier 
+<img src="https://github.com/teamServiceNow7/SVN_Demo_Data_Modifier/blob/main/DDMLogo.png">
 <p> The ServiceNow Engineering Demo Data Modifier was developed to facilitate the 
 modification of demo data for presentation on the ServiceNow platform, which requires 
 data uploads in XML (Extensible Markup Language) format. This application allows users to 
