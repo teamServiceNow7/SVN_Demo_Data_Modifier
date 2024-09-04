@@ -209,8 +209,8 @@ sidebar_bg_img = """
     }
 
     
-    div[data-testid="stExpander"] div[role="button"] p {
-    font-size: 2rem;
+    div[data-testid="stExpander"] details summary p{
+        font-size: 4rem;
     }
     
     /*for paragraph*/
