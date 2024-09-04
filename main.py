@@ -85,12 +85,6 @@ sidebar_bg_img = """
     font-size: 20px;   
     }
 
-    /*side bar subhead*/
-    .st-emotion-cache-1fnth58 {
-    font-weight: bold;
-    font-size: 20px;   
-    }
-    
     h4{
     color: #920113;
     }
