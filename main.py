@@ -201,7 +201,7 @@ sidebar_bg_img = """
     }
 
     /*sidebar subheader text*/
-    .st-emotion-cache-gz3mvp p {
+    .st-emotion-cache-1qy8wcg p {
         word-break: break-word;
         font-size: 20px;
         font-weight: bold;
