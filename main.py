@@ -185,6 +185,7 @@ sidebar_bg_img = """
     font-size: 20px;
     font-weight: bold;
     }   
+
     
     .st-emotion-cache-1ag92y2{
     background-color: #E6EDF1; 
@@ -205,6 +206,11 @@ sidebar_bg_img = """
         word-break: break-word;
         font-size: 20px;
         font-weight: bold;
+    }
+
+    
+    div[data-testid="stExpander"] div[role="button"] p {
+    font-size: 2rem;
     }
     
     /*for paragraph*/
